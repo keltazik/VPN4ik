@@ -1,0 +1,14 @@
+﻿<Window x:Class="VPNyan.HistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Connection History" Height="400" Width="600"
+        WindowStartupLocation="CenterOwner"
+        Background="#0B1230">
+	<Grid>
+		<TextBlock Text="Connection History (placeholder)"
+                   Foreground="#FFD27A"
+                   FontSize="24"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+	</Grid>
+</Window>

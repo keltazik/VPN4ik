@@ -1,0 +1,99 @@
+using System.IO;
+using System.Text.Json;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using Size = System.Windows.Size;
+
+namespace VPNyan;
+
+internal static class DiagnosticsRunner
+{
+    internal static async Task<int> RunLatencyAsync(string source, string resultPath, bool refresh)
+    {
+        var rows = new Dictionary<string, object>();
+        var diagnostics = new List<string>();
+        var result = new Dictionary<string, object?>();
+        var routeBefore = XraySession.HasTunRoute();
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        try
+        {
+            var subscriptions = SubscriptionStore.Load(source);
+            if (refresh)
+            {
+                using var client = new SubscriptionClient();
+                for (var i = 0; i < subscriptions.Count; i++)
+                    if (subscriptions[i].Url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                        subscriptions[i] = await client.DownloadAsync(subscriptions[i].Url);
+                SubscriptionStore.Save(source, subscriptions);
+            }
+            var profiles = subscriptions.SelectMany(s => s.Profiles).ToArray();
+            var redactors = profiles.Select(p => new SecretRedactor(p.Configuration)).ToArray();
+            using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            await ServerLatency.MeasureAsync(profiles.Select((p, i) => (i.ToString(), p)).ToArray(), row =>
+            {
+                lock (rows)
+                {
+                    var name = profiles[int.Parse(row.Key)].Name;
+                    rows[row.Key] = new { Server = name, row.Milliseconds, row.Measured, Kind = row.Kind.ToString(), row.Detail, ArrivedMs = clock.ElapsedMilliseconds };
+                }
+            }, deadline.Token, text =>
+            {
+                foreach (var redactor in redactors) text = redactor.Clean(text);
+                lock (diagnostics) { if (diagnostics.Count < 20) diagnostics.Add(text); }
+            });
+        }
+        catch (Exception ex) { result["Error"] = SecretRedactor.Generic(ex.Message); }
+        result["ElapsedMs"] = clock.ElapsedMilliseconds;
+        result["Rows"] = rows.Values.ToArray();
+        result["RouteUnchanged"] = routeBefore == XraySession.HasTunRoute();
+        result["Diagnostics"] = diagnostics;
+        File.WriteAllText(resultPath, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+        return rows.Count > 0 && (bool)result["RouteUnchanged"]! ? 0 : 1;
+    }
+
+    // Explicit local verification command. It uses isolated settings/history and a protected
+    // subscription snapshot; no permanent profile or startup setting is changed.
+    internal static async Task<int> RunUiAsync(string source, string resultPath, string nameFilter)
+    {
+        var result = new Dictionary<string, object?>();
+        MainWindow? window = null;
+        var directory = Path.Combine(Path.GetDirectoryName(resultPath)!, "ui-check-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Directory.CreateDirectory(directory);
+            var subscriptions = SubscriptionStore.Load(source);
+            var profile = subscriptions.SelectMany(s => s.Profiles).First(p => p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase));
+            SubscriptionStore.Save(Path.Combine(directory, "subscriptions.dpapi"), subscriptions);
+            var serverKey = "subscription:" + Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(subscriptions.First(s => s.Profiles.Contains(profile)).Url))) + ":" + profile.Id;
+            new AppSettings { StoragePath = Path.Combine(directory, "settings.json"), LastServer = serverKey, ShowNotifications = false, MinimizeToTray = false }.SaveOrThrow();
+            window = new MainWindow(true, directory);
+            window.Show();
+            window.Hide();
+            await window.Connect();
+            var status = ((TextBlock)window.FindName("StatusText")).Text;
+            result["Status"] = status;
+            result["Verified"] = status == "Подключено" && XraySession.HasTunRoute();
+            var root = (FrameworkElement)window.Content;
+            root.Measure(new Size(1040, 740)); root.Arrange(new Rect(0, 0, 1040, 740)); root.UpdateLayout();
+            var bitmap = new RenderTargetBitmap(1040, 740, 96, 96, PixelFormats.Pbgra32); bitmap.Render(root);
+            var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            using (var stream = File.Create(Path.ChangeExtension(resultPath, ".png"))) encoder.Save(stream);
+            await window.Disconnect();
+            result["StatusAfterDisconnect"] = ((TextBlock)window.FindName("StatusText")).Text;
+            result["RouteAfterDisconnect"] = XraySession.HasTunRoute();
+            var activity = new ActivityStore(directory);
+            var record = activity.History.FirstOrDefault();
+            result["HistoryRecordedRealSession"] = record?.ConnectedAt != null && record.EndedAt != null && record.Result == "Отключено";
+            result["LogsRecorded"] = activity.Logs.Count;
+        }
+        catch (Exception ex) { result["Verified"] = false; result["Error"] = SecretRedactor.Generic(ex.Message); }
+        finally
+        {
+            if (window != null) { await window.Disconnect(); window.Close(); }
+            File.WriteAllText(resultPath, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+        }
+        return result.TryGetValue("Verified", out var verified) && verified is true ? 0 : 1;
+    }
+}
