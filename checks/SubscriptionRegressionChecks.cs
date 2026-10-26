@@ -2,6 +2,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Text;
+using System.Windows.Controls;
 using VPNyan;
 
 internal static class SubscriptionRegressionChecks
@@ -42,6 +43,33 @@ internal static class SubscriptionRegressionChecks
         require(SubscriptionParser.Parse("\uFEFF[" + Notice + "," + Server + "]").Count == 1,
             "A UTF-8 BOM is accepted before a mixed JSON subscription");
 
+        foreach (var control in new[] { "incy://routing/onadd/eyJydWxlcyI6W119", "incy://routing/off", "incy://autorouting/add/https://example.test/routing.json",
+            "happ://routing/add/eyJydWxlcyI6W119", "://onadd/https://example.test/routing.json", "INCY://ROUTING/add?data=eyJydWxlcyI6W119" })
+        {
+            foreach (var mixed in new[] { Link + "\n" + control, control + "\r\n" + Link, Convert.ToBase64String(Encoding.UTF8.GetBytes(Link + "\n" + control)) })
+            {
+                var parsed = SubscriptionParser.ParseDocument(mixed);
+                require(parsed.Profiles.Count == 1 && parsed.Profiles[0].Configuration == Link && parsed.IgnoredRoutingLines == 1,
+                    "Mixed subscriptions preserve a real server while recognizing client routing metadata");
+            }
+        }
+        Reject(() => SubscriptionParser.Parse("incy://routing/onadd/eyJydWxlcyI6W119"), require, "Routing metadata alone never becomes a VPN server or an empty successful import");
+        Reject(() => SubscriptionParser.Parse(Link + "\nincy://crypt1/unsupported"), require, "Unimplemented INCY imports cannot be silently discarded as routing");
+        Reject(() => SubscriptionParser.Parse(Link + "\nhttp://routing/onadd/abc"), require, "Unrelated schemes are not mistaken for routing control lines");
+        Reject(() => SubscriptionParser.Parse("incy://routing/off\nvless://user@vpn.example.test:0"), require, "Recognizing metadata does not hide invalid real server configurations");
+
+        var mixedRequests = 0;
+        using (var client = new SubscriptionClient(new Handler(_ =>
+        {
+            mixedRequests++;
+            return new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(Convert.ToBase64String(Encoding.UTF8.GetBytes(Link + "\nincy://autorouting/onadd/https://example.test/never-fetch"))) };
+        })))
+        {
+            var result = await client.DownloadAsync("https://example.test/mixed");
+            require(result.Profiles.Count == 1 && result.IgnoredRoutingLines == 1 && mixedRequests == 1,
+                "Downloading a mixed base64 subscription records metadata without fetching its external routing URL");
+        }
+
         using (var client = new SubscriptionClient(new Handler(_ => new HttpResponseMessage(HttpStatusCode.OK)
         { Content = new StringContent($"[{Notice},{Server}]") })))
         {
@@ -73,6 +101,24 @@ internal static class SubscriptionRegressionChecks
         using (var client = new SubscriptionClient(new Handler(_ => new HttpResponseMessage(HttpStatusCode.Forbidden))))
             await RejectAsync(() => client.DownloadAsync("https://example.test/subscription"), require,
                 "Provider HTTP errors remain visible");
+    }
+
+    internal static void CheckMixedUi(string fixtures, Action<bool, string> require)
+    {
+        var directory = Path.Combine(fixtures, "mixed-subscription-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(directory);
+        var settingsPath = Path.Combine(directory, "settings.json");
+        new AppSettings { StoragePath = settingsPath, SplitTunnelEnabled = true, SplitDomains = new() { "example.test" } }.SaveOrThrow();
+        var parsed = SubscriptionParser.ParseDocument(Link + "\nincy://routing/onadd/https://example.test/untrusted-settings");
+        var window = new MainWindow(false, directory);
+        window.ApplySubscription(new Subscription { Url = "https://example.test/mixed", Profiles = parsed.Profiles, IgnoredRoutingLines = parsed.IgnoredRoutingLines });
+        require(((ListBox)window.FindName("ServerSelect")).Items.Count == 1 && ((TextBlock)window.FindName("SubscriptionStatusText")).Text.Contains("пропущена"),
+            "Mixed subscription displays its real server and a clear notice about unapplied provider routing");
+        require(SubscriptionStore.Load(Path.Combine(directory, "subscriptions.dpapi")).Single().IgnoredRoutingLines == 1,
+            "Protected source storage preserves the ignored-routing notice through subscription copying");
+        var settings = AppSettings.LoadFromPath(settingsPath);
+        require(settings.SplitTunnelEnabled && settings.SplitDomains.SequenceEqual(new[] { "example.test" }),
+            "Provider routing metadata never changes user split-tunnel settings");
+        window.Close();
     }
 
     private static void Reject(Action action, Action<bool, string> require, string name)

@@ -86,6 +86,7 @@ internal static class Program
             CheckSections(window, fixtures);
             ManagementChecks.Run(fixtures, Require);
             UpdateChecks.Run(fixtures, Require);
+            SubscriptionRegressionChecks.CheckMixedUi(fixtures, Require);
             var wasClosed = false;
             window.Closed += (_, _) => wasClosed = true;
             window.Close();

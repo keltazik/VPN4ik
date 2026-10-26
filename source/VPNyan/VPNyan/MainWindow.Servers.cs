@@ -25,7 +25,7 @@ public partial class MainWindow
 
     private static Subscription CopySubscription(Subscription source, IEnumerable<SubscriptionProfile>? profiles = null) => new()
     {
-        Url = source.Url, DisplayName = source.DisplayName, UpdatedAt = source.UpdatedAt,
+        Url = source.Url, DisplayName = source.DisplayName, UpdatedAt = source.UpdatedAt, IgnoredRoutingLines = source.IgnoredRoutingLines,
         DeletedProfileIds = new(source.DeletedProfileIds), Profiles = (profiles ?? source.Profiles).ToList()
     };
 
@@ -38,7 +38,7 @@ public partial class MainWindow
         foreach (var source in subscriptions)
             importedSources.Add(new(source.Url, SourceName(source),
                 (source.Url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ? "Подписка" : "Файл конфигурации") +
-                $" · {source.Profiles.Count} серверов", source.Url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)));
+                $" · {source.Profiles.Count} серверов" + (source.IgnoredRoutingLines > 0 ? " · маршрутизация VPN4ik" : ""), source.Url.StartsWith("https://", StringComparison.OrdinalIgnoreCase)));
         foreach (var server in servers.Where(server => server.Protocol == "WireGuard"))
             importedSources.Add(new(server.SelectionKey, Path.GetFileName(server.ConfigPath), "Файл WireGuard", false, server.ConfigPath));
         ImportedSourcesEmpty.Visibility = importedSources.Count == 0 ? Visibility.Visible : Visibility.Collapsed;

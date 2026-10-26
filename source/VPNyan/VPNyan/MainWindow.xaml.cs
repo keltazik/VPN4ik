@@ -302,7 +302,8 @@ namespace VPNyan
                 else
                 {
                     var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(Path.GetFullPath(dialog.FileName))));
-                    ApplySubscription(new Subscription { Url = "local:" + hash, DisplayName = Path.GetFileName(dialog.FileName), UpdatedAt = DateTime.UtcNow, Profiles = SubscriptionParser.Parse(File.ReadAllText(dialog.FileName)) });
+                    var parsed = SubscriptionParser.ParseDocument(File.ReadAllText(dialog.FileName));
+                    ApplySubscription(new Subscription { Url = "local:" + hash, DisplayName = Path.GetFileName(dialog.FileName), UpdatedAt = DateTime.UtcNow, Profiles = parsed.Profiles, IgnoredRoutingLines = parsed.IgnoredRoutingLines });
                 }
                 UpdateServerControls();
                 activity.Add("Информация", "Конфигурация импортирована из файла.");
@@ -396,6 +397,13 @@ namespace VPNyan
             ReplaceSubscriptionRows(next, selected);
             if (ServerSelect.SelectedItem != null) ServerSelect.ScrollIntoView(ServerSelect.SelectedItem);
             SubscriptionStatusText.Text = $"Серверов в подписке: {subscription.Profiles.Count} · обновлено {subscription.UpdatedAt.ToLocalTime():HH:mm}";
+            if (subscription.IgnoredRoutingLines > 0)
+            {
+                const string routingNotice = "Серверы добавлены. Служебная маршрутизация провайдера пропущена; используются настройки VPN4ik.";
+                SubscriptionStatusText.Text += "\n" + routingNotice;
+                ShowNotice(routingNotice);
+                activity.Add("Информация", routingNotice);
+            }
             UpdateServerControls();
         }
 

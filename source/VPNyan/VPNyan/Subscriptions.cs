@@ -21,10 +21,13 @@ public sealed class Subscription
 {
     public string DisplayName { get; set; } = "";
     public List<string> DeletedProfileIds { get; set; } = new();
+    public int IgnoredRoutingLines { get; set; }
     public string Url { get; set; } = "";
     public DateTime UpdatedAt { get; set; }
     public List<SubscriptionProfile> Profiles { get; set; } = new();
 }
+
+internal sealed record ParsedSubscription(List<SubscriptionProfile> Profiles, int IgnoredRoutingLines);
 
 internal static class SubscriptionParser
 {
@@ -46,7 +49,9 @@ internal static class SubscriptionParser
         return uri;
     }
 
-    internal static List<SubscriptionProfile> Parse(string body)
+    internal static List<SubscriptionProfile> Parse(string body) => ParseDocument(body).Profiles;
+
+    internal static ParsedSubscription ParseDocument(string body)
     {
         if (Encoding.UTF8.GetByteCount(body) > MaxBytes)
             throw new InvalidDataException("Подписка слишком большая (максимум 4 МБ).");
@@ -58,6 +63,7 @@ internal static class SubscriptionParser
             catch (FormatException) { throw new InvalidDataException("Не удалось распознать формат подписки."); }
         }
         var profiles = new List<SubscriptionProfile>();
+        var ignoredRouting = 0;
         try
         {
             if (body.StartsWith('[') || body.StartsWith('{'))
@@ -75,6 +81,12 @@ internal static class SubscriptionParser
                 foreach (var line in body.Split('\n', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
                 {
                     if (line.StartsWith('#')) continue;
+                    // These deep links configure another client's routing, not a VPN server.
+                    // Recognize only documented control prefixes; never fetch or execute their payload.
+                    if (System.Text.RegularExpressions.Regex.IsMatch(line,
+                        @"^(?:(?:incy|happ))?://(?:routing|autorouting|onadd)(?:[/?]|$)",
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant))
+                    { ignoredRouting++; continue; }
                     profiles.Add(ParseLink(line));
                 }
             }
@@ -83,9 +95,11 @@ internal static class SubscriptionParser
         catch (Exception ex) when (ex is FormatException or InvalidOperationException or KeyNotFoundException or OverflowException)
         { throw new InvalidDataException("В подписке некорректная конфигурация сервера."); }
         if (profiles.Count == 0)
-            throw new InvalidDataException("В подписке нет поддерживаемых прокси-серверов. Если провайдер вернул служебный профиль, проверь срок подписки и ссылку для Xray/V2Ray.");
+            throw new InvalidDataException(ignoredRouting > 0
+                ? "В подписке есть только служебные настройки маршрутизации. Ссылок на VPN-серверы нет; прежние серверы сохранены."
+                : "В подписке нет поддерживаемых прокси-серверов. Если провайдер вернул служебный профиль, проверь срок подписки и ссылку для Xray/V2Ray.");
         if (profiles.Count > 1000) throw new InvalidDataException("В подписке больше 1000 серверов.");
-        return profiles.DistinctBy(p => p.Id).ToList();
+        return new(profiles.DistinctBy(p => p.Id).ToList(), ignoredRouting);
     }
 
     private static SubscriptionProfile? ParseConfig(JsonElement config)
@@ -218,8 +232,9 @@ internal sealed class SubscriptionClient : IDisposable
                     throw new InvalidDataException("Подписка слишком большая (максимум 4 МБ).");
                 buffer.Write(chunk, 0, read);
             }
+            var parsed = SubscriptionParser.ParseDocument(Encoding.UTF8.GetString(buffer.ToArray()));
             return new Subscription { Url = source.AbsoluteUri, UpdatedAt = DateTime.UtcNow,
-                Profiles = SubscriptionParser.Parse(Encoding.UTF8.GetString(buffer.ToArray())) };
+                Profiles = parsed.Profiles, IgnoredRoutingLines = parsed.IgnoredRoutingLines };
         }
         throw new InvalidDataException("Не удалось загрузить подписку.");
     }
