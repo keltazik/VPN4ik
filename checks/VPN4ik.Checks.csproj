@@ -8,6 +8,7 @@
     <AssemblyName>VPN4ik.Checks</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Subscriptions/**/*.cs" />
     <ProjectReference Include="../source/VPNyan/VPNyan/VPNyan.csproj" />
   </ItemGroup>
 </Project>

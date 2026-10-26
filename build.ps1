@@ -16,6 +16,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Restore failed.' }
     dotnet publish source\VPNyan\VPNyan\VPNyan.csproj -c Release -r win-x64 --self-contained true --no-restore -o $OutputDirectory --verbosity quiet
     if ($LASTEXITCODE -ne 0) { throw 'Publish failed.' }
+    & (Join-Path $vpnProjectRoot 'scripts\verify-runtime.ps1') -BuildDirectory $OutputDirectory
     Write-Output "Ready: $OutputDirectory\VPNyan.exe (copy the entire output folder)."
 }
 finally {

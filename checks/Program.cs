@@ -45,6 +45,7 @@ internal static class Program
             Require(server.PingDisplay == "42 ms" && !server.LatencyViaVpn && server.PingDetail.Contains("TCP"), "TCP ping displays milliseconds without claiming VPN verification");
             CheckPingPolicy();
             CheckSubscriptions(fixtures);
+            SubscriptionRegressionChecks.RunAsync(Require).GetAwaiter().GetResult();
             CheckEngineConfiguration();
             CheckRoutingAndTraffic();
             CheckActivity(fixtures);
