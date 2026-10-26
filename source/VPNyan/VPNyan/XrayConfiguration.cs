@@ -39,6 +39,12 @@ internal static class XrayConfiguration
         // Only protocol data is admitted. Provider scripts, file paths, listeners and arbitrary
         // top-level features are never executed in the elevated engine process.
         outbound = SanitizeOutbound(outbound);
+        if (!string.IsNullOrWhiteSpace(request.UpstreamInterface) && request.UpstreamInterface != "auto")
+        {
+            var stream = outbound["streamSettings"]!.AsObject();
+            var socket = stream["sockopt"] as JsonObject ?? new JsonObject();
+            socket["interface"] = request.UpstreamInterface; stream["sockopt"] = socket.DeepClone();
+        }
         if (!string.IsNullOrEmpty(request.EndpointAddress))
         {
             if (!IPAddress.TryParse(request.EndpointAddress, out _)) throw new InvalidDataException("Не разрешён адрес сервера.");
@@ -187,7 +193,9 @@ internal static class XrayConfiguration
             var tls = stream["tlsSettings"] as JsonObject;
             if (tls?["allowInsecure"]?.GetValue<bool>() == true)
                 throw new InvalidDataException("Профиль отключает проверку сертификата TLS. Нужна безопасная конфигурация сервера.");
-            cleanStream["tlsSettings"] = Copy(tls, "serverName", "alpn", "fingerprint", "verifyPeerCertByName", "pinnedPeerCertSha256", "disableSystemRoot", "enableSessionResumption");
+            var tlsSettings = Copy(tls, "serverName", "alpn", "fingerprint", "verifyPeerCertByName", "pinnedPeerCertSha256", "disableSystemRoot", "enableSessionResumption");
+            if (string.IsNullOrWhiteSpace(tlsSettings["serverName"]?.GetValue<string>()) && Uri.CheckHostName(address) == UriHostNameType.Dns) tlsSettings["serverName"] = address;
+            cleanStream["tlsSettings"] = tlsSettings;
         }
         if (protocol == "hysteria")
         {
@@ -205,10 +213,26 @@ internal static class XrayConfiguration
                         "maxStreamReceiveWindow", "initStreamReceiveWindow", "maxConnectionReceiveWindow", "initConnectionReceiveWindow", "up", "down") };
             }
         }
-        if (security == "reality") cleanStream["realitySettings"] = Copy(stream["realitySettings"] as JsonObject,
-            "serverName", "fingerprint", "publicKey", "password", "shortId", "spiderX", "mldsa65Verify");
+        if (security == "reality")
+        {
+            var reality = Copy(stream["realitySettings"] as JsonObject, "serverName", "fingerprint", "publicKey", "password", "shortId", "spiderX", "mldsa65Verify");
+            if (string.IsNullOrWhiteSpace(reality["serverName"]?.GetValue<string>()) && Uri.CheckHostName(address) == UriHostNameType.Dns) reality["serverName"] = address;
+            cleanStream["realitySettings"] = reality;
+        }
         if (network == "grpc") cleanStream["grpcSettings"] = Copy(stream["grpcSettings"] as JsonObject,
-            "serviceName", "authority", "multiMode", "idle_timeout", "health_check_timeout", "permit_without_stream", "initial_windows_size");
+            "serviceName", "authority", "multiMode", "user_agent", "idle_timeout", "health_check_timeout", "permit_without_stream", "initial_windows_size");
+        if (stream["sockopt"] is JsonObject sourceSocket)
+        {
+            var socket = new JsonObject();
+            foreach (var key in new[] { "tcpKeepAliveIdle", "tcpKeepAliveInterval", "tcpUserTimeout" })
+                if (sourceSocket[key] != null)
+                {
+                    if (sourceSocket[key] is not JsonValue value || !value.TryGetValue<int>(out var number) || number < -1 || number > (key == "tcpUserTimeout" ? 600000 : 86400))
+                        throw new InvalidDataException("Некорректные параметры поддержания TCP-соединения.");
+                    socket[key] = number;
+                }
+            if (socket.Count > 0) cleanStream["sockopt"] = socket;
+        }
         if (network is "ws" or "httpupgrade")
         {
             var key = network == "ws" ? "wsSettings" : "httpupgradeSettings";

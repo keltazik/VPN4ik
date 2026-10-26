@@ -43,7 +43,7 @@ internal sealed class XraySession : IVpnSession
         var addresses = await Dns.GetHostAddressesAsync(profile.Address, cancellationToken);
         request.EndpointAddress = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)?.ToString() ?? addresses.FirstOrDefault()?.ToString()
             ?? throw new IOException("Не найден сетевой адрес сервера.");
-        if (enableTun) request.UpstreamInterface = SelectUpstreamInterface();
+        request.UpstreamInterface = SelectUpstreamInterface();
         _ = XrayConfiguration.Build(request); // Reject unsupported/unsafe profiles before asking for UAC.
         await StartHostAsync(request, elevate, cancellationToken);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -54,26 +54,28 @@ internal sealed class XraySession : IVpnSession
             try
             {
                 VerificationStage = "Ожидание маршрута TUN";
-                if (enableTun && !HasTunRoute()) { await Task.Delay(400, timeout.Token); continue; }
+                if (enableTun && !HasTunRoute()) { await Task.Delay(150, timeout.Token); continue; }
                 VerificationStage = "Проверка выбранного сервера";
-                var ip = await ProbeAsync(timeout.Token);
+                var proxyCheck = ProbeAsync(timeout.Token);
+                string ip;
+                if (enableTun && !request.Routing.SplitTunnelEnabled)
+                {
+                    VerificationStage = "Проверка сервера и системного маршрута";
+                    var checks = await Task.WhenAll(proxyCheck, ProbeAsync(timeout.Token, useProxy: false));
+                    ip = checks[0];
+                    // Different exit IPs are possible. The direct probe validates the actual TUN route per socket.
+                }
+                else ip = await proxyCheck;
                 if (enableTun)
                 {
                     VerificationStage = "Проверка системного маршрута";
-                    // Include mode intentionally keeps this application's ordinary requests direct.
-                    // The authenticated probe always uses proxy; the TUN route is verified separately.
-                    if (!request.Routing.SplitTunnelEnabled)
-                    {
-                        var systemIp = await ProbeAsync(timeout.Token, useProxy: false);
-                        if (systemIp != ip) throw new HttpRequestException("Маршрут VPN не подтверждён.");
-                    }
                     if (!HasTunRoute()) throw new HttpRequestException("Маршрут VPN не подтверждён.");
                 }
                 if (!IsRunning) throw new IOException("VPN-движок остановился.");
                 return ip;
             }
             catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException && !timeout.IsCancellationRequested)
-            { Log?.Invoke("Проверка соединения: " + ex.GetType().Name + " · " + ex.Message); await Task.Delay(500, timeout.Token); }
+            { Log?.Invoke("Проверка соединения: " + ex.GetType().Name + " · " + ex.Message); await Task.Delay(250, timeout.Token); }
         }
         throw new TimeoutException("Не удалось подтвердить доступ через VPN. Проверь сервер или выбери другой.");
     }
@@ -142,47 +144,67 @@ internal sealed class XraySession : IVpnSession
         }
     }
 
-    public async Task<string> ProbeAsync(CancellationToken cancellationToken, bool useProxy = true)
+    private ConnectionProbe? proxyProbe, systemProbe;
+    private HttpClient? metricsClient;
+    public Task<string> ProbeAsync(CancellationToken cancellationToken, bool useProxy = true)
     {
         if (request == null) throw new InvalidOperationException();
-        using var handler = new SocketsHttpHandler { UseProxy = useProxy, ConnectTimeout = TimeSpan.FromSeconds(8),
-            Proxy = useProxy ? new WebProxy($"socks5://127.0.0.1:{request.ProbePort}") { Credentials = new NetworkCredential(request.ProbeUser, request.ProbePassword) } : null };
-        using var client = new HttpClient(handler) { Timeout = TimeSpan.FromSeconds(12) };
-        using var response = await client.GetAsync("https://api.ipify.org", HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-        response.EnsureSuccessStatusCode();
-        await using var input = await response.Content.ReadAsStreamAsync(cancellationToken);
-        var bytes = new byte[128];
-        using var body = new MemoryStream();
-        int read;
-        while ((read = await input.ReadAsync(bytes, cancellationToken)) != 0)
-        {
-            if (body.Length + read > 128) throw new HttpRequestException("Некорректный ответ проверки IP.");
-            body.Write(bytes, 0, read);
-        }
-        var value = Encoding.UTF8.GetString(body.ToArray()).Trim();
-        if (!IPAddress.TryParse(value, out var address) || address.ToString() != value)
-            throw new HttpRequestException("Проверка внешнего IP не прошла.");
-        return address.ToString();
+        if (useProxy) return (proxyProbe ??= new ConnectionProbe(CreateProbeHandler(true))).CheckAsync(cancellationToken);
+        return (systemProbe ??= new ConnectionProbe(CreateProbeHandler(false))).CheckAsync(cancellationToken);
     }
-
+    private SocketsHttpHandler CreateProbeHandler(bool proxy)
+    {
+        if (request == null) throw new InvalidOperationException();
+        var handler = new SocketsHttpHandler
+        {
+            UseProxy = proxy, AllowAutoRedirect = false, ConnectTimeout = TimeSpan.FromSeconds(5),
+            PooledConnectionLifetime = TimeSpan.FromMinutes(2), MaxResponseHeadersLength = 8,
+            Proxy = proxy ? new WebProxy($"socks5://127.0.0.1:{request.ProbePort}") { Credentials = new NetworkCredential(request.ProbeUser, request.ProbePassword) } : null
+        };
+        if (!proxy && request.EnableTun) handler.ConnectCallback = ConnectThroughTunAsync;
+        return handler;
+    }
+    private static async ValueTask<Stream> ConnectThroughTunAsync(SocketsHttpConnectionContext context, CancellationToken token)
+    {
+        var addresses = await Dns.GetHostAddressesAsync(context.DnsEndPoint.Host, token);
+        foreach (var address in addresses.OrderBy(ip => ip.AddressFamily != AddressFamily.InterNetwork))
+        {
+            // The system-path check must actually use our TUN, even with another VPN installed.
+            if (!HasTunRoute(address)) continue;
+            var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp) { NoDelay = true };
+            try
+            {
+                await socket.ConnectAsync(address, context.DnsEndPoint.Port, token);
+                if (!HasTunRoute(address)) throw new IOException("Маршрут TUN изменился во время проверки.");
+                return new NetworkStream(socket, ownsSocket: true);
+            }
+            catch (Exception ex) when (ex is SocketException or IOException) { socket.Dispose(); }
+            catch { socket.Dispose(); throw; }
+        }
+        throw new HttpRequestException("Не подтверждён системный маршрут через VPN4ik-TUN.");
+    }
     public async Task<TrafficCounters> ReadTrafficAsync(CancellationToken cancellationToken)
     {
         if (request == null || !IsRunning) throw new IOException("VPN-движок остановлен.");
-        using var handler = new SocketsHttpHandler { UseProxy = true, AllowAutoRedirect = false,
-            Proxy = new WebProxy($"socks5://127.0.0.1:{request.ProbePort}") { Credentials = new NetworkCredential(request.ProbeUser, request.ProbePassword) } };
-        using var client = new HttpClient(handler) { Timeout = TimeSpan.FromMilliseconds(1500), MaxResponseContentBufferSize = 1_048_576 };
-        var json = await client.GetStringAsync("http://metrics.vpn4ik.invalid/debug/vars", cancellationToken);
+        metricsClient ??= new HttpClient(CreateProbeHandler(true)) { Timeout = TimeSpan.FromMilliseconds(1500), MaxResponseContentBufferSize = 1_048_576 };
+        var json = await metricsClient.GetStringAsync("http://metrics.vpn4ik.invalid/debug/vars", cancellationToken);
         return TrafficMeter.Parse(json);
     }
 
-    internal static bool HasTunRoute()
+    internal static bool HasTunRoute() => HasTunRoute(IPAddress.Parse("1.1.1.1"));
+    internal static bool HasTunRoute(IPAddress destination)
     {
-        var adapter = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(a => a.Name == XrayConfiguration.InterfaceName && a.OperationalStatus == OperationalStatus.Up);
-        if (adapter == null) return false;
-        var address = new byte[16];
-        address[0] = 2; // AF_INET, native little-endian sockaddr_in.
-        IPAddress.Parse("1.1.1.1").GetAddressBytes().CopyTo(address, 4);
-        return GetBestInterfaceEx(address, out var index) == 0 && index == adapter.GetIPProperties().GetIPv4Properties().Index;
+        try
+        {
+            var adapter = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault(a => a.Name == XrayConfiguration.InterfaceName && a.OperationalStatus == OperationalStatus.Up);
+            if (adapter == null) return false;
+            var serialized = new IPEndPoint(destination, 0).Serialize();
+            var address = new byte[serialized.Size]; for (var item = 0; item < address.Length; item++) address[item] = serialized[item];
+            var properties = adapter.GetIPProperties();
+            var expected = destination.AddressFamily == AddressFamily.InterNetwork ? properties.GetIPv4Properties()?.Index : properties.GetIPv6Properties()?.Index;
+            return expected.HasValue && GetBestInterfaceEx(address, out var index) == 0 && index == expected.Value;
+        }
+        catch (NetworkInformationException) { return false; }
     }
 
     internal static string SelectUpstreamInterface()
@@ -227,6 +249,7 @@ internal sealed class XraySession : IVpnSession
         await StopAsync();
         try { writer?.Dispose(); } catch (Exception ex) when (ex is IOException or ObjectDisposedException) { }
         pipe?.Dispose(); host?.Dispose();
+        proxyProbe?.Dispose(); systemProbe?.Dispose(); metricsClient?.Dispose();
     }
 
     [DllImport("kernel32.dll", SetLastError = true)] private static extern bool GetNamedPipeClientProcessId(SafePipeHandle pipe, out uint processId);

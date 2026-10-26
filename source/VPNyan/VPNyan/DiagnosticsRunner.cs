@@ -10,6 +10,37 @@ namespace VPNyan;
 
 internal static class DiagnosticsRunner
 {
+    internal static async Task<int> RunConnectionSeriesAsync(string source, string report, int index)
+    {
+        var result = new Dictionary<string,object?>(); XraySession? session = null; var messages = new List<string>();
+        try
+        {
+            var profiles = SubscriptionStore.Load(source).SelectMany(item => item.Profiles).ToArray();
+            if (index < 0 || index >= profiles.Length) throw new InvalidDataException();
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(35));
+            session = new XraySession(); var redactor = new SecretRedactor(profiles[index].Configuration);
+            session.Log += message => { lock(messages) if(messages.Count < 250) messages.Add(redactor.Clean(message)); };
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            var ip = await session.StartAsync(profiles[index],1500,timeout.Token,enableTun:false,elevate:false,diagnostics:true);
+            result["ConnectMilliseconds"] = clock.ElapsedMilliseconds; result["ExternalIpAvailable"] = ip != "";
+            var checks = new List<long>();
+            for (var attempt = 0; attempt < 3; attempt++)
+            {
+                await Task.Delay(1000,timeout.Token); clock.Restart(); await session.ProbeAsync(timeout.Token);
+                if (!session.IsRunning) throw new IOException(); checks.Add(clock.ElapsedMilliseconds);
+            }
+            result["CheckMilliseconds"] = checks; result["Verified"] = true;
+        }
+        catch(Exception ex) { result["Verified"] = false; result["ErrorType"] = ex.GetType().Name; result["Stage"] = session?.VerificationStage; }
+        finally
+        {
+            if(session != null) { try { await session.DisposeAsync(); result["Disconnected"] = true; } catch { result["Disconnected"] = false; } }
+            result["ProfileIndex"] = index; result["Mode"] = "SOCKS physical uplink, no TUN";
+            lock(messages) File.WriteAllBytes(report + ".logs.dpapi",System.Security.Cryptography.ProtectedData.Protect(JsonSerializer.SerializeToUtf8Bytes(messages),null,System.Security.Cryptography.DataProtectionScope.CurrentUser));
+            File.WriteAllText(report,JsonSerializer.Serialize(result,new JsonSerializerOptions{WriteIndented=true}));
+        }
+        return result.TryGetValue("Verified",out var success) && success is true ? 0 : 1;
+    }
     internal static async Task<int> RunZapretStatusAsync(string folder, string resultPath)
     {
         try

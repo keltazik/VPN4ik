@@ -11,6 +11,12 @@ public partial class App : System.Windows.Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args is ["--verify-connection-series", var seriesSource, var seriesReport, var seriesIndex] && int.TryParse(seriesIndex, out var profileIndex))
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            Shutdown(await DiagnosticsRunner.RunConnectionSeriesAsync(seriesSource, seriesReport, profileIndex));
+            return;
+        }
         if (e.Args is ["--verify-zapret-status", var statusFolder, var statusResult])
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;

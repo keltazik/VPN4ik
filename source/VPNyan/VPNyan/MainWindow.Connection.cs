@@ -89,12 +89,13 @@ public partial class MainWindow
                 connectionCancellation.CancelAfter(Timeout.InfiniteTimeSpan);
                 StopConnectingAnimation();
                 StatusText.Text = "Подключено";
-                IpText.Text = $"Внешний IP: {ip}";
+                IpText.Text = ExternalIpLabel(ip);
                 activity.Connected(currentRecord, ip);
                 activity.Add("Информация", "TUN и доступ через VPN подтверждены HTTPS-проверкой.");
             }
             isConnected = true;
             lastProbeFailed = false;
+            failedConnectionChecks = 0;
             lastConnectionCheck = DateTime.UtcNow;
             connectionStartTime = DateTime.Now;
             trafficMeter.Reset();
@@ -214,12 +215,14 @@ public partial class MainWindow
                 var sample = trafficMeter.Sample(counters, TrafficMeter.MonotonicSeconds);
                 SpeedText.Text = $"↓ {TrafficMeter.Speed(sample.DownloadBytesPerSecond, settings.TrafficUnit)} · ↑ {TrafficMeter.Speed(sample.UploadBytesPerSecond, settings.TrafficUnit)}";
                 TrafficText.Text = $"↑ {FormatBytes(sample.Upload)} | ↓ {FormatBytes(sample.Download)}";
-                var now = DateTime.UtcNow;
-                if (xraySession != null && !isCheckingConnection && now - lastConnectionCheck > TimeSpan.FromSeconds(30))
-                    _ = RecheckConnectionAsync(xraySession);
             }
             catch { if (activeServer == server && !isConnecting) SpeedText.Text = "Нет данных"; }
-            finally { readingTraffic = false; }
+            finally
+            {
+                readingTraffic = false;
+                if (activeServer == server && !isConnecting && xraySession != null && !isCheckingConnection && DateTime.UtcNow - lastConnectionCheck > TimeSpan.FromSeconds(30))
+                    _ = RecheckConnectionAsync(xraySession);
+            }
         };
         trafficTimer.Start();
     }
@@ -233,6 +236,8 @@ public partial class MainWindow
         return Task.FromResult(new TrafficCounters(stats.BytesSent, stats.BytesReceived));
     }
 
+    private int failedConnectionChecks;
+    private static string ExternalIpLabel(string ip) => string.IsNullOrEmpty(ip) ? "Доступ через VPN подтверждён" : $"Внешний IP: {ip}";
     private async Task RecheckConnectionAsync(IVpnSession session)
     {
         isCheckingConnection = true;
@@ -243,16 +248,30 @@ public partial class MainWindow
             if (xraySession != session || isConnecting) return;
             if (!XraySession.HasTunRoute()) throw new IOException();
             StatusText.Text = "Подключено";
-            IpText.Text = $"Внешний IP: {ip}";
+            IpText.Text = ExternalIpLabel(ip);
             UpdateStatusIndicator(true);
-            if (lastProbeFailed) activity.Add("Информация", "Доступ через VPN восстановлен.");
+            AnimateStatusColor("#8FCF9C");
+            if (failedConnectionChecks > 0) activity.Add("Информация", "Доступ через VPN повторно подтверждён.");
             lastProbeFailed = false;
+            failedConnectionChecks = 0;
         }
         catch
         {
-            if (xraySession != session || isConnecting) return;
+            if (xraySession != session || isConnecting || lifetime.IsCancellationRequested || connectionCancellation?.IsCancellationRequested == true) return;
+            failedConnectionChecks++;
+            if (failedConnectionChecks == 1)
+            {
+                StatusText.Text = "Перепроверяю доступ через VPN…";
+                lastConnectionCheck = DateTime.UtcNow.AddSeconds(-25);
+                StatusIndicator.Fill = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(212,170,101));
+                AnimateStatusColor("#D4AA65");
+                activity.Add("Информация", "HTTPS-проверка не прошла. Повторная проверка будет выполнена без отключения туннеля.");
+                return;
+            }
             StatusText.Text = "Нет подтверждённого доступа через VPN";
+            lastConnectionCheck = DateTime.UtcNow.AddSeconds(-20);
             UpdateStatusIndicator(false);
+            AnimateStatusColor("#FF8E8E");
             if (!lastProbeFailed) activity.Add("Ошибка", "Периодическая проверка соединения не прошла.");
             lastProbeFailed = true;
         }
