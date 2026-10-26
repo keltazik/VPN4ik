@@ -46,7 +46,8 @@ internal sealed record ApplicationRelease(string Version, Uri Page, Uri? Downloa
 internal sealed class ApplicationUpdates : IDisposable
 {
     internal const long MaxDownload = 256L * 1024 * 1024;
-    internal const string ReleasesPage = "https://github.com/keltazik/VPN4ik/releases";
+    internal const string RepositoryPage = "https://github.com/keltazik/VPN4ik";
+    internal const string ReleasesPage = RepositoryPage + "/releases";
     internal static string CurrentVersion => typeof(App).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0] ?? "0.0.0";
     internal static string CacheRoot => Path.Combine(Path.GetTempPath(), "VPN4ik-updates");
     private readonly HttpClient client;

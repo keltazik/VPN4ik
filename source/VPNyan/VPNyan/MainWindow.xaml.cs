@@ -541,6 +541,12 @@ namespace VPNyan
             StatusIndicator.Fill = new SolidColorBrush(color);
         }
 
+        private void Repository_Click(object sender, RoutedEventArgs e)
+        {
+            try { Process.Start(new ProcessStartInfo(ApplicationUpdates.RepositoryPage) { UseShellExecute = true }); }
+            catch { ShowNotice("Не удалось открыть GitHub в браузере. Репозиторий: github.com/keltazik/VPN4ik"); }
+        }
+
         private void TopBar_MouseDown(object sender, WpfMouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed) DragMove();
