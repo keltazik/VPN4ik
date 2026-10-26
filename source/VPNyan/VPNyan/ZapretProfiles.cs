@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace VPNyan;
 
-internal sealed record ZapretProfile(string FileName, string Name) { public override string ToString() => Name; }
+internal sealed record ZapretProfile(string FileName, string Name) { public override string ToString() => FileName; }
 internal sealed record ZapretFolderInfo(string Folder, string Version, List<ZapretProfile> Profiles, string GameMode, string IpSetMode);
 
 internal static class ZapretProfiles
@@ -43,9 +43,16 @@ internal static class ZapretProfiles
         var version = Regex.Match(service, @"(?im)^\s*set\s+""?LOCAL_VERSION=([0-9.]+)").Groups[1].Value;
         var profiles = Directory.EnumerateFiles(folder, "*.bat").Where(path => !Path.GetFileName(path).StartsWith("service", StringComparison.OrdinalIgnoreCase))
             .Select(path => new ZapretProfile(Path.GetFileName(path), Path.GetFileNameWithoutExtension(path)))
+            .Where(profile => CanRun(folder, profile.FileName))
             .OrderBy(profile => Natural(profile.Name), StringComparer.OrdinalIgnoreCase).ToList();
         if (profiles.Count == 0) throw new InvalidDataException("В папке нет стратегий zapret (*.bat).");
         return new(folder, version == "" ? "не определена" : version, profiles, ReadGameMode(folder), ReadIpSetMode(folder));
+    }
+
+    private static bool CanRun(string folder, string file)
+    {
+        try { _ = BuildArguments(folder, file); return true; }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException) { return false; }
     }
 
     private static string Natural(string name) => Regex.Replace(name, @"\d+", match => match.Value.PadLeft(8, '0'));

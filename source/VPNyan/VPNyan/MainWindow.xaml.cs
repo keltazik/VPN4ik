@@ -358,6 +358,7 @@ namespace VPNyan
             if (!isUpdatingPings) UpdateLatencySummary();
             BestServerButton.IsEnabled = canManage && !isUpdatingPings && servers.Any(s => s.Ping >= 0 && s.LatencyMeasuredAt >= DateTime.UtcNow.AddMinutes(-2));
             UpdateZapretControls();
+            UpdateOrnamentGlow();
         }
 
         internal async Task ImportSubscriptionAsync(string url)
@@ -596,10 +597,30 @@ namespace VPNyan
             // The vector stays the source. Render once with enough spare pixels
             // for the 1.04 hover scale, then animate outside the cached subtree.
             // Refresh resolution on monitor/DPI changes, never on animation frames.
-            if (OrnamentImage.CacheMode is not BitmapCache cache) return;
             var dpi = VisualTreeHelper.GetDpi(this);
             var scale = Math.Max(1.5, Math.Max(dpi.DpiScaleX, dpi.DpiScaleY) * 1.25);
-            if (Math.Abs(cache.RenderAtScale - scale) > 0.001) cache.RenderAtScale = scale;
+            foreach (var element in new UIElement[] { OrnamentImage, OrnamentGlow })
+                if (element.CacheMode is BitmapCache cache && Math.Abs(cache.RenderAtScale - scale) > 0.001) cache.RenderAtScale = scale;
+        }
+
+        private int ornamentGlowState = -1;
+        private void UpdateOrnamentGlow()
+        {
+            var state = isConnected ? 2 : isConnecting ? 1 : isMouseOverOrnament ? 3 : 0;
+            if (OrnamentGlow == null || ornamentGlowState == state) return;
+            ornamentGlowState = state;
+            var animation = new DoubleAnimation
+            {
+                To = state == 2 ? 0.8 : state == 3 ? 0.62 : 0,
+                Duration = TimeSpan.FromMilliseconds(240),
+                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
+            };
+            if (state == 1)
+            {
+                animation.From = 0.3; animation.To = 0.75; animation.Duration = TimeSpan.FromMilliseconds(650);
+                animation.AutoReverse = true; animation.RepeatBehavior = RepeatBehavior.Forever;
+            }
+            OrnamentGlow.BeginAnimation(OpacityProperty, animation);
         }
 
         void AnimateStatusColor(string toColor)
@@ -714,11 +735,13 @@ namespace VPNyan
         {
             isMouseOverOrnament = true;
             AnimateScale(1.04);
+            UpdateOrnamentGlow();
         }
         private void Ornament_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
             isMouseOverOrnament = false;
             AnimateScale(1.0);
+            UpdateOrnamentGlow();
         }
         private void TestButton_Click(object sender, RoutedEventArgs e) => WpfMessageBox.Show("Кнопка работает!");
 

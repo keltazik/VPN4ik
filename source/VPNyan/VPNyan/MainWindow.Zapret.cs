@@ -26,7 +26,7 @@ public partial class MainWindow
     {
         LoadZapretCompatibility(); UpdateZapretControls();
         if (!useBackground) return;
-        Loaded += (_, _) => zapretInitialization = InitializeZapretFolderAsync();
+        zapretInitialization = InitializeZapretFolderAsync();
         zapretTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
         zapretTimer.Tick += async (_, _) => { if (ZapretPage.Visibility == Visibility.Visible) await RefreshZapretAsync(); };
         zapretTimer.Start();
@@ -42,7 +42,12 @@ public partial class MainWindow
     {
         var dialog = new Microsoft.Win32.OpenFolderDialog { Title = "Папка zapret: service.bat и bin/winws.exe", Multiselect = false };
         if (Directory.Exists(settings.ZapretFolder)) dialog.InitialDirectory = settings.ZapretFolder;
-        if (dialog.ShowDialog(this) == true) await LoadZapretFolderAsync(dialog.FolderName, true);
+        if (dialog.ShowDialog(this) == true)
+        {
+            await LoadZapretFolderAsync(dialog.FolderName, true);
+            if (zapretInfo?.Folder.Equals(dialog.FolderName, StringComparison.OrdinalIgnoreCase) == true)
+                ZapretDiscoveryStatus.Text = "Папка выбрана вручную и будет проверяться при каждом запуске.";
+        }
     }
     internal async Task LoadZapretFolderAsync(string folder, bool save)
     {
@@ -59,6 +64,7 @@ public partial class MainWindow
             }
             else settings.ZapretStrategy = strategy.FileName;
             zapretInfo = info; pendingZapretLists.Clear(); zapretListsLoaded = false;
+            ZapretDiscoveryStatus.Text = $"BAT-файлов для запуска: {info.Profiles.Count}. Папку можно посмотреть и сменить в разделе «Расположение zapret».";
             loadingZapret = true;
             try
             {
@@ -69,7 +75,8 @@ public partial class MainWindow
                 ZapretDomainsText.Clear(); ZapretExcludeText.Clear(); ZapretIpsText.Clear();
             }
             finally { loadingZapret = false; }
-            ZapretActionStatus.Text = "Папка подключена. Выбери стратегию и нажми «Включить».";
+            ZapretActionStatus.Text = "";
+            UpdateZapretStrategyHint();
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { ZapretError(ex); }
@@ -81,7 +88,7 @@ public partial class MainWindow
     {
         if (loadingZapret || zapretInfo == null || ZapretStrategySelect.SelectedItem is not ZapretProfile profile) return;
         var next = settings.Copy(); next.ZapretStrategy = profile.FileName;
-        try { next.SaveOrThrow(); settings = next; ZapretActionStatus.Text = "Стратегия сохранена. Для применения нажми «Включить» или «Перезапустить»."; }
+        try { next.SaveOrThrow(); settings = next; ZapretActionStatus.Text = "Выбран файл: " + profile.FileName; UpdateZapretStrategyHint(); }
         catch (Exception ex) { ZapretError(ex); }
     }
     private void ZapretCompatibility_Click(object sender, RoutedEventArgs e)
@@ -115,6 +122,13 @@ public partial class MainWindow
             : zapretState.OtherProcesses > 0 ? "zapret работает из другой папки" : pausedZapret?.HasEntries == true ? "zapret выключен на время VPN" : "zapret выключен";
         ZapretStateText.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(zapretState.Running ? "#8FCF9C" : "#F1D6A5"));
         ZapretServiceText.Text = zapretState.Services.Count == 0 ? "Служба этой установки не установлена." : "Службы этой установки: " + string.Join(", ", zapretState.Services.Select(service => service.Name + (service.State == 4 ? " · работает" : " · выключена")));
+        UpdateZapretStrategyHint();
+    }
+    private void UpdateZapretStrategyHint()
+    {
+        ZapretStrategyHint.Text = zapretInfo == null ? "Приложение само найдёт zapret и заполнит список BAT-файлов. Если он не установлен, распакуй его и укажи папку ниже."
+            : zapretState.Running ? "Чтобы сменить BAT-файл, выбери его в списке и нажми «Перезапустить»."
+            : "Все доступные BAT-стратегии из найденной папки. Выбери файл и нажми «Запустить» — выбор запомнится.";
     }
     private void UpdateZapretControls()
     {
@@ -135,6 +149,7 @@ public partial class MainWindow
         ZapretDomainsText.IsEnabled = ZapretExcludeText.IsEnabled = ZapretIpsText.IsEnabled = ready && configured;
         ZapretSaveListsAdminButton.IsEnabled = ready && pendingZapretLists.Count > 0;
         ZapretListsExpander.IsEnabled = ready && configured;
+        ZapretFiltersExpander.IsEnabled = ready && configured;
         ZapretAdvancedPanel.IsEnabled = ready && configured;
         ZapretTestButton.IsEnabled = activeServer == null && pausedZapret?.HasEntries != true;
         ZapretInstallServiceButton.IsEnabled = !zapretState.Running && pausedZapret?.HasEntries != true;
@@ -297,7 +312,7 @@ public partial class MainWindow
         loadingZapret = true;
         try { ZapretFolderText.Clear(); ZapretStrategySelect.ItemsSource = null; ZapretGameSelect.SelectedItem = null; ZapretIpSetSelect.SelectedItem = null; ZapretDomainsText.Clear(); ZapretExcludeText.Clear(); ZapretIpsText.Clear(); ResetZapretAdvanced(); }
         finally { loadingZapret = false; }
-        ZapretStateText.Text = "Папка zapret не выбрана"; ZapretVersionText.Text = "Подключи установленную сборку Flowseal";
+        ZapretStateText.Text = "Папка zapret не выбрана"; ZapretVersionText.Text = "Подключи установленную сборку Flowseal"; UpdateZapretStrategyHint();
         ZapretStateText.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(241,214,165));
         ZapretActionStatus.Text = ""; ZapretLogText.Text = "События zapret появятся здесь и в общем журнале."; ZapretSaveListsAdminButton.Visibility = Visibility.Collapsed; LoadZapretCompatibility();
     }

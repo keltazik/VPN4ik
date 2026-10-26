@@ -12,7 +12,37 @@ internal static class ZapretChecks
     internal static void Run(string fixtures, Action<bool, string> check)
     {
         var saved = SynchronizationContext.Current; SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext());
-        try { Profiles(fixtures, check); DiscoveryAndSettings(fixtures, check); StrategyTests(check); Lifecycle(fixtures, check); } finally { SynchronizationContext.SetSynchronizationContext(saved); }
+        try { Profiles(fixtures, check); Dropdown(fixtures, check); DiscoveryAndSettings(fixtures, check); StrategyTests(check); Lifecycle(fixtures, check); } finally { SynchronizationContext.SetSynchronizationContext(saved); }
+    }
+    private static void Dropdown(string fixtures, Action<bool,string> check)
+    {
+        var folder=Folder(fixtures);
+        for(var index=1;index<=28;index++) File.Copy(Path.Combine(folder,"general.bat"),Path.Combine(folder,$"general (ALT{index}).bat"));
+        var controller=new FakeZapret(); var data=Path.Combine(fixtures,"bat-dropdown-"+Guid.NewGuid().ToString("N"));
+        var window=new MainWindow(false,data,zapret:controller);
+        Await(window.InitializeZapretFolderAsync(new[] { folder })); window.ShowSection("zapret"); Pump();
+        Render(window,Path.Combine(fixtures,"zapret-bat-list-760x540.png"),new Size(760,540));
+        var selector=(System.Windows.Controls.ComboBox)window.FindName("ZapretStrategySelect");
+        check(selector.Items.Count==29 && selector.Items.Cast<ZapretProfile>().All(profile=>profile.FileName.EndsWith(".bat")),"The BAT dropdown lists every available strategy, including the last numbered ALT file");
+        var root=(FrameworkElement)window.Content;
+        check(selector.TransformToAncestor(root).Transform(new Point()).Y<300 && selector.ActualWidth>200,"BAT selection is immediately visible at the top of the compact zapret page");
+        selector.ApplyTemplate();
+        var popup=(System.Windows.Controls.Primitives.Popup)selector.Template.FindName("PART_Popup",selector);
+        var panel=(FrameworkElement)popup.Child; var size=new Size(selector.ActualWidth,312);
+        panel.Measure(size); panel.Arrange(new Rect(size)); panel.UpdateLayout();
+        var scroll=Children(panel).OfType<ScrollViewer>().Single();
+        check(scroll.ScrollableHeight>0 && scroll.VerticalScrollBarVisibility==ScrollBarVisibility.Auto,"A long BAT list remains scrollable inside the themed dropdown");
+        var bitmap=new RenderTargetBitmap((int)size.Width,(int)size.Height,96,96,PixelFormats.Pbgra32); bitmap.Render(panel);
+        var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));using(var output=File.Create(Path.Combine(fixtures,"zapret-bat-popup.png")))encoder.Save(output);
+        selector.SelectedIndex=selector.Items.Count-1; var chosen=(ZapretProfile)selector.SelectedItem;
+        Await(window.ManageZapretAsync("start"));
+        check(controller.LastStrategy==chosen.FileName && AppSettings.LoadFromPath(Path.Combine(data,"settings.json")).ZapretStrategy==chosen.FileName,"Selecting a BAT persists it and starts that exact strategy");
+        Await(window.ManageZapretAsync("stop"));window.Close();Pump();
+    }
+    private static IEnumerable<System.Windows.DependencyObject> Children(System.Windows.DependencyObject root)
+    {
+        for(var index=0;index<VisualTreeHelper.GetChildrenCount(root);index++)
+        {var child=VisualTreeHelper.GetChild(root,index);yield return child;foreach(var nested in Children(child))yield return nested;}
     }
     private static void DiscoveryAndSettings(string fixtures, Action<bool, string> check)
     {
@@ -54,9 +84,9 @@ internal static class ZapretChecks
         Reject(() => ZapretNative.ValidateServiceCommand(command, second));
         check(ZapretProfiles.SplitCommandLine(command)[0] == Path.Combine(first, "bin", "winws.exe"), "Service commands preserve spaced paths and reject a different installation");
         var data = Path.Combine(fixtures, "discovery-ui-" + Guid.NewGuid().ToString("N")); var window = new MainWindow(false, data, zapret: new FakeZapret());
-        Await(window.DiscoverZapretAsync(new[] { root }));
+        Await(window.InitializeZapretFolderAsync(new[] { root }));
         var selector = (System.Windows.Controls.ComboBox)window.FindName("ZapretInstallationsSelect");
-        check(selector.Visibility == Visibility.Visible && selector.Items.Count == 2 && AppSettings.LoadFromPath(Path.Combine(data, "settings.json")).ZapretFolder != "", "GUI auto-discovery saves the found path and exposes multiple installations");
+        check(selector.Visibility == Visibility.Visible && selector.Items.Count == 2 && AppSettings.LoadFromPath(Path.Combine(data, "settings.json")).ZapretFolder != "", "Startup initializes zapret discovery without a button click and saves the path with multiple installations available");
         selector.SelectedIndex = 1; Pump(); var expected = ((ZapretInstallation)selector.SelectedItem).Folder;
         var deadline = DateTime.UtcNow.AddSeconds(5); while (AppSettings.LoadFromPath(Path.Combine(data, "settings.json")).ZapretFolder != expected && DateTime.UtcNow < deadline) { Pump(); Thread.Sleep(5); }
         check(AppSettings.LoadFromPath(Path.Combine(data, "settings.json")).ZapretFolder == expected && ((System.Windows.Controls.Button)window.FindName("ZapretChooseFolderButton")).Content.ToString()!.Contains("вручную"), "A discovered installation can be switched and manual folder choice remains available");
@@ -65,6 +95,11 @@ internal static class ZapretChecks
         Await((Task)savePorts.Invoke(window, null)!);
         check(ZapretProfiles.ReadGameRanges(expected).Tcp == "443,5000-5100", "GUI saves custom Game Filter ports to the selected installation");
         window.Close(); Pump();
+        var missingData=Path.Combine(fixtures,"missing-zapret-ui-"+Guid.NewGuid().ToString("N"));
+        var missingWindow=new MainWindow(false,missingData,zapret:new FakeZapret());
+        Await(missingWindow.InitializeZapretFolderAsync(new[] { Path.Combine(root,"not-installed") }));
+        check(((Expander)missingWindow.FindName("ZapretFolderExpander")).IsExpanded && ((TextBlock)missingWindow.FindName("ZapretStateText")).Text.Contains("не найден"), "A missing installation automatically reveals manual folder selection and a clear status");
+        missingWindow.Close(); Pump();
         using var handler = new ZapretDownloadHandler(); using var downloads = new ZapretMaintenance(handler);
         check(AwaitValue(downloads.DownloadAsync("version", CancellationToken.None)).Trim() == "1.10.4", "Zapret version checks use the official fixed source");
         check(AwaitValue(downloads.DownloadAsync("ipset", CancellationToken.None)).Contains("192.0.2.0/24"), "IPSet download accepts valid data");
@@ -127,6 +162,9 @@ internal static class ZapretChecks
         Reject(() => ZapretProfiles.BuildArguments(folder, "general unsafe.bat")); check(true, "Strategy cannot request arbitrary output files or shell commands");
         File.WriteAllText(Path.Combine(folder, "general fake.bat"), "start \"zapret\" /min \"%BIN%winws.exe\" --dpi-desync-fake-tls=^! --wf-tcp=443\r\n");
         check(ZapretProfiles.BuildArguments(folder, "general fake.bat").Contains("--dpi-desync-fake-tls=!"), "Flowseal's escaped literal exclamation marker is preserved without executing shell substitutions");
+        File.WriteAllText(Path.Combine(folder,"helper.bat"),"echo helper, not a strategy");
+        var available=ZapretProfiles.Read(folder).Profiles;
+        check(available.Select(profile=>profile.FileName).SequenceEqual(new[] { "general.bat","general fake.bat" }) && available.All(profile=>profile.ToString().EndsWith(".bat")), "BAT choices show full filenames and include only launchable strategies, excluding helper and unsafe BAT files");
         ZapretProfiles.EnsureUserLists(folder);
         check(ZapretProfiles.ReadList(folder, "domains") == "" && File.ReadAllText(Path.Combine(folder, "lists", "list-general-user.txt")).Contains("vpn4ik-empty.invalid"), "Empty user lists use a safe nonmatching sentinel instead of matching all traffic");
         ZapretProfiles.WriteList(folder, "domains", "example.test\n*.example.org");
@@ -222,12 +260,13 @@ internal static class ZapretChecks
     }
     private sealed class FakeZapret : IZapretController
     {
-        internal bool Running, FailPause, HoldPause; internal int OtherProcesses; internal List<string> Actions = new(); internal TaskCompletionSource PauseGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        internal bool Running, FailPause, HoldPause; internal int OtherProcesses; internal string LastStrategy=""; internal List<string> Actions = new(); internal TaskCompletionSource PauseGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
         private ZapretState State() => new() { Processes = Running ? new() { new(1234, 1, new[] { "--wf-tcp=443" }) } : new(), OtherProcesses = OtherProcesses };
         public Task<ZapretState> ReadAsync(string folder, CancellationToken token) => Task.FromResult(State());
         public async Task<ZapretResult> RunAsync(ZapretRequest request, CancellationToken token)
         {
             Actions.Add(request.Action);
+            if(request.Action is "start" or "restart") LastStrategy=request.Strategy;
             if (request.Action == "pause")
             {
                 if (HoldPause) await PauseGate.Task;

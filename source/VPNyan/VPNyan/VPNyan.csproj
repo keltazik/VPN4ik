@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Version>1.0.0-beta.6+local.2</Version>
+    <Version>1.0.0-beta.6+local.3</Version>
     <Product>VPN4ik</Product>
     <ApplicationIcon>Assets\VPN4ik.ico</ApplicationIcon>
     <Nullable>enable</Nullable>

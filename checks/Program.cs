@@ -294,6 +294,35 @@ internal static class Program
         Require(ReferenceEquals(source, image.Source) && ((BitmapCache)image.CacheMode).RenderAtScale == cacheResolution,
             "Hover retains the vector source and does not rebuild the cache resolution each frame");
         Require(((TextBlock)window.FindName("IpText")).Text == "", "Selecting a server leaves the connection hint empty");
+        var glow = (System.Windows.Controls.Image)window.FindName("OrnamentGlow");
+        Require(!glow.IsHitTestVisible && image.Effect == null && glow.Effect is System.Windows.Media.Effects.DropShadowEffect,
+            "Ornament glow is a separate noninteractive layer and never blurs the sharp hit-tested vector");
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var update = typeof(MainWindow).GetMethod("UpdateOrnamentGlow", flags)!;
+        void State(bool hover, bool connecting, bool connected)
+        {
+            typeof(MainWindow).GetField("isMouseOverOrnament", flags)!.SetValue(window, hover);
+            typeof(MainWindow).GetField("isConnecting", flags)!.SetValue(window, connecting);
+            typeof(MainWindow).GetField("isConnected", flags)!.SetValue(window, connected);
+            update.Invoke(window, null);
+        }
+        void Snapshot(string name)
+        {
+            var root = (FrameworkElement)window.Content; root.Measure(new Size(1040,740)); root.Arrange(new Rect(0,0,1040,740)); root.UpdateLayout();
+            var bitmap = new RenderTargetBitmap(1040,740,96,96,PixelFormats.Pbgra32); bitmap.Render(root);
+            var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            using var output = File.Create(Path.Combine(Environment.CurrentDirectory,".checks-data",name)); encoder.Save(output);
+        }
+        State(false,false,false); WaitForAnimation(280); Snapshot("ornament-idle.png");
+        State(true,false,false); WaitForAnimation(280);
+        Require(glow.Opacity > 0.4 && ReferenceEquals(source,image.Source), "Hover reveals gold glow while the ornament remains sharp"); Snapshot("ornament-hover.png");
+        State(false,true,false); WaitForAnimation(160); var pulse = glow.Opacity; WaitForAnimation(370);
+        Require(Math.Abs(glow.Opacity-pulse)>0.02 && glow.HasAnimatedProperties, "Connecting animates the ornament glow with a visible pulse");
+        State(false,false,true); WaitForAnimation(280); var connectedGlow = glow.Opacity;
+        State(true,false,true); State(false,false,true); WaitForAnimation(280);
+        Require(connectedGlow > 0.6 && Math.Abs(glow.Opacity-connectedGlow)<0.01, "Connected glow stays visible after the pointer leaves"); Snapshot("ornament-connected.png");
+        State(false,false,false); WaitForAnimation(280);
+        Require(glow.Opacity == 0 && image.Effect == null, "Disconnect fades glow away without changing the sharp ornament layer");
     }
 
     private static void CheckVectorGeometryHits()

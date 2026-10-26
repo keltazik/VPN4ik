@@ -9,32 +9,18 @@ namespace VPNyan;
 public partial class MainWindow
 {
     private readonly HashSet<string> checkedZapretFolders = new(StringComparer.OrdinalIgnoreCase);
-    private async Task InitializeZapretFolderAsync()
-    {
-        try
-        {
-            if (settings.ZapretFolder != "")
-            {
-                await Task.Run(() => ZapretProfiles.Read(settings.ZapretFolder), lifetime.Token);
-                await LoadZapretFolderAsync(settings.ZapretFolder, false);
-                ZapretDiscoveryStatus.Text = "Используется ранее выбранная папка. Можно найти другие установки или указать путь вручную.";
-                return;
-            }
-        }
-        catch (OperationCanceledException) { return; }
-        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException) { }
-        await DiscoverZapretAsync();
-    }
+    internal Task InitializeZapretFolderAsync(IEnumerable<string>? roots = null) => DiscoverZapretAsync(roots);
     private async void ZapretFindFolder_Click(object sender, RoutedEventArgs e) => await DiscoverZapretAsync();
     internal async Task DiscoverZapretAsync(IEnumerable<string>? roots = null)
     {
         if (zapretBusy || isConnecting || isSwitching || pausedZapret?.HasEntries == true || pendingZapretLists.Count != 0 || lifetime.IsCancellationRequested) return;
         zapretBusy = true; UpdateServerControls();
-        ZapretDiscoveryStatus.Text = "Ищу zapret: процессы, службы и папки на компьютере…";
+        ZapretDiscoveryStatus.Text = "Автоматически ищу zapret на компьютере…";
+        if (zapretInfo == null) ZapretStateText.Text = "Ищу установленный zapret…";
         List<ZapretInstallation> found;
         try { found = await Task.Run(() => ZapretDiscovery.Find(settings.ZapretFolder, lifetime.Token, roots), lifetime.Token); }
         catch (OperationCanceledException) { return; }
-        catch (Exception ex) { ZapretError(ex); return; }
+        catch (Exception ex) { ZapretError(ex); if (zapretInfo == null) ZapretStateText.Text = "Не удалось найти zapret"; ZapretDiscoveryStatus.Text = "Автопоиск не завершён. Можно указать папку вручную ниже."; ZapretFolderExpander.IsExpanded = true; return; }
         finally { zapretBusy = false; UpdateServerControls(); FinishPendingClose(); }
         if (lifetime.IsCancellationRequested) return;
         loadingZapret = true;
@@ -45,6 +31,7 @@ public partial class MainWindow
         }
         finally { loadingZapret = false; }
         if (found.Count > 0) await LoadZapretFolderAsync(found[0].Folder, true);
+        else if (zapretInfo == null) { ZapretStateText.Text = "zapret не найден"; ZapretFolderExpander.IsExpanded = true; UpdateZapretStrategyHint(); }
         ZapretDiscoveryStatus.Text = found.Count == 0 ? "zapret не найден в обычных местах. Нажми «Указать папку вручную» и выбери распакованную папку с service.bat."
             : found.Count == 1 ? "zapret найден автоматически. Путь сохранён." : $"Найдено установок: {found.Count}. Выбери нужную из списка; сохранённый путь имеет приоритет.";
     }
@@ -196,5 +183,6 @@ public partial class MainWindow
         ZapretServiceText.Text = ZapretUpdatesStatus.Text = "";
         ZapretDiscoveryStatus.Text = "Папка не выбрана. Нажми «Найти автоматически» или укажи путь вручную.";
         checkedZapretFolders.Clear();
+        ZapretFolderExpander.IsExpanded = ZapretFiltersExpander.IsExpanded = false;
     }
 }
