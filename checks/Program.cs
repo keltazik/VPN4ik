@@ -20,6 +20,13 @@ internal static class Program
         try
         {
             if (args is ["--generate-icon", var iconPath]) { IconGenerator.Generate(iconPath); return 0; }
+            if (args is ["--verify-updater", var updateBuild]) { UpdateChecks.VerifyPortableAsync(Path.GetFullPath(updateBuild)).GetAwaiter().GetResult(); return 0; }
+            if (args is ["--check-update-feed"])
+            {
+                using var updates = new ApplicationUpdates();
+                var latest = updates.CheckAsync(CancellationToken.None).GetAwaiter().GetResult();
+                Console.WriteLine($"Update feed OK: installed {ApplicationUpdates.CurrentVersion}; available {latest?.Version ?? "none"}."); return 0;
+            }
             if (args is ["--provider-response", var response, var report])
                 return ProviderSubscriptionChecks.RunAsync(response, report).GetAwaiter().GetResult();
             if (args.Contains("--native-routing"))
@@ -78,6 +85,7 @@ internal static class Program
             CheckOrnamentAnimation(window);
             CheckSections(window, fixtures);
             ManagementChecks.Run(fixtures, Require);
+            UpdateChecks.Run(fixtures, Require);
             var wasClosed = false;
             window.Closed += (_, _) => wasClosed = true;
             window.Close();

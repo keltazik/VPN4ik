@@ -215,6 +215,7 @@ namespace VPNyan
             if (servers.Count == 0) StatusText.Text = "Добавь подписку или конфигурацию сервера";
             UpdateServerControls();
 
+            InitializeUpdates();
             if (startMonitoring)
             {
                 StartPingLoop();

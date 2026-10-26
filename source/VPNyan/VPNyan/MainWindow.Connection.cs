@@ -260,12 +260,12 @@ public partial class MainWindow
         if (allowClose) { base.OnClosing(e); return; }
         e.Cancel = true;
         base.OnClosing(e);
-        if (isConnecting || isSwitching || isManagingData || isResetting) { closeRequested = true; connectionCancellation?.Cancel(); return; }
+        if (isConnecting || isSwitching || isManagingData || isResetting) { closeRequested = true; connectionCancellation?.Cancel(); if (installingUpdate) updateCancellation?.Cancel(); return; }
         closeRequested = false;
         if (activeServer != null) await Disconnect();
         if (activeServer != null) return;
         lifetime.Cancel();
-        pingTimer?.Stop(); pingWarningTimer?.Stop(); trafficTimer?.Stop(); connectionTimer?.Stop(); StopConnectingAnimation();
+        pingTimer?.Stop(); pingWarningTimer?.Stop(); trafficTimer?.Stop(); connectionTimer?.Stop(); updateTimer?.Stop(); StopConnectingAnimation();
         settings.Save(); systemTray?.Dispose();
         allowClose = true;
         _ = Dispatcher.BeginInvoke(new Action(Close));

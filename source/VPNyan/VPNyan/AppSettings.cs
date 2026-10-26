@@ -13,6 +13,7 @@ namespace VPNyan
         public bool StartMinimized { get; set; }
         public bool AutoConnect { get; set; }
         public bool ShowNotifications { get; set; } = true;
+        public bool CheckForUpdates { get; set; } = true;
         public string LastServer { get; set; } = "";
         public string Theme { get; set; } = "dark";
         public int TunMtu { get; set; } = 1500;
@@ -50,7 +51,7 @@ namespace VPNyan
         internal AppSettings Copy() => new()
         {
             KillSwitch = KillSwitch, StartWithWindows = StartWithWindows, MinimizeToTray = MinimizeToTray,
-            StartMinimized = StartMinimized, AutoConnect = AutoConnect, ShowNotifications = ShowNotifications,
+            StartMinimized = StartMinimized, AutoConnect = AutoConnect, ShowNotifications = ShowNotifications, CheckForUpdates = CheckForUpdates,
             LastServer = LastServer, Theme = Theme, TunMtu = TunMtu, NavigationExpanded = NavigationExpanded, ServerSort = ServerSort, StoragePath = StoragePath,
             AutoCheckPings = AutoCheckPings, PingIntervalSeconds = PingIntervalSeconds, TrafficUnit = TrafficUnit,
             BypassLocalNetwork = BypassLocalNetwork, DnsServers = DnsServers, SplitTunnelEnabled = SplitTunnelEnabled,

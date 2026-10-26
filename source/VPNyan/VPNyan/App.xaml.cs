@@ -11,6 +11,12 @@ public partial class App : System.Windows.Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args is ["--apply-update", var updateJob])
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            Shutdown(await UpdateInstaller.RunAsync(updateJob));
+            return;
+        }
         if (e.Args is ["--verify-startup", var startupResult])
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
