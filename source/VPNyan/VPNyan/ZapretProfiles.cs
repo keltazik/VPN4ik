@@ -2,6 +2,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
 
 namespace VPNyan;
 
@@ -10,6 +11,16 @@ internal sealed record ZapretFolderInfo(string Folder, string Version, List<Zapr
 
 internal static class ZapretProfiles
 {
+    internal static ProcessStartInfo ServiceMenuStart(string folder)
+    {
+        folder = ValidateFolder(folder); var script = SafePath(folder, "service.bat");
+        if (script.IndexOfAny(new[] { '%', '"', '\r', '\n', '\0' }) >= 0) throw new InvalidDataException("Для запуска service.bat выбери папку без знаков % и кавычек в пути.");
+        return new ProcessStartInfo(Path.Combine(Environment.SystemDirectory, "cmd.exe"))
+        {
+            UseShellExecute = true, Verb = "runas", WindowStyle = ProcessWindowStyle.Normal, WorkingDirectory = folder,
+            Arguments = "/d /v:off /s /c \"\"" + script + "\" admin\""
+        };
+    }
     internal static string ValidateFolder(string folder)
     {
         if (string.IsNullOrWhiteSpace(folder) || !Path.IsPathFullyQualified(folder)) throw new InvalidDataException("Выбери распакованную папку zapret.");

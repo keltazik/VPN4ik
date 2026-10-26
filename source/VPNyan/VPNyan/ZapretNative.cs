@@ -9,7 +9,11 @@ using Microsoft.Win32.SafeHandles;
 namespace VPNyan;
 
 internal sealed record ZapretProcess(int Id, long Started, string[] Arguments);
-internal sealed record ZapretService(string Name, uint State, int ProcessId);
+internal sealed record ZapretService(string Name, uint State, int ProcessId)
+{
+    public string Strategy { get; init; } = "";
+    public bool StrategyVerified { get; init; }
+}
 internal sealed class ZapretState
 {
     public List<ZapretProcess> Processes { get; set; } = new();
@@ -23,6 +27,7 @@ internal sealed class ZapretLease
     public string Folder { get; set; } = "";
     public List<string> Services { get; set; } = new();
     public Dictionary<string, string> ServiceCommands { get; set; } = new();
+    public Dictionary<string, string> ServiceStrategies { get; set; } = new();
     public List<string[]> Processes { get; set; } = new();
     public bool HasEntries => Services.Count > 0 || Processes.Count > 0;
 }
@@ -78,7 +83,9 @@ internal static partial class ZapretNative
                     var parts = ZapretProfiles.SplitCommandLine(Environment.ExpandEnvironmentVariables(command));
                     if (parts.Length == 0 || !IsSelectedBinary(parts[0], folder)) continue;
                     using var service = new ServiceHandle(name, 4);
-                    var status = service.Status(); state.Services.Add(new(name, status.State, (int)status.ProcessId));
+                    var status = service.Status();
+                    var strategy = ResolveServiceStrategy(folder, command, key?.GetValue("zapret-discord-youtube") as string ?? "");
+                    state.Services.Add(new(name, status.State, (int)status.ProcessId) { Strategy = strategy.File, StrategyVerified = strategy.Verified });
                 }
                 catch (Exception ex) when (ex is System.Security.SecurityException or UnauthorizedAccessException or Win32Exception or IOException) { }
             }
@@ -149,6 +156,7 @@ internal static partial class ZapretNative
                     service.Stop(); await service.WaitAsync(1);
                     result.Lease.Services.Add(entry.Name);
                     if (command != null) result.Lease.ServiceCommands[entry.Name] = command;
+                    if (entry.Strategy != "") result.Lease.ServiceStrategies[entry.Name] = entry.Strategy;
                 }
                 foreach (var entry in standalone)
                 {
@@ -181,6 +189,7 @@ internal static partial class ZapretNative
                     using var service = new ServiceHandle(name, 4 | 16 | (command != null ? 2u : 0));
                     if (command != null) service.ChangeCommand(command);
                     service.Start(); await service.WaitAsync(4);
+                    if (lease.ServiceStrategies.TryGetValue(name, out var strategy)) SaveServiceStrategy(name, strategy);
                 }
                 foreach (var args in lease.Processes)
                 {
@@ -217,6 +226,7 @@ internal static partial class ZapretNative
             {
                 service.ChangeCommand(ZapretProfiles.Quote(ZapretProfiles.SafePath(folder, "bin/winws.exe")) + " " + string.Join(' ', args.Select(ZapretProfiles.Quote)));
                 service.Start(); await service.WaitAsync(4);
+                SaveServiceStrategy(existing.Name, strategy);
             }
             catch { if (service.Status().State == 1) service.ChangeCommand(original); throw; }
         }

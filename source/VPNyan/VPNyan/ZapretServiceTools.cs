@@ -9,6 +9,31 @@ namespace VPNyan;
 
 internal static partial class ZapretNative
 {
+    internal static (string File, bool Verified) ResolveServiceStrategy(string folder, string command, string recorded)
+    {
+        try
+        {
+            var actual = ZapretProfiles.SplitCommandLine(Environment.ExpandEnvironmentVariables(command));
+            if (actual.Length == 0 || !IsSelectedBinary(actual[0], folder)) return ("", false);
+            var profiles = ZapretProfiles.Read(folder).Profiles;
+            var candidate = recorded.EndsWith(".bat", StringComparison.OrdinalIgnoreCase) ? recorded : recorded + ".bat";
+            foreach (var profile in profiles.OrderByDescending(profile => profile.FileName.Equals(candidate, StringComparison.OrdinalIgnoreCase)))
+                if (ZapretProfiles.BuildArguments(folder, profile.FileName).SequenceEqual(actual.Skip(1))) return (profile.FileName, true);
+            var saved = profiles.FirstOrDefault(profile => profile.FileName.Equals(candidate, StringComparison.OrdinalIgnoreCase));
+            return (saved?.FileName ?? "", false);
+        }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException) { return ("", false); }
+    }
+    private static void SaveServiceStrategy(string name, string strategy)
+    {
+        // Strategy metadata is informational; a metadata write failure must not undo a successful launch.
+        try
+        {
+            using var metadata = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + name, true);
+            metadata?.SetValue("zapret-discord-youtube", Path.GetFileNameWithoutExtension(strategy), RegistryValueKind.String);
+        }
+        catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException) { }
+    }
     internal static string BuildServiceCommand(string folder, string strategy) => ZapretProfiles.Quote(ZapretProfiles.SafePath(folder, "bin/winws.exe")) + " " + string.Join(' ', ZapretProfiles.BuildArguments(folder, strategy).Select(ZapretProfiles.Quote));
     internal static void ValidateServiceCommand(string command, string folder)
     {
@@ -57,8 +82,7 @@ internal static partial class ZapretNative
             await StartAsync(folder, strategy);
             using var service = new ServiceHandle(name, 2); service.AutoStart();
         }
-        using var metadata = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + name, true);
-        metadata?.SetValue("zapret-discord-youtube", Path.GetFileNameWithoutExtension(strategy), RegistryValueKind.String);
+        SaveServiceStrategy(name, strategy);
     }
     private static async Task RemoveServicesAsync(string folder)
     {
@@ -88,11 +112,13 @@ internal static partial class ZapretNative
         if (state.OtherProcesses > 0 || state.UnreadableProcesses > 0) throw new InvalidDataException("Для теста выключи zapret из других папок. Их процессы не изменялись.");
         if (state.Services.Count > 1 || state.Processes.Count > 1) throw new InvalidDataException("Для тестирования оставь не более одного экземпляра zapret в выбранной папке.");
         var serviceCommands = new Dictionary<string, string>();
+        var serviceMetadata = new Dictionary<string, string?>();
         foreach (var entry in state.Services)
         {
             using var key = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + entry.Name);
             var command = key?.GetValue("ImagePath") as string ?? throw new InvalidDataException("Не удалось сохранить стратегию службы.");
             ValidateServiceCommand(command, folder); serviceCommands[entry.Name] = command;
+            serviceMetadata[entry.Name] = key?.GetValue("zapret-discord-youtube") as string;
         }
         return await ZapretStrategyTests.RunAsync(folder, ZapretProfiles.Read(folder).Profiles, ExecuteAsync, ZapretStrategyTests.ProbeAsync, () =>
         {
@@ -102,6 +128,13 @@ internal static partial class ZapretNative
                 using var service = new ServiceHandle(name, 4 | 2);
                 if (service.Status().State != 1) throw new InvalidDataException("Тестовая служба ещё работает. Не удалось вернуть прежнюю стратегию.");
                 service.ChangeCommand(command);
+                try
+                {
+                    using var metadata = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + name, true);
+                    if (serviceMetadata[name] is { } value) metadata?.SetValue("zapret-discord-youtube", value, RegistryValueKind.String);
+                    else metadata?.DeleteValue("zapret-discord-youtube", false);
+                }
+                catch (Exception ex) when (ex is UnauthorizedAccessException or System.Security.SecurityException or IOException) { }
             }
         });
     }

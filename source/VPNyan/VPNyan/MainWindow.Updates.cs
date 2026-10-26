@@ -104,7 +104,7 @@ public partial class MainWindow
             if (activeServer != null) throw new IOException("Не удалось подтвердить отключение VPN.");
             UpdateBannerDetail.Text = "Перезапускаю VPN4ik…";
             UpdateInstaller.Launch(work, executable);
-            Close(); // OnClosing defers until the management operation exits its finally block.
+            ExitApplication(); // Updating must exit even when the close button normally hides to tray.
         }
         catch (OperationCanceledException) when (lifetime.IsCancellationRequested || updateCancellation?.IsCancellationRequested == true) { }
         catch

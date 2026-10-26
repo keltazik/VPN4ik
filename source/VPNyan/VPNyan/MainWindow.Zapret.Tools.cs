@@ -31,9 +31,9 @@ public partial class MainWindow
         }
         finally { loadingZapret = false; }
         if (found.Count > 0) await LoadZapretFolderAsync(found[0].Folder, true);
-        else if (zapretInfo == null) { ZapretStateText.Text = "zapret не найден"; ZapretFolderExpander.IsExpanded = true; UpdateZapretStrategyHint(); }
+        else if (zapretInfo == null) { ZapretStateText.Text = "zapret не найден"; ZapretFolderExpander.IsExpanded = true; }
         ZapretDiscoveryStatus.Text = found.Count == 0 ? "zapret не найден в обычных местах. Нажми «Указать папку вручную» и выбери распакованную папку с service.bat."
-            : found.Count == 1 ? "zapret найден автоматически. Путь сохранён." : $"Найдено установок: {found.Count}. Выбери нужную из списка; сохранённый путь имеет приоритет.";
+            : found.Count == 1 ? "" : $"Найдено установок: {found.Count}. Выбери нужную из списка.";
     }
     private async void ZapretInstallation_Changed(object sender, SelectionChangedEventArgs e)
     {
@@ -104,6 +104,19 @@ public partial class MainWindow
         try { ZapretDiscordFakeCurrent.Text = "Discord UDP · сейчас: " + ZapretProfiles.CurrentFake(folder, "discord"); ZapretGameFakeCurrent.Text = "Game Filter UDP · сейчас: " + ZapretProfiles.CurrentFake(folder, "game"); } catch { }
     }
     private async void ZapretService_Click(object sender, RoutedEventArgs e) => await RunZapretToolAsync((string)((FrameworkElement)sender).Tag);
+    private async void ZapretServiceBat_Click(object sender, RoutedEventArgs e)
+    {
+        if (zapretBusy || zapretInfo == null || isConnecting || isSwitching || isResetting) return;
+        zapretBusy = true; UpdateServerControls();
+        try
+        {
+            var start = ZapretProfiles.ServiceMenuStart(settings.ZapretFolder);
+            using var menu = await Task.Run(() => Process.Start(start));
+            ZapretActionStatus.Text = "service.bat открыт в отдельном окне."; LogZapret("Открыто штатное меню service.bat.");
+        }
+        catch (Exception ex) { ZapretError(ex); }
+        finally { zapretBusy = false; UpdateServerControls(); FinishPendingClose(); }
+    }
     private async void ZapretTool_Click(object sender, RoutedEventArgs e) => await RunZapretToolAsync((string)((FrameworkElement)sender).Tag);
     internal async Task RunZapretToolAsync(string action)
     {

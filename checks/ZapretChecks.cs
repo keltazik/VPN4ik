@@ -18,7 +18,7 @@ internal static class ZapretChecks
     {
         var folder=Folder(fixtures);
         for(var index=1;index<=28;index++) File.Copy(Path.Combine(folder,"general.bat"),Path.Combine(folder,$"general (ALT{index}).bat"));
-        var controller=new FakeZapret(); var data=Path.Combine(fixtures,"bat-dropdown-"+Guid.NewGuid().ToString("N"));
+        var controller=new FakeZapret { Services=new() {new ZapretService("zapret",1,0){Strategy="general.bat",StrategyVerified=true}} }; var data=Path.Combine(fixtures,"bat-dropdown-"+Guid.NewGuid().ToString("N"));
         var window=new MainWindow(false,data,zapret:controller);
         Await(window.InitializeZapretFolderAsync(new[] { folder })); window.ShowSection("zapret"); Pump();
         Render(window,Path.Combine(fixtures,"zapret-bat-list-760x540.png"),new Size(760,540));
@@ -26,6 +26,10 @@ internal static class ZapretChecks
         check(selector.Items.Count==29 && selector.Items.Cast<ZapretProfile>().All(profile=>profile.FileName.EndsWith(".bat")),"The BAT dropdown lists every available strategy, including the last numbered ALT file");
         var root=(FrameworkElement)window.Content;
         check(selector.TransformToAncestor(root).Transform(new Point()).Y<300 && selector.ActualWidth>200,"BAT selection is immediately visible at the top of the compact zapret page");
+        var page=(ScrollViewer)window.FindName("ZapretPage");page.ScrollToTop();Pump();var selectedBefore=selector.SelectedIndex;
+        var wheel=new System.Windows.Input.MouseWheelEventArgs(System.Windows.Input.Mouse.PrimaryDevice,Environment.TickCount,-120){RoutedEvent=System.Windows.Input.Mouse.PreviewMouseWheelEvent};
+        selector.RaiseEvent(wheel);Pump();
+        check(wheel.Handled&&selector.SelectedIndex==selectedBefore&&page.VerticalOffset>0,"Wheel over a closed BAT selector scrolls the page without changing the selected file");
         selector.ApplyTemplate();
         var popup=(System.Windows.Controls.Primitives.Popup)selector.Template.FindName("PART_Popup",selector);
         var panel=(FrameworkElement)popup.Child; var size=new Size(selector.ActualWidth,312);
@@ -35,6 +39,7 @@ internal static class ZapretChecks
         var bitmap=new RenderTargetBitmap((int)size.Width,(int)size.Height,96,96,PixelFormats.Pbgra32); bitmap.Render(panel);
         var encoder=new PngBitmapEncoder();encoder.Frames.Add(BitmapFrame.Create(bitmap));using(var output=File.Create(Path.Combine(fixtures,"zapret-bat-popup.png")))encoder.Save(output);
         selector.SelectedIndex=selector.Items.Count-1; var chosen=(ZapretProfile)selector.SelectedItem;
+        check(((TextBlock)window.FindName("ZapretServiceText")).Text.Contains("Установлен: general.bat")&&chosen.FileName!="general.bat","Installed service status keeps the actual installed BAT when a different pending BAT is selected");
         Await(window.ManageZapretAsync("start"));
         check(controller.LastStrategy==chosen.FileName && AppSettings.LoadFromPath(Path.Combine(data,"settings.json")).ZapretStrategy==chosen.FileName,"Selecting a BAT persists it and starts that exact strategy");
         Await(window.ManageZapretAsync("stop"));window.Close();Pump();
@@ -83,6 +88,13 @@ internal static class ZapretChecks
         var command = ZapretNative.BuildServiceCommand(first, "general.bat"); ZapretNative.ValidateServiceCommand(command, first);
         Reject(() => ZapretNative.ValidateServiceCommand(command, second));
         check(ZapretProfiles.SplitCommandLine(command)[0] == Path.Combine(first, "bin", "winws.exe"), "Service commands preserve spaced paths and reject a different installation");
+        File.WriteAllText(Path.Combine(first,"general (ALT2).bat"),File.ReadAllText(Path.Combine(first,"general.bat")).Replace("--new","--new --filter-tcp=80"));
+        var installed=ZapretNative.ResolveServiceStrategy(first,command,"general (ALT2)");
+        check(installed.File=="general.bat"&&installed.Verified,"Installed BAT status is resolved from actual service arguments instead of a stale selected or recorded strategy");
+        var foreign=ZapretNative.ResolveServiceStrategy(second,command,"general");
+        check(foreign.File==""&&!foreign.Verified,"Installed BAT resolution does not attribute a service from another installation");
+        var menu=ZapretProfiles.ServiceMenuStart(first);
+        check(menu.UseShellExecute&&menu.Verb=="runas"&&menu.WorkingDirectory==first&&menu.Arguments.EndsWith("service.bat\" admin\"")&&menu.WindowStyle==System.Diagnostics.ProcessWindowStyle.Normal,"Original service.bat opens a visible elevated interactive menu with a quoted installation path");
         var data = Path.Combine(fixtures, "discovery-ui-" + Guid.NewGuid().ToString("N")); var window = new MainWindow(false, data, zapret: new FakeZapret());
         Await(window.InitializeZapretFolderAsync(new[] { root }));
         var selector = (System.Windows.Controls.ComboBox)window.FindName("ZapretInstallationsSelect");
@@ -260,8 +272,8 @@ internal static class ZapretChecks
     }
     private sealed class FakeZapret : IZapretController
     {
-        internal bool Running, FailPause, HoldPause; internal int OtherProcesses; internal string LastStrategy=""; internal List<string> Actions = new(); internal TaskCompletionSource PauseGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        private ZapretState State() => new() { Processes = Running ? new() { new(1234, 1, new[] { "--wf-tcp=443" }) } : new(), OtherProcesses = OtherProcesses };
+        internal bool Running, FailPause, HoldPause; internal int OtherProcesses; internal string LastStrategy=""; internal List<ZapretService> Services=new(); internal List<string> Actions = new(); internal TaskCompletionSource PauseGate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private ZapretState State() => new() { Processes = Running ? new() { new(1234, 1, new[] { "--wf-tcp=443" }) } : new(), OtherProcesses = OtherProcesses,Services=Services };
         public Task<ZapretState> ReadAsync(string folder, CancellationToken token) => Task.FromResult(State());
         public async Task<ZapretResult> RunAsync(ZapretRequest request, CancellationToken token)
         {

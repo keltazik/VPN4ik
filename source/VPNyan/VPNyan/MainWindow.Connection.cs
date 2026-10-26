@@ -32,7 +32,7 @@ public partial class MainWindow
     protected override void OnStateChanged(EventArgs e)
     {
         base.OnStateChanged(e);
-        if (useBackground && settings.MinimizeToTray && WindowState == WindowState.Minimized) Hide();
+        if (systemTray?.IsAvailable == true && settings.MinimizeToTray && WindowState == WindowState.Minimized) Hide();
     }
 
     public Task Connect() => isSwitching || isManagingData || isResetting || zapretBusy ? Task.CompletedTask : ConnectCoreAsync();
@@ -259,11 +259,14 @@ public partial class MainWindow
         finally { isCheckingConnection = false; }
     }
 
+    private bool exitRequested;
+    internal void ExitApplication() { exitRequested = true; Close(); }
     protected override async void OnClosing(CancelEventArgs e)
     {
         if (allowClose) { base.OnClosing(e); return; }
         e.Cancel = true;
         base.OnClosing(e);
+        if (!exitRequested && settings.CloseToTray && systemTray?.IsAvailable == true) { Hide(); return; }
         if (isConnecting || isSwitching || isManagingData || isResetting || zapretBusy) { closeRequested = true; connectionCancellation?.Cancel(); zapretOperation?.Cancel(); if (installingUpdate) updateCancellation?.Cancel(); return; }
         closeRequested = false;
         if (pendingZapretLists.Count > 0) await SaveZapretListsAsync(false);

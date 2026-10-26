@@ -156,7 +156,7 @@ namespace VPNyan
         bool readingTraffic;
         readonly ObservableCollection<ServerItem> servers = new();
         AppSettings settings = new();
-        SystemTray? systemTray;
+        ITrayHost? systemTray;
         ActivityStore activity = null!;
         IVpnSession? xraySession;
         readonly Func<IVpnSession> sessionFactory;
@@ -171,7 +171,7 @@ namespace VPNyan
 
         public MainWindow() : this(true) { }
 
-        internal MainWindow(bool startMonitoring, string? dataDirectory = null, Func<IVpnSession>? connectionFactory = null, IZapretController? zapret = null)
+        internal MainWindow(bool startMonitoring, string? dataDirectory = null, Func<IVpnSession>? connectionFactory = null, IZapretController? zapret = null, ITrayHost? tray = null)
         {
             sessionFactory = connectionFactory ?? (() => new XraySession());
             canCreateSession = startMonitoring || connectionFactory != null;
@@ -190,7 +190,7 @@ namespace VPNyan
             MenuToggleButton.IsChecked = settings.NavigationExpanded;
             ApplyNavigationLayout(false);
             if (startMonitoring) ApplySettings();
-            if (startMonitoring) systemTray = new SystemTray(this);
+            systemTray = tray ?? (startMonitoring ? new SystemTray(this) : null);
 
             tempPath = dataDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "VPN4ik");
             Directory.CreateDirectory(tempPath);

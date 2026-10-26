@@ -5,11 +5,17 @@ using System.Windows.Forms;
 
 namespace VPNyan
 {
-    public class SystemTray : IDisposable
+    internal interface ITrayHost : IDisposable
+    {
+        bool IsAvailable { get; }
+        void ShowNotification(string title, string message);
+    }
+    internal class SystemTray : ITrayHost
     {
         private readonly NotifyIcon? trayIcon;
         private readonly MainWindow mainWindow;
         private readonly System.Drawing.Icon? applicationIcon;
+        public bool IsAvailable => trayIcon?.Visible == true;
 
         public SystemTray(MainWindow window)
         {
@@ -44,7 +50,7 @@ namespace VPNyan
                 ctx.Items.Add("Подключиться", null, (s, e) => _ = mainWindow.Connect());
                 ctx.Items.Add("Отключиться", null, async (s, e) => await mainWindow.Disconnect());
                 ctx.Items.Add("Открыть приложение", null, (s, e) => { mainWindow.Show(); mainWindow.WindowState = WindowState.Normal; mainWindow.Activate(); });
-                ctx.Items.Add("Выход", null, (s, e) => mainWindow.Close());
+                ctx.Items.Add("Выход", null, (s, e) => mainWindow.ExitApplication());
                 trayIcon.ContextMenuStrip = ctx;
             }
             catch

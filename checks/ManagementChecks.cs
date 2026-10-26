@@ -86,6 +86,8 @@ internal static class ManagementChecks
         var processList = (ListBox)window.FindName("ProcessPickerList");
         check(processList.Items.Count > 0, "Process picker enumerates running processes without elevation");
         var choices = (List<ProcessChoice>)processList.ItemsSource;
+        check(choices.All(process=>process.Icon.IsFrozen)&&choices.Any(process=>process.Icon is BitmapSource),"Process picker provides frozen application icons from executable files for cross-thread UI use");
+        check(ReferenceEquals(ProcessIcons.Load(""),ProcessIcons.Fallback)&&ProcessIcons.Fallback.IsFrozen,"Inaccessible process paths use a frozen themed fallback icon");
         choices[0].Selected = true;
         Render(window, Path.Combine(fixtures, "process-picker-760x540.png"), new Size(760, 540));
         var rule = RoutingSettings.Parse(choices[0].Rule, "process").Single();

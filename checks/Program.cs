@@ -96,6 +96,7 @@ internal static class Program
             CheckOrnamentAnimation(window);
             CheckSections(window, fixtures);
             ManagementChecks.Run(fixtures, Require);
+            TrayChecks.Run(fixtures, Require);
             UpdateChecks.Run(fixtures, Require);
             SubscriptionRegressionChecks.CheckMixedUi(fixtures, Require);
             ZapretChecks.Run(fixtures, Require);

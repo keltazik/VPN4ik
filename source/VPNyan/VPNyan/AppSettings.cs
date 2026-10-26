@@ -10,6 +10,7 @@ namespace VPNyan
         public bool KillSwitch { get; set; }
         public bool StartWithWindows { get; set; }
         public bool MinimizeToTray { get; set; } = true;
+        public bool CloseToTray { get; set; }
         public bool StartMinimized { get; set; }
         public bool AutoConnect { get; set; }
         public bool ShowNotifications { get; set; } = true;
@@ -54,7 +55,7 @@ namespace VPNyan
 
         internal AppSettings Copy() => new()
         {
-            KillSwitch = KillSwitch, StartWithWindows = StartWithWindows, MinimizeToTray = MinimizeToTray,
+            KillSwitch = KillSwitch, StartWithWindows = StartWithWindows, MinimizeToTray = MinimizeToTray, CloseToTray = CloseToTray,
             StartMinimized = StartMinimized, AutoConnect = AutoConnect, ShowNotifications = ShowNotifications, CheckForUpdates = CheckForUpdates,
             ZapretFolder = ZapretFolder, ZapretStrategy = ZapretStrategy, DisableZapretOnConnect = DisableZapretOnConnect, RestoreZapretAfterVpn = RestoreZapretAfterVpn,
             LastServer = LastServer, Theme = Theme, TunMtu = TunMtu, NavigationExpanded = NavigationExpanded, ServerSort = ServerSort, StoragePath = StoragePath,
