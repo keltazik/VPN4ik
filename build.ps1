@@ -12,10 +12,18 @@ try {
     $env:APPDATA = Join-Path $vpnProjectRoot '.dotnet-home\AppData'
     $env:MSBuildEnableWorkloadResolver = 'false'
     $env:DOTNET_CLI_TELEMETRY_OPTOUT = '1'
-    dotnet restore source\VPNyan\VPNyan\VPNyan.csproj -r win-x64 --configfile NuGet.Config --packages .nuget -p:SelfContained=true -p:NuGetAudit=false --verbosity quiet
+    dotnet restore source\VPNyan\VPNyan\VPNyan.csproj -r win-x64 --configfile NuGet.Config --packages .nuget -p:PublishProfile=Portable -p:NuGetAudit=false --verbosity quiet
     if ($LASTEXITCODE -ne 0) { throw 'Restore failed.' }
-    dotnet publish source\VPNyan\VPNyan\VPNyan.csproj -c Release -r win-x64 --self-contained true --no-restore -o $OutputDirectory --verbosity quiet
+    # Publish into a fresh directory so files from an earlier publish cannot leak into the release.
+    $vpnPublish = Join-Path $vpnProjectRoot ('artifacts\publish-' + [Guid]::NewGuid().ToString('N'))
+    dotnet publish source\VPNyan\VPNyan\VPNyan.csproj -c Release -p:PublishProfile=Portable --no-restore -o $vpnPublish --verbosity quiet
     if ($LASTEXITCODE -ne 0) { throw 'Publish failed.' }
+    & (Join-Path $vpnProjectRoot 'checks\check-portable.ps1') -BuildDirectory $vpnPublish
+    $vpnDestination = [IO.Path]::GetFullPath((Join-Path $vpnProjectRoot $OutputDirectory))
+    $vpnArtifacts = [IO.Path]::GetFullPath((Join-Path $vpnProjectRoot 'artifacts')) + [IO.Path]::DirectorySeparatorChar
+    if (!$vpnDestination.StartsWith($vpnArtifacts, [StringComparison]::OrdinalIgnoreCase)) { throw 'OutputDirectory must be a subdirectory of artifacts.' }
+    if (Test-Path -LiteralPath $vpnDestination) { Remove-Item -LiteralPath $vpnDestination -Recurse -Force }
+    Move-Item -LiteralPath $vpnPublish -Destination $vpnDestination
     Write-Output "Ready: $OutputDirectory\VPNyan.exe (copy the entire output folder)."
 }
 finally {

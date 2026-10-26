@@ -68,6 +68,9 @@
         <Setter Property="BorderBrush" Value="#4B2C36"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="10,9"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Top"/>
+        <Setter Property="TextAlignment" Value="Left"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -76,7 +79,7 @@
                             BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
                         <Grid>
                             <ScrollViewer x:Name="PART_ContentHost"/>
-                            <TextBlock x:Name="Placeholder" Text="{TemplateBinding Tag}" Foreground="#8F7267" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" IsHitTestVisible="False" Visibility="Collapsed"/>
+                            <TextBlock x:Name="Placeholder" Text="{TemplateBinding AutomationProperties.HelpText}" Foreground="#8F7267" Margin="{TemplateBinding Padding}" HorizontalAlignment="Left" VerticalAlignment="Top" TextAlignment="Left" TextWrapping="Wrap" IsHitTestVisible="False" Visibility="Collapsed"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -161,19 +164,46 @@
         <Setter Property="Foreground" Value="#E6C07B"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="Margin" Value="0,0,0,12"/>
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocus}"/>
         <Setter Property="Template"><Setter.Value>
             <ControlTemplate TargetType="CheckBox">
                 <Grid Background="Transparent">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CheckStates">
+                            <VisualStateGroup.Transitions>
+                                <VisualTransition GeneratedDuration="0:0:0.16">
+                                    <VisualTransition.GeneratedEasingFunction><CubicEase EasingMode="EaseInOut"/></VisualTransition.GeneratedEasingFunction>
+                                </VisualTransition>
+                            </VisualStateGroup.Transitions>
+                            <VisualState x:Name="Unchecked"/>
+                            <VisualState x:Name="Checked">
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="SwitchThumb" Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="20" Duration="0"/>
+                                    <ColorAnimation Storyboard.TargetName="SwitchThumb" Storyboard.TargetProperty="(Shape.Fill).(SolidColorBrush.Color)" To="#FFD27A" Duration="0"/>
+                                    <ColorAnimation Storyboard.TargetName="SwitchTrack" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" To="#654134" Duration="0"/>
+                                    <ColorAnimation Storyboard.TargetName="SwitchTrack" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" To="#C9A15C" Duration="0"/>
+                                </Storyboard>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
                     <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                    <Border x:Name="CheckBorder" Width="20" Height="20" Background="#20111C" BorderBrush="#765239" BorderThickness="1" CornerRadius="5" VerticalAlignment="Top">
-                        <Path x:Name="CheckMark" Data="M 3 8 L 7 12 L 14 4" Stroke="#FFD27A" StrokeThickness="2" Stretch="None" Margin="1" Visibility="Collapsed"/>
-                    </Border>
+                    <Grid Width="44" Height="24" VerticalAlignment="Center">
+                        <Border x:Name="SwitchTrack" BorderThickness="1" CornerRadius="12">
+                            <Border.Background><SolidColorBrush Color="#20111C"/></Border.Background>
+                            <Border.BorderBrush><SolidColorBrush Color="#765239"/></Border.BorderBrush>
+                        </Border>
+                        <Ellipse x:Name="SwitchThumb" Width="16" Height="16" HorizontalAlignment="Left" Margin="4,0,0,0">
+                            <Ellipse.Fill><SolidColorBrush Color="#A78762"/></Ellipse.Fill>
+                            <Ellipse.RenderTransform><TranslateTransform/></Ellipse.RenderTransform>
+                        </Ellipse>
+                        <Border x:Name="SwitchHover" BorderBrush="#FFD27A" BorderThickness="1" CornerRadius="12" Opacity="0" IsHitTestVisible="False"/>
+                    </Grid>
                     <ContentPresenter Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True"/>
                 </Grid>
                 <ControlTemplate.Triggers>
-                    <Trigger Property="IsChecked" Value="True"><Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/><Setter TargetName="CheckBorder" Property="Background" Value="#3A2332"/></Trigger>
-                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="CheckBorder" Property="BorderBrush" Value="#FFD27A"/></Trigger>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="SwitchHover" Property="Opacity" Value="0.65"/></Trigger>
                     <Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.4"/></Trigger>
                 </ControlTemplate.Triggers>
             </ControlTemplate>

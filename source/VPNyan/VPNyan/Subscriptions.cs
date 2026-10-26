@@ -28,7 +28,9 @@ internal static class SubscriptionParser
 {
     internal const int MaxBytes = 4 * 1024 * 1024;
     private static readonly HashSet<string> Protocols = new(StringComparer.OrdinalIgnoreCase)
-        { "vless", "vmess", "trojan", "shadowsocks", "socks", "hysteria2", "hy2" };
+        { "vless", "vmess", "trojan", "shadowsocks", "socks", "hysteria", "hysteria2", "hy2" };
+    private static readonly HashSet<string> ServiceProtocols = new(StringComparer.OrdinalIgnoreCase)
+        { "freedom", "blackhole", "dns" };
 
     internal static Uri ParseUrl(string value)
     {
@@ -60,8 +62,11 @@ internal static class SubscriptionParser
             {
                 using var document = JsonDocument.Parse(body, new JsonDocumentOptions { MaxDepth = 64 });
                 if (document.RootElement.ValueKind == JsonValueKind.Array)
-                    foreach (var config in document.RootElement.EnumerateArray()) profiles.Add(ParseConfig(config));
-                else profiles.Add(ParseConfig(document.RootElement));
+                {
+                    foreach (var config in document.RootElement.EnumerateArray())
+                        if (ParseConfig(config) is { } profile) profiles.Add(profile);
+                }
+                else if (ParseConfig(document.RootElement) is { } profile) profiles.Add(profile);
             }
             else
             {
@@ -75,21 +80,35 @@ internal static class SubscriptionParser
         catch (JsonException) { throw new InvalidDataException("В подписке некорректный JSON."); }
         catch (Exception ex) when (ex is FormatException or InvalidOperationException or KeyNotFoundException or OverflowException)
         { throw new InvalidDataException("В подписке некорректная конфигурация сервера."); }
-        if (profiles.Count == 0) throw new InvalidDataException("В подписке нет серверов.");
+        if (profiles.Count == 0)
+            throw new InvalidDataException("В подписке нет поддерживаемых прокси-серверов. Если провайдер вернул служебный профиль, проверь срок подписки и ссылку для Xray/V2Ray.");
         if (profiles.Count > 1000) throw new InvalidDataException("В подписке больше 1000 серверов.");
         return profiles.DistinctBy(p => p.Id).ToList();
     }
 
-    private static SubscriptionProfile ParseConfig(JsonElement config)
+    private static SubscriptionProfile? ParseConfig(JsonElement config)
     {
         if (config.ValueKind != JsonValueKind.Object || !config.TryGetProperty("outbounds", out var outbounds) ||
             outbounds.ValueKind != JsonValueKind.Array)
             throw new InvalidDataException("Ожидается конфигурация Xray с массивом outbounds.");
         var outbound = outbounds.EnumerateArray().FirstOrDefault(o => Protocols.Contains(Text(o, "protocol")));
         if (outbound.ValueKind == JsonValueKind.Undefined)
+        {
+            // Providers can put a direct/block-only informational profile before the real servers.
+            // Skip only known service profiles; malformed or unknown formats remain errors.
+            if (outbounds.GetArrayLength() > 0 && outbounds.EnumerateArray().All(o => ServiceProtocols.Contains(Text(o, "protocol"))))
+                return null;
             throw new InvalidDataException("В конфигурации нет поддерживаемого прокси-сервера.");
+        }
         var protocol = Text(outbound, "protocol");
         var settings = outbound.GetProperty("settings");
+        if (protocol.Equals("hysteria", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!settings.TryGetProperty("version", out var version) || version.GetInt32() != 2)
+                throw new InvalidDataException("Поддерживается Hysteria версии 2.");
+            return Create(Text(config, "remarks"), protocol, Text(settings, "address"),
+                settings.GetProperty("port").GetInt32(), config.GetRawText());
+        }
         var entries = settings.TryGetProperty("vnext", out var vnext) ? vnext : settings.GetProperty("servers");
         if (entries.ValueKind != JsonValueKind.Array || entries.GetArrayLength() == 0)
             throw new InvalidDataException("В конфигурации не указан адрес сервера.");
@@ -204,28 +223,4 @@ internal sealed class SubscriptionClient : IDisposable
     }
 
     public void Dispose() => client.Dispose();
-}
-
-internal static class SubscriptionStore
-{
-    internal static void Save(string path, IReadOnlyList<Subscription> subscriptions)
-    {
-        var data = JsonSerializer.SerializeToUtf8Bytes(subscriptions);
-        var protectedData = ProtectedData.Protect(data, null, DataProtectionScope.CurrentUser);
-        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-        var pending = path + ".tmp";
-        try
-        {
-            File.WriteAllBytes(pending, protectedData);
-            File.Move(pending, path, true);
-        }
-        finally { if (File.Exists(pending)) File.Delete(pending); }
-    }
-
-    internal static List<Subscription> Load(string path)
-    {
-        if (!File.Exists(path)) return new();
-        var data = ProtectedData.Unprotect(File.ReadAllBytes(path), null, DataProtectionScope.CurrentUser);
-        return JsonSerializer.Deserialize<List<Subscription>>(data) ?? new();
-    }
 }

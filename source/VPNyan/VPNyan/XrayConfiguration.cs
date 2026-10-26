@@ -23,7 +23,7 @@ internal sealed class EngineRequest
 internal static class XrayConfiguration
 {
     internal const string InterfaceName = "VPN4ik-TUN";
-    internal static bool Supports(string protocol) => protocol.ToLowerInvariant() is "vless" or "vmess" or "trojan" or "shadowsocks" or "socks";
+    internal static bool Supports(string protocol) => protocol.ToLowerInvariant() is "vless" or "vmess" or "trojan" or "shadowsocks" or "socks" or "hysteria" or "hysteria2" or "hy2";
 
     internal static string Build(EngineRequest request)
     {
@@ -43,8 +43,12 @@ internal static class XrayConfiguration
         {
             if (!IPAddress.TryParse(request.EndpointAddress, out _)) throw new InvalidDataException("Не разрешён адрес сервера.");
             var settings = outbound["settings"]!.AsObject();
-            var list = settings["vnext"] ?? settings["servers"];
-            list![0]!["address"] = request.EndpointAddress;
+            if (outbound["protocol"]!.GetValue<string>() == "hysteria") settings["address"] = request.EndpointAddress;
+            else
+            {
+                var list = settings["vnext"] ?? settings["servers"];
+                list![0]!["address"] = request.EndpointAddress;
+            }
         }
         outbound["tag"] = "proxy";
         var inbounds = new JsonArray
@@ -143,16 +147,22 @@ internal static class XrayConfiguration
     private static JsonObject SanitizeOutbound(JsonObject source)
     {
         var protocol = source["protocol"]?.GetValue<string>()?.ToLowerInvariant() ?? "";
+        if (protocol is "hy2" or "hysteria2") protocol = "hysteria";
         if (!Supports(protocol)) throw new InvalidDataException("Неизвестный протокол подключения.");
         var settings = source["settings"] as JsonObject ?? throw new InvalidDataException("В профиле нет параметров сервера.");
         var listKey = protocol is "vless" or "vmess" ? "vnext" : "servers";
-        var endpoint = settings[listKey]?.AsArray().FirstOrDefault() as JsonObject ?? throw new InvalidDataException("В профиле не задан сервер.");
+        var endpoint = protocol == "hysteria" ? settings : settings[listKey]?.AsArray().FirstOrDefault() as JsonObject ?? throw new InvalidDataException("В профиле не задан сервер.");
         var cleanEndpoint = Copy(endpoint, "address", "port");
         var address = cleanEndpoint["address"]?.GetValue<string>() ?? "";
         var port = cleanEndpoint["port"]?.GetValue<int>() ?? 0;
         if (Uri.CheckHostName(address) == UriHostNameType.Unknown || port is < 1 or > 65535)
             throw new InvalidDataException("Некорректный адрес сервера.");
-        if (listKey == "vnext")
+        if (protocol == "hysteria")
+        {
+            if (settings["version"]?.GetValue<int>() != 2) throw new InvalidDataException("Поддерживается Hysteria версии 2.");
+            cleanEndpoint["version"] = 2;
+        }
+        else if (listKey == "vnext")
         {
             var user = endpoint["users"]?.AsArray().FirstOrDefault() as JsonObject ?? throw new InvalidDataException("В профиле нет ключа пользователя.");
             cleanEndpoint["users"] = new JsonArray(Copy(user, "id", "encryption", "flow", "security", "alterId", "level"));
@@ -164,10 +174,10 @@ internal static class XrayConfiguration
             if (endpoint["users"] is JsonArray users)
                 cleanEndpoint["users"] = new JsonArray(users.OfType<JsonObject>().Select(u => (JsonNode)Copy(u, "user", "pass")).ToArray());
         }
-        var result = new JsonObject { ["protocol"] = protocol, ["settings"] = new JsonObject { [listKey] = new JsonArray(cleanEndpoint) } };
+        var result = new JsonObject { ["protocol"] = protocol, ["settings"] = protocol == "hysteria" ? cleanEndpoint : new JsonObject { [listKey] = new JsonArray(cleanEndpoint) } };
         var stream = source["streamSettings"] as JsonObject ?? new JsonObject();
         var network = stream["network"]?.GetValue<string>()?.ToLowerInvariant() ?? "tcp";
-        if (network is not ("tcp" or "raw" or "grpc" or "ws" or "httpupgrade" or "xhttp" or "splithttp"))
+        if (network is not ("tcp" or "raw" or "grpc" or "ws" or "httpupgrade" or "xhttp" or "splithttp" or "hysteria"))
             throw new InvalidDataException("Этот транспорт подключения пока не поддерживается.");
         var security = stream["security"]?.GetValue<string>()?.ToLowerInvariant() ?? "none";
         if (security is not ("none" or "tls" or "reality")) throw new InvalidDataException("Неизвестный режим шифрования профиля.");
@@ -177,7 +187,23 @@ internal static class XrayConfiguration
             var tls = stream["tlsSettings"] as JsonObject;
             if (tls?["allowInsecure"]?.GetValue<bool>() == true)
                 throw new InvalidDataException("Профиль отключает проверку сертификата TLS. Нужна безопасная конфигурация сервера.");
-            cleanStream["tlsSettings"] = Copy(tls, "serverName", "alpn", "fingerprint", "verifyPeerCertByName", "pinnedPeerCertSha256", "disableSystemRoot");
+            cleanStream["tlsSettings"] = Copy(tls, "serverName", "alpn", "fingerprint", "verifyPeerCertByName", "pinnedPeerCertSha256", "disableSystemRoot", "enableSessionResumption");
+        }
+        if (protocol == "hysteria")
+        {
+            if (network != "hysteria" || security != "tls") throw new InvalidDataException("Для Hysteria2 требуются транспорт Hysteria и TLS.");
+            var hysteria = stream["hysteriaSettings"] as JsonObject;
+            if (hysteria?["version"]?.GetValue<int>() != 2 || string.IsNullOrWhiteSpace(hysteria["auth"]?.GetValue<string>()))
+                throw new InvalidDataException("В профиле Hysteria2 нет параметров авторизации.");
+            cleanStream["hysteriaSettings"] = Copy(hysteria, "version", "auth", "udpIdleTimeout");
+            if (stream["finalmask"] is JsonObject mask)
+            {
+                if (mask["udp"] != null || mask["tcp"] != null) throw new InvalidDataException("Этот вариант маскировки Hysteria2 пока не поддерживается.");
+                if (mask["quicParams"] is JsonObject quic)
+                    cleanStream["finalmask"] = new JsonObject { ["quicParams"] = Copy(quic,
+                        "debug", "bbrProfile", "congestion", "maxIdleTimeout", "keepAlivePeriod", "maxIncomingStreams",
+                        "maxStreamReceiveWindow", "initStreamReceiveWindow", "maxConnectionReceiveWindow", "initConnectionReceiveWindow", "up", "down") };
+            }
         }
         if (security == "reality") cleanStream["realitySettings"] = Copy(stream["realitySettings"] as JsonObject,
             "serverName", "fingerprint", "publicKey", "password", "shortId", "spiderX", "mldsa65Verify");
@@ -222,11 +248,23 @@ internal static class XrayConfiguration
         }
         if (!Uri.TryCreate(link, UriKind.Absolute, out var uri)) throw new InvalidDataException("Некорректная ссылка профиля.");
         var protocol = uri.Scheme == "ss" ? "shadowsocks" : uri.Scheme;
-        var endpoint = new JsonObject { ["address"] = uri.Host.Trim('[', ']'), ["port"] = uri.Port };
+        if (protocol is "hy2" or "hysteria2") protocol = "hysteria";
+        var endpoint = new JsonObject { ["address"] = uri.Host.Trim('[', ']'), ["port"] = uri.Port < 0 && protocol == "hysteria" ? 443 : uri.Port };
         var query = uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries).Select(p => p.Split('=', 2))
             .GroupBy(p => Uri.UnescapeDataString(p[0])).ToDictionary(g => g.Key, g => Uri.UnescapeDataString(g.Last().Length == 2 ? g.Last()[1] : ""));
         string Q(string key, string fallback = "") => query.TryGetValue(key, out var value) ? value : fallback;
         var credentials = Uri.UnescapeDataString(uri.UserInfo);
+        if (protocol == "hysteria")
+        {
+            if (Q("insecure") is "1" or "true" || Q("allowInsecure") is "1" or "true")
+                throw new InvalidDataException("Профиль отключает проверку сертификата TLS.");
+            if (Q("obfs") != "") throw new InvalidDataException("Этот вариант маскировки Hysteria2 пока не поддерживается.");
+            endpoint["version"] = 2;
+            return new JsonObject { ["protocol"] = protocol, ["settings"] = endpoint,
+                ["streamSettings"] = new JsonObject { ["network"] = "hysteria", ["security"] = "tls",
+                    ["hysteriaSettings"] = new JsonObject { ["version"] = 2, ["auth"] = credentials },
+                    ["tlsSettings"] = new JsonObject { ["serverName"] = Q("sni", uri.Host), ["alpn"] = new JsonArray("h3") } } };
+        }
         var settings = new JsonObject();
         if (protocol is "vless" or "vmess")
         {

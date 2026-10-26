@@ -3,6 +3,8 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
+    <Version>1.0.0-beta.2</Version>
+    <Product>VPN4ik</Product>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
@@ -31,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="ornament.png" />
     <Content Include="Engine\xray.exe;Engine\wintun.dll;Engine\geoip.dat;Engine\geosite.dat;Engine\LICENSE;Engine\LICENSE-Wintun">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

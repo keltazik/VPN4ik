@@ -1,5 +1,6 @@
 .dotnet-home/
 .nuget/
+.tools/
 **/bin/
 **/obj/
 **/.vs/

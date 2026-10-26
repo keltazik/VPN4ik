@@ -37,7 +37,22 @@ namespace VPNyan
     public class ServerItem : INotifyPropertyChanged
     {
         public string ConfigPath { get; set; } = "";
-        public string Name { get; set; } = "";
+        private string name = "", countryCode = "";
+        public string Name
+        {
+            get => name;
+            set
+            {
+                if (name == value) return;
+                name = value ?? ""; countryCode = ServerCountry.Identify(name);
+                OnPropertyChanged(nameof(Name)); OnPropertyChanged(nameof(DisplayName));
+                OnPropertyChanged(nameof(CountryCode)); OnPropertyChanged(nameof(CountryFlag)); OnPropertyChanged(nameof(CountryLabel));
+            }
+        }
+        public string DisplayName => ServerCountry.DisplayName(Name);
+        public string CountryCode => countryCode;
+        public ImageSource CountryFlag => ServerCountry.Flag(countryCode);
+        public string CountryLabel => countryCode == "" ? "Страна не указана в названии сервера" : ServerCountry.Label(countryCode) + " · по названию сервера";
         public string Address { get; set; } = "";
         public int Port { get; set; }
         public string VpnEndpoint { get; set; } = "";
@@ -55,6 +70,7 @@ namespace VPNyan
         public string PingDetail { get; private set; } = "TCP-пинг ещё не измерен.";
         public DateTime? LatencyMeasuredAt { get; private set; }
         public bool LatencyViaVpn { get; private set; }
+        public bool PingPotentiallyInaccurate { get; private set; }
         public List<int> PingHistory { get; set; } = new List<int>();
 
         public void UpdatePingDisplay()
@@ -65,6 +81,8 @@ namespace VPNyan
             else if (Ping < 100) { PingDisplay = $"{Ping} ms"; PingColor = "#FFD27A"; }
             else if (Ping < 200) { PingDisplay = $"{Ping} ms"; PingColor = "#FF9F43"; }
             else { PingDisplay = $"{Ping} ms"; PingColor = "#D4AA65"; }
+
+            if (Ping >= 0 && PingPotentiallyInaccurate) PingDisplay = "≈ " + PingDisplay;
 
             PingHistory.Add(Ping);
             if (PingHistory.Count > 20) PingHistory.RemoveAt(0);
@@ -77,6 +95,7 @@ namespace VPNyan
         {
             Ping = result.Milliseconds;
             PingDetail = result.Detail;
+            PingPotentiallyInaccurate = result.PotentiallyInaccurate;
             LatencyMeasuredAt = result.Measured ? DateTime.UtcNow : null;
             LatencyViaVpn = result.Measured && result.Kind == LatencyKind.Https;
             UpdatePingDisplay();
@@ -90,6 +109,7 @@ namespace VPNyan
             PingColor = "#A78762";
             LatencyMeasuredAt = null;
             LatencyViaVpn = false;
+            PingPotentiallyInaccurate = false;
             PingDetail = "Проверяю TCP-пинг до порта сервера.";
             OnPropertyChanged(nameof(PingDisplay)); OnPropertyChanged(nameof(PingColor)); OnPropertyChanged(nameof(PingDetail));
         }
@@ -152,6 +172,9 @@ namespace VPNyan
         internal MainWindow(bool startMonitoring, string? dataDirectory = null)
         {
             InitializeComponent();
+            UpdateOrnamentCache();
+            Loaded += (_, _) => UpdateOrnamentCache();
+            DpiChanged += (_, _) => UpdateOrnamentCache();
             useBackground = startMonitoring;
             // Keep the initial window inside the available desktop, including at high DPI.
             Height = Math.Min(Height, SystemParameters.WorkArea.Height);
@@ -281,13 +304,21 @@ namespace VPNyan
         void AddSubscriptionServers(Subscription subscription)
         {
             foreach (var profile in subscription.Profiles)
-                servers.Add(new ServerItem
+            {
+                var server = new ServerItem
                 {
                     Name = profile.Name, Address = profile.Address, Port = profile.Port, Protocol = profile.Protocol,
                     SubscriptionUrl = subscription.Url, ProfileId = profile.Id,
                     Configuration = profile.Configuration,
                     VpnEndpoint = $"{profile.Address}:{profile.Port}"
-                });
+                };
+                if (!ServerLatency.SupportsTcpPing(profile.Protocol))
+                {
+                    server.SetLatency(new LatencyResult(server.SelectionKey, -1, "Hysteria2 использует UDP; TCP-пинг для него неприменим."));
+                    server.PingDisplay = "UDP";
+                }
+                servers.Add(server);
+            }
         }
 
         void UpdateServerControls()
@@ -300,8 +331,8 @@ namespace VPNyan
             EmptyServersText.Text = servers.Count == 0 ? "Добавь подписку или файл WireGuard .conf" : "Серверы не найдены";
             EmptyServersText.Visibility = CollectionViewSource.GetDefaultView(servers).IsEmpty ? Visibility.Visible : Visibility.Collapsed;
             ServerCountText.Text = servers.Count.ToString();
-            CheckLatencyButton.IsEnabled = !isConnecting && !isImporting && !isUpdatingPings && servers.Any(s => s.Protocol != "WireGuard");
-            if (isConnecting || activeServer != null || isConnected) LatencyStatusText.Text = "Пинг недоступен при активном VPN";
+            CheckLatencyButton.IsEnabled = !isImporting && !isUpdatingPings && servers.Any(s => ServerLatency.SupportsTcpPing(s.Protocol));
+            if (!isUpdatingPings) UpdateLatencySummary();
             BestServerButton.IsEnabled = available && !isUpdatingPings && servers.Any(s => s.Ping >= 0 && s.LatencyMeasuredAt >= DateTime.UtcNow.AddMinutes(-2));
         }
 
@@ -381,13 +412,20 @@ namespace VPNyan
             pingTimer.Start(); if (settings.AutoCheckPings) _ = UpdatePings();
         }
 
-        private bool PingBlocked => isConnecting || activeServer != null || isConnected || PingPolicy.IsTunActive();
+        private bool PingMayBeInaccurate => isConnecting || activeServer != null || isConnected || PingPolicy.IsTunActive();
+
+        private void UpdateLatencySummary()
+        {
+            var count = servers.Count(s => ServerLatency.SupportsTcpPing(s.Protocol));
+            LatencyStatusText.Text = $"TCP-пинг · {servers.Count(s => ServerLatency.SupportsTcpPing(s.Protocol) && s.Ping >= 0)} из {count}" +
+                (PingMayBeInaccurate ? " · при VPN возможна погрешность" : "");
+        }
 
         private DispatcherTimer? pingWarningTimer;
 
         private void ShowPingWarning()
         {
-            PingWarningText.Text = PingPolicy.BlockedMessage;
+            PingWarningText.Text = PingPolicy.WarningMessage;
             PingWarning.Visibility = Visibility.Visible;
             pingWarningTimer ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
             pingWarningTimer.Stop();
@@ -402,23 +440,18 @@ namespace VPNyan
             PingWarning.Visibility = Visibility.Collapsed;
         }
 
-        internal async Task UpdatePings(bool notifyBlocked = false)
+        internal async Task UpdatePings(bool manual = false)
         {
-            if (!notifyBlocked && !settings.AutoCheckPings) return;
-            if (PingBlocked)
-            {
-                LatencyStatusText.Text = "Пинг недоступен при активном VPN";
-                if (notifyBlocked) ShowPingWarning();
-                return;
-            }
+            if (!manual && !settings.AutoCheckPings) return;
+            if (manual && PingMayBeInaccurate) ShowPingWarning();
             if (!useBackground || isUpdatingPings) return;
-            var snapshot = servers.Where(s => s.Protocol != "WireGuard").ToArray();
+            var snapshot = servers.Where(s => ServerLatency.SupportsTcpPing(s.Protocol)).ToArray();
             if (snapshot.Length == 0) return;
             isUpdatingPings = true;
             using var run = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
             latencyCancellation = run;
             foreach (var server in snapshot) server.SetLatencyPending();
-            LatencyStatusText.Text = "Проверяю TCP-пинг…";
+            LatencyStatusText.Text = "Проверяю TCP-пинг…" + (PingMayBeInaccurate ? " Возможна погрешность при VPN." : "");
             UpdateServerControls();
             try
             {
@@ -435,12 +468,7 @@ namespace VPNyan
                         {
                             if (run.IsCancellationRequested || Dispatcher.HasShutdownStarted) return;
                             Dispatcher.Invoke(() => chunk.FirstOrDefault(s => s.SelectionKey == result.Key && servers.Contains(s))?.SetLatency(result));
-                        }, run.Token);
-                    }
-                    catch (PingUnavailableException)
-                    {
-                        if (notifyBlocked) ShowPingWarning();
-                        break;
+                        }, run.Token, tunActive: () => PingMayBeInaccurate);
                     }
                     catch (Exception ex) when (ex is OperationCanceledException or IOException or InvalidOperationException or System.ComponentModel.Win32Exception)
                     { if (run.IsCancellationRequested) break; }
@@ -452,7 +480,7 @@ namespace VPNyan
                 foreach (var server in snapshot.Where(s => s.PingDisplay == "…"))
                     server.SetLatency(new LatencyResult(server.SelectionKey, -1, "Замер не завершён. Подключение можно попробовать независимо от результата проверки."));
                 if (!lifetime.IsCancellationRequested)
-                    LatencyStatusText.Text = PingBlocked ? "Пинг недоступен при активном VPN" : $"TCP-пинг · {snapshot.Count(s => s.Ping >= 0)} из {snapshot.Length}";
+                    UpdateLatencySummary();
                 latencyCancellation = null;
                 isUpdatingPings = false;
                 if (!lifetime.IsCancellationRequested) UpdateServerControls();
@@ -524,6 +552,17 @@ namespace VPNyan
             OrnamentScale?.BeginAnimation(ScaleTransform.ScaleYProperty, anim);
         }
 
+        private void UpdateOrnamentCache()
+        {
+            // The vector stays the source. Render once with enough spare pixels
+            // for the 1.04 hover scale, then animate outside the cached subtree.
+            // Refresh resolution on monitor/DPI changes, never on animation frames.
+            if (OrnamentImage.CacheMode is not BitmapCache cache) return;
+            var dpi = VisualTreeHelper.GetDpi(this);
+            var scale = Math.Max(1.5, Math.Max(dpi.DpiScaleX, dpi.DpiScaleY) * 1.25);
+            if (Math.Abs(cache.RenderAtScale - scale) > 0.001) cache.RenderAtScale = scale;
+        }
+
         void AnimateGlow(double opacity, double blur)
         {
             var o = new DoubleAnimation { To = opacity, Duration = TimeSpan.FromMilliseconds(300) };
@@ -574,7 +613,7 @@ namespace VPNyan
             if (ServerSelect.SelectedItem is ServerItem server)
             {
                 StatusText.Text = server.CanConnect ? "Отключено" : $"{server.Protocol} · протокол пока не поддерживается";
-                IpText.Text = server.Protocol == "WireGuard" ? "" : "Нажми на орнамент для подключения";
+                IpText.Text = "";
                 var subscription = subscriptions.FirstOrDefault(s => s.Url == server.SubscriptionUrl);
                 if (subscription != null)
                     SubscriptionStatusText.Text = $"Серверов в подписке: {subscription.Profiles.Count} · обновлено {subscription.UpdatedAt.ToLocalTime():HH:mm}";
@@ -690,3 +729,4 @@ namespace VPNyan
         }
     }
 }
+

@@ -10,6 +10,45 @@ namespace VPNyan;
 
 internal static class DiagnosticsRunner
 {
+    // Offline packaging check: no profiles, monitoring, tray, UAC or connection.
+    internal static int RunStartup(string resultPath)
+    {
+        resultPath = Path.GetFullPath(resultPath);
+        var result = new Dictionary<string, object?>();
+        MainWindow? window = null;
+        try
+        {
+            var directory = Path.Combine(Path.GetDirectoryName(resultPath)!, "startup-" + Guid.NewGuid().ToString("N"));
+            window = new MainWindow(false, directory);
+            var root = (FrameworkElement)window.Content;
+            root.Measure(new Size(1040, 740));
+            root.Arrange(new Rect(0, 0, 1040, 740));
+            root.UpdateLayout();
+            var bitmap = new RenderTargetBitmap(1040, 740, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(root);
+            EngineHost.VerifyFiles();
+            result["Runtime"] = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
+            using var process = System.Diagnostics.Process.GetCurrentProcess();
+            var modules = process.Modules.Cast<System.Diagnostics.ProcessModule>().ToArray();
+            // The win-x64 single-file host can link CoreCLR directly into the EXE.
+            result["CoreClrPath"] = modules.FirstOrDefault(m => m.ModuleName.Equals("coreclr.dll", StringComparison.OrdinalIgnoreCase))?.FileName
+                ?? Environment.ProcessPath;
+#pragma warning disable IL3000 // Empty Location intentionally verifies the bundled core library.
+            result["CoreLibBundled"] = typeof(object).Assembly.Location.Length == 0;
+#pragma warning restore IL3000
+            result["WpfNativePath"] = modules.First(m => m.ModuleName.Equals("wpfgfx_cor3.dll", StringComparison.OrdinalIgnoreCase)).FileName;
+            result["EngineDirectory"] = EngineHost.EngineDirectory;
+            result["Verified"] = true;
+        }
+        catch (Exception ex) { result["Verified"] = false; result["Error"] = ex.Message; }
+        finally
+        {
+            window?.Close();
+            File.WriteAllText(resultPath, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+        }
+        return result.TryGetValue("Verified", out var verified) && verified is true ? 0 : 1;
+    }
+
     internal static async Task<int> RunLatencyAsync(string source, string resultPath, bool refresh)
     {
         var rows = new Dictionary<string, object>();

@@ -70,7 +70,7 @@
                             <Button x:Name="RefreshSubscriptionButton" Grid.Column="2" Content="↻" FontSize="20" Padding="3,0" Width="28" Height="30"
                                     ToolTip="Обновить выбранную подписку" IsEnabled="False" Style="{StaticResource ActionButton}" Click="RefreshSubscription_Click"/>
                         </Grid>
-                        <TextBox x:Name="ServerSearchText" Tag="Поиск серверов" Grid.Row="1" Margin="0,0,0,12" FontSize="12"
+                        <TextBox x:Name="ServerSearchText" AutomationProperties.HelpText="Поиск серверов" Grid.Row="1" Margin="0,0,0,12" FontSize="12"
                                  ToolTip="Поиск по названию или протоколу" AutomationProperties.Name="Поиск серверов" TextChanged="ServerSearch_TextChanged">
                             <TextBox.Background><SolidColorBrush Color="#110A10"/></TextBox.Background>
                         </TextBox>
@@ -111,12 +111,13 @@
                                 <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <Grid>
-                                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding Name}" Foreground="#F1D6A5" FontSize="14" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                            <Image Source="{Binding CountryFlag}" Width="20" Height="20" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="{Binding CountryLabel}"/>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="{Binding DisplayName}" Foreground="#F1D6A5" FontSize="14" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}"/>
                                                 <TextBlock Text="{Binding Protocol}" Foreground="#A78762" FontSize="10" Margin="0,5,0,0"/>
                                             </StackPanel>
-                                            <TextBlock Grid.Column="1" Text="{Binding PingDisplay}" Foreground="{Binding PingColor}" FontSize="11"
+                                            <TextBlock Grid.Column="2" Text="{Binding PingDisplay}" Foreground="{Binding PingColor}" FontSize="11"
                                                        VerticalAlignment="Center" Margin="10,0,0,0" ToolTip="{Binding PingDetail}"/>
                                         </Grid>
                                     </DataTemplate>
@@ -133,24 +134,25 @@
                 </Border>
                 <Grid x:Name="ConnectionPanel" Grid.Column="2" Margin="12,8,12,0">
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="VPN4ik" Foreground="#FFD27A" FontSize="30" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Управление подключением" Foreground="#A78762" FontSize="12" HorizontalAlignment="Center" Margin="0,5,0,0"/>
-                    </StackPanel>
+                    <TextBlock Text="VPN4ik" Foreground="#FFD27A" FontSize="30" FontWeight="SemiBold" HorizontalAlignment="Center">
+                        <TextBlock.Effect><DropShadowEffect Color="#FFD27A" BlurRadius="16" ShadowDepth="0" Opacity="0.52"/></TextBlock.Effect>
+                    </TextBlock>
                     <Viewbox x:Name="OrnamentViewbox" Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" Margin="16,18">
-                        <local:AlphaHitImage x:Name="OrnamentImage" Source="ornament.png" Width="380" Height="380"
-                               Cursor="Hand" RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Focusable="True"
+                        <Grid x:Name="OrnamentMotion" Width="380" Height="380" RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform><ScaleTransform x:Name="OrnamentScale"/></Grid.RenderTransform>
+                            <Grid.Effect><DropShadowEffect x:Name="GlowEffect" Color="#FFD27A" BlurRadius="0" ShadowDepth="0" Opacity="0"/></Grid.Effect>
+                            <local:AlphaHitImage x:Name="OrnamentImage" Source="{StaticResource OrnamentVector}" HitGeometry="{StaticResource OrnamentHitGeometry}"
+                               Cursor="Hand" Stretch="Uniform" Focusable="True"
                                AutomationProperties.Name="Подключить или отключить VPN" ToolTipService.IsEnabled="False"
                                MouseLeftButtonDown="Ornament_MouseLeftButtonDown" MouseLeftButtonUp="Ornament_MouseLeftButtonUp"
                                LostMouseCapture="Ornament_LostMouseCapture" KeyDown="Ornament_KeyDown"
                                MouseEnter="Ornament_MouseEnter" MouseLeave="Ornament_MouseLeave">
-                            <local:AlphaHitImage.RenderTransform><ScaleTransform x:Name="OrnamentScale"/></local:AlphaHitImage.RenderTransform>
-                            <local:AlphaHitImage.Effect><DropShadowEffect x:Name="GlowEffect" Color="#FFD27A" BlurRadius="0" ShadowDepth="0" Opacity="0"/></local:AlphaHitImage.Effect>
-                        </local:AlphaHitImage>
+                                <local:AlphaHitImage.CacheMode><BitmapCache RenderAtScale="1.5" SnapsToDevicePixels="False"/></local:AlphaHitImage.CacheMode>
+                            </local:AlphaHitImage>
+                        </Grid>
                     </Viewbox>
                     <StackPanel Grid.Row="2" Margin="0,0,0,18">
-                        <TextBlock Text="ВЫБРАННЫЙ СЕРВЕР" Foreground="#997654" FontSize="10" HorizontalAlignment="Center" Margin="0,0,0,6"/>
-                        <TextBlock Text="{Binding SelectedItem.Name, ElementName=ServerSelect, TargetNullValue=Сервер не выбран, FallbackValue=Сервер не выбран}"
+                        <TextBlock Text="{Binding SelectedItem.DisplayName, ElementName=ServerSelect, TargetNullValue=Сервер не выбран, FallbackValue=Сервер не выбран}"
                                    Foreground="#F1D6A5" FontSize="20" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,12"/>
                         <Border Background="#1A0D17" CornerRadius="12" Padding="12,8" HorizontalAlignment="Center">
                             <StackPanel Orientation="Horizontal">
@@ -193,7 +195,7 @@
                             <TextBlock Text="Вставь ссылку — серверы появятся в общем списке." Foreground="#A78762" FontSize="12" Margin="0,0,0,16" TextWrapping="Wrap"/>
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                                <TextBox x:Name="SubscriptionUrlText" Tag="https://…" MinWidth="0" FontSize="13" AutomationProperties.Name="Ссылка на подписку"/>
+                                <TextBox x:Name="SubscriptionUrlText" AutomationProperties.HelpText="https://…" MinWidth="0" FontSize="13" AutomationProperties.Name="Ссылка на подписку"/>
                                 <Button x:Name="ImportSubscriptionButton" Grid.Column="1" Content="Импортировать" Margin="8,0,0,0" Style="{StaticResource ActionButton}" Click="ImportSubscription_Click"/>
                             </Grid>
                             <TextBlock x:Name="SubscriptionStatusText" Text="Серверы появятся после импорта" Foreground="#C9A15C" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,26"/>
@@ -216,7 +218,7 @@
                             <RadioButton x:Name="DisplaySettingsTab" GroupName="SettingsTabs" Content="Интерфейс" Tag="display" Click="SettingsTab_Click" Style="{StaticResource SettingsTab}"/>
                         </WrapPanel>
                         <ScrollViewer x:Name="SettingsScroller" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Style="{StaticResource ThemedScrollViewer}">
-                            <Grid Margin="0,0,12,0">
+                            <Grid Margin="0,0,12,0" MaxWidth="700" HorizontalAlignment="Left" VerticalAlignment="Top">
                                 <StackPanel x:Name="GeneralSettings" MaxWidth="700" HorizontalAlignment="Stretch">
                                     <TextBlock Text="Запуск и поведение" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,18"/>
                                     <CheckBox Content="Запускать вместе с Windows" IsChecked="{Binding StartWithWindows, Mode=TwoWay}" Click="SettingsCheckBox_Click"/>
@@ -232,7 +234,7 @@
                                     <CheckBox Content="Локальная сеть напрямую, без VPN" IsChecked="{Binding BypassLocalNetwork, Mode=TwoWay}" Click="SettingsCheckBox_Click"/>
                                     <TextBlock Text="DNS-серверы" Foreground="#F1D6A5" FontSize="14" Margin="0,12,0,8"/>
                                     <TextBlock Text="От одного до четырёх IP-адресов, каждый с новой строки." Foreground="#A78762" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                    <TextBox x:Name="DnsServersText" Height="88" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="DNS-серверы" TextChanged="RoutingText_TextChanged" Tag="dns"/>
+                                    <TextBox x:Name="DnsServersText" Height="88" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="DNS-серверы" AutomationProperties.HelpText="Например: 1.1.1.1" TextChanged="RoutingText_TextChanged" Tag="dns"/>
                                 </StackPanel>
                                 <StackPanel x:Name="RoutingSettingsPanel" Visibility="Collapsed" MaxWidth="700">
                                     <TextBlock Text="Раздельное туннелирование" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
@@ -245,12 +247,13 @@
                                     <TextBlock x:Name="RoutingModeDescription" Foreground="#C9A15C" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,18"/>
                                     <DockPanel Margin="0,0,0,8"><Button Content="Добавить .exe" Click="AddSplitApplication_Click" Style="{StaticResource ActionButton}" DockPanel.Dock="Right"/><TextBlock Text="Приложения" Foreground="#F1D6A5" FontSize="14" VerticalAlignment="Center"/></DockPanel>
                                     <TextBlock Text="Имя процесса (chrome.exe) или полный путь, с учётом регистра. Каждое правило — с новой строки." Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,8"/>
-                                    <TextBox x:Name="SplitApplicationsText" Tag="process" Height="92" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Приложения для маршрутизации" TextChanged="RoutingText_TextChanged"/>
+                                    <TextBox x:Name="SplitApplicationsText" Tag="process" Height="92" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Приложения для маршрутизации" AutomationProperties.HelpText="Например: chrome.exe" TextChanged="RoutingText_TextChanged"/>
                                     <TextBlock Text="Домены" Foreground="#F1D6A5" FontSize="14" Margin="0,18,0,8"/>
                                     <TextBlock Text="Например example.org — вместе с поддоменами. По одному на строку. Зашифрованное имя сайта (ECH) может не распознаваться; тогда используй правило приложения или IP." Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,8"/>
-                                    <TextBox x:Name="SplitDomainsText" Tag="domain" Height="92" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Домены для маршрутизации" TextChanged="RoutingText_TextChanged"/>
+                                    <TextBox x:Name="SplitDomainsText" Tag="domain" Height="92" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="Домены для маршрутизации" AutomationProperties.HelpText="Например: example.org" TextChanged="RoutingText_TextChanged"/>
                                     <TextBlock Text="IP-адреса и подсети" Foreground="#F1D6A5" FontSize="14" Margin="0,18,0,8"/>
-                                    <TextBox x:Name="SplitNetworksText" Tag="ip" Height="92" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="IP и подсети для маршрутизации" TextChanged="RoutingText_TextChanged"/>
+                                    <TextBlock Text="По одному правилу на строку: 192.0.2.15 — один IP; 192.0.2.0/24 — подсеть от 192.0.2.0 до 192.0.2.255. Для IPv6: 2001:db8::/32. Это примеры — замени их нужными адресами." Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,8"/>
+                                    <TextBox x:Name="SplitNetworksText" Tag="ip" Height="92" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="IP и подсети для маршрутизации" AutomationProperties.HelpText="Например: 192.0.2.15 или 192.0.2.0/24" TextChanged="RoutingText_TextChanged"/>
                                 </StackPanel>
                                 <StackPanel x:Name="DisplaySettings" Visibility="Collapsed" MaxWidth="700">
                                     <TextBlock Text="Скорость и проверка серверов" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,16"/>
@@ -267,7 +270,7 @@
                                         <RadioButton x:Name="Ping60Button" GroupName="PingInterval" Content="1 минута" Tag="60" Click="PingInterval_Click" Style="{StaticResource SettingsTab}"/>
                                         <RadioButton x:Name="Ping120Button" GroupName="PingInterval" Content="2 минуты" Tag="120" Click="PingInterval_Click" Style="{StaticResource SettingsTab}"/>
                                     </WrapPanel>
-                                    <TextBlock Text="При активном VPN проверка пинга недоступна." Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,12,0,0"/>
+                                    <TextBlock Text="TCP-пинг доступен и при включённом VPN. В этом случае задержка может быть неточной из-за маршрутизации VPN." Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,12,0,0"/>
                                 </StackPanel>
                             </Grid>
                         </ScrollViewer>
@@ -320,7 +323,7 @@
                     </RadioButton>
                     <RadioButton x:Name="SettingsMenuButton" GroupName="Navigation" Click="Settings_Click" Style="{StaticResource NavigationItem}" AutomationProperties.Name="Настройки">
                         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                            <Grid Width="20" Height="20"><Path Data="M 8,0 L 12,0 L 13,3 L 15,4 L 18,3 L 20,6 L 18,9 L 18,11 L 20,14 L 18,17 L 15,16 L 13,17 L 12,20 L 8,20 L 7,17 L 5,16 L 2,17 L 0,14 L 2,11 L 2,9 L 0,6 L 2,3 L 5,4 L 7,3 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3" StrokeLineJoin="Round"/><Ellipse Width="6" Height="6" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3"/></Grid>
+                            <Grid x:Name="SettingsIcon" Width="22" Height="22"><Path x:Name="SettingsGear" Margin="1" Stretch="Uniform" Data="M 8,0 L 12,0 L 13,3 L 15,4 L 18,3 L 20,6 L 18,9 L 18,11 L 20,14 L 18,17 L 15,16 L 13,17 L 12,20 L 8,20 L 7,17 L 5,16 L 2,17 L 0,14 L 2,11 L 2,9 L 0,6 L 2,3 L 5,4 L 7,3 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3" StrokeLineJoin="Round"/><Ellipse Width="6" Height="6" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.3"/></Grid>
                             <TextBlock Grid.Column="1" Text="Настройки" Style="{StaticResource NavigationLabel}"/>
                         </Grid>
                     </RadioButton>

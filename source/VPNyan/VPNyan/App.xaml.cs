@@ -11,6 +11,12 @@ public partial class App : System.Windows.Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args is ["--verify-startup", var startupResult])
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            Shutdown(DiagnosticsRunner.RunStartup(startupResult));
+            return;
+        }
         if (e.Args is ["--engine-host", var pipe, var parent] && int.TryParse(parent, out var parentId))
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;

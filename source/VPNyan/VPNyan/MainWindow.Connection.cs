@@ -40,7 +40,6 @@ public partial class MainWindow
         if (isConnecting || activeServer != null || isImporting) return;
         if (ServerSelect.SelectedItem is not ServerItem server) { ShowSection("import"); return; }
         if (!useBackground) { StatusText.Text = "Подключение доступно при обычном запуске приложения"; return; }
-        latencyCancellation?.Cancel();
         isConnecting = true;
         connectionCancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
         connectionCancellation.CancelAfter(TimeSpan.FromSeconds(100));

@@ -106,7 +106,7 @@ internal sealed class SecretRedactor
                 if (node is JsonObject obj)
                     foreach (var pair in obj)
                     {
-                        if (pair.Key.ToLowerInvariant() is "id" or "password" or "pass" or "publickey" or "privatekey" or "shortid" or "servicename" or "path" or "spiderx" or "authorization" or "token" && pair.Value is JsonValue value && value.TryGetValue<string>(out var text) && text.Length > 3)
+                        if (pair.Key.ToLowerInvariant() is "id" or "password" or "pass" or "auth" or "publickey" or "privatekey" or "shortid" or "servicename" or "path" or "spiderx" or "authorization" or "token" && pair.Value is JsonValue value && value.TryGetValue<string>(out var text) && text.Length > 3)
                             secrets.Add(text);
                         Read(pair.Value);
                     }
@@ -141,7 +141,7 @@ internal sealed class SecretRedactor
     internal static string Generic(string text)
     {
         text = Regex.Replace(text, @"\x1B\[[0-?]*[ -/]*[@-~]", "");
-        text = Regex.Replace(text, @"(?i)\b(?:https?|vless|vmess|ss|trojan|socks)://\S+", "[ссылка скрыта]");
+        text = Regex.Replace(text, @"(?i)\b(?:https?|vless|vmess|ss|trojan|socks|hy2|hysteria2|hysteria)://\S+", "[ссылка скрыта]");
         text = Regex.Replace(text, @"\b[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}\b", "[ключ скрыт]");
         return text.Length > 600 ? text[..600] + "…" : text;
     }

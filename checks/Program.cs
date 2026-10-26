@@ -19,6 +19,8 @@ internal static class Program
     {
         try
         {
+            if (args is ["--provider-response", var response, var report])
+                return ProviderSubscriptionChecks.RunAsync(response, report).GetAwaiter().GetResult();
             if (args.Contains("--native-routing"))
             {
                 var native = NativeRoutingChecks.RunAsync().GetAwaiter().GetResult();
@@ -44,13 +46,20 @@ internal static class Program
             server.SetLatency(new LatencyResult("test", 42, "TCP connection", LatencyKind.Tcp));
             Require(server.PingDisplay == "42 ms" && !server.LatencyViaVpn && server.PingDetail.Contains("TCP"), "TCP ping displays milliseconds without claiming VPN verification");
             CheckPingPolicy();
+            CheckCountryFlags();
             CheckSubscriptions(fixtures);
+            SubscriptionRegressionChecks.RunAsync(Require).GetAwaiter().GetResult();
+            CheckHysteria();
             CheckEngineConfiguration();
             CheckRoutingAndTraffic();
             CheckActivity(fixtures);
 
-            var app = new VPNyan.App();
-            app.InitializeComponent();
+            // Load production resources without queuing App.OnStartup (mutex,
+            // real settings, monitoring and tray belong only to a normal launch).
+            var app = new Application();
+            app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/VPNyan;component/Theme.xaml", UriKind.Relative) });
+            app.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri("/VPNyan;component/Ornament.xaml", UriKind.Relative) });
+            CheckVectorGeometryHits();
             app.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             Require(!typeof(MainWindow).Assembly.GetManifestResourceNames().Any(name => name.EndsWith(".conf")),
                 "Private VPN profiles must not be embedded in the application");
@@ -65,6 +74,7 @@ internal static class Program
             window.ShowSection("home");
             foreach (var size in new[] { new Size(1040, 740), new Size(760, 540), new Size(820, 620), new Size(1440, 900) })
                 CheckLayout(window, fixtures, size);
+            CheckOrnamentAnimation(window);
             CheckSections(window, fixtures);
             var wasClosed = false;
             window.Closed += (_, _) => wasClosed = true;
@@ -74,7 +84,7 @@ internal static class Program
                 new Action(() => frame.Continue = false));
             Dispatcher.PushFrame(frame);
             Require(wasClosed, "Close must complete and dispose the tray without recursive Close");
-            Console.WriteLine($"PASS: {passed} offline checks (no TUN or network requests).");
+            Console.WriteLine($"PASS: {passed} local checks (no TUN or external network requests).");
             return 0;
         }
         catch (Exception ex)
@@ -160,8 +170,10 @@ internal static class Program
         }
         else
         {
-            subscription.Profiles = Enumerable.Range(1, 9).Select(i => new SubscriptionProfile
-            { Id = i.ToString(), Name = "Проверка сервера " + i, Address = "vpn.example.test", Port = 443, Protocol = "VLESS" }).ToList();
+            var names = new[] { "🇸🇪 Швеция · тест", "Эстония · тест", "Нидерланды · тест", "США · тест", "Германия · тест",
+                "Латвия · тест", "Финляндия · тест", "Великобритания · тест", "Неизвестный сервер · тест" };
+            subscription.Profiles = names.Select((name,i) => new SubscriptionProfile
+            { Id = (i+1).ToString(), Name = name, Address = "vpn.example.test", Port = 443, Protocol = "VLESS" }).ToList();
             window.ApplySubscription(subscription);
         }
         var before = list.Items.Count;
@@ -220,6 +232,10 @@ internal static class Program
     private static void CheckOrnamentHitBox(MainWindow window, FrameworkElement root)
     {
         var image = (AlphaHitImage)window.FindName("OrnamentImage");
+        bool OnlyVector(Drawing drawing) => drawing is GeometryDrawing ||
+            drawing is DrawingGroup group && group.Children.All(OnlyVector);
+        Require(image.Source is DrawingImage vector && vector.IsFrozen && OnlyVector(vector.Drawing),
+            "Ornament uses frozen vector geometry without embedded bitmaps");
         var center = new Point(image.ActualWidth / 2, image.ActualHeight / 2);
         var corner = new Point(image.ActualWidth * 0.05, image.ActualHeight * 0.05);
         var edge = new Point(image.ActualWidth * 0.1, image.ActualHeight * 0.5);
@@ -228,12 +244,68 @@ internal static class Program
         var centerHit = VisualTreeHelper.HitTest(root, image.TransformToAncestor(root).Transform(center));
         var cornerHit = VisualTreeHelper.HitTest(root, image.TransformToAncestor(root).Transform(corner));
         Require(ReferenceEquals(centerHit?.VisualHit, image) && !ReferenceEquals(cornerHit?.VisualHit, image),
-            "WPF hit testing follows the PNG alpha mask");
-        var scale = (ScaleTransform)image.RenderTransform;
+            "WPF hit testing follows the painted ornament geometry");
+        var scale = (ScaleTransform)window.FindName("OrnamentScale");
         scale.ScaleX = scale.ScaleY = 1.04;
         var scaledCornerHit = VisualTreeHelper.HitTest(root, image.TransformToAncestor(root).Transform(corner));
         Require(!ReferenceEquals(scaledCornerHit?.VisualHit, image), "Hover scaling keeps the transparent margin inactive");
         scale.ScaleX = scale.ScaleY = 1;
+    }
+
+    private static void CheckOrnamentAnimation(MainWindow window)
+    {
+        var scale = (ScaleTransform)window.FindName("OrnamentScale");
+        var animate = typeof(MainWindow).GetMethod("AnimateScale", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var image = (AlphaHitImage)window.FindName("OrnamentImage");
+        var source = image.Source;
+        var cacheResolution = ((BitmapCache)image.CacheMode).RenderAtScale;
+        animate.Invoke(window, new object[] { 1.04 });
+        WaitForAnimation(70);
+        Require(scale.ScaleX is > 1 and < 1.04 && Math.Abs(scale.ScaleX - scale.ScaleY) < 0.001,
+            "Ornament smoothly grows in both axes before reaching the hover size");
+        var beforeReversal = scale.ScaleX;
+        animate.Invoke(window, new object[] { 1d });
+        Require(Math.Abs(scale.ScaleX - beforeReversal) < 0.001, "Reversing hover does not jump to a new starting scale");
+        WaitForAnimation(300);
+        Require(scale.ScaleX == 1 && scale.ScaleY == 1, "Ornament settles back at its original size");
+        Require(ReferenceEquals(source, image.Source) && ((BitmapCache)image.CacheMode).RenderAtScale == cacheResolution,
+            "Hover retains the vector source and does not rebuild the cache resolution each frame");
+        Require(((TextBlock)window.FindName("IpText")).Text == "", "Selecting a server leaves the connection hint empty");
+    }
+
+    private static void CheckVectorGeometryHits()
+    {
+        var shapes = new DrawingGroup { Transform = new TranslateTransform(100, 80),
+            ClipGeometry = new RectangleGeometry(new Rect(0, 0, 60, 100)) };
+        shapes.Children.Add(new GeometryDrawing(Brushes.Gold, null,
+            Geometry.Parse("F0 M0,0 H100 V100 H0 Z M30,30 H70 V70 H30 Z")));
+        var drawing = new DrawingGroup();
+        drawing.Children.Add(new GeometryDrawing(Brushes.Transparent, null, new RectangleGeometry(new Rect(0, 0, 300, 300))));
+        drawing.Children.Add(shapes);
+        var image = new AlphaHitImage { Source = new DrawingImage(drawing), Stretch = Stretch.Fill };
+        foreach (var size in new[] { 300d, 2400d })
+        {
+            image.Measure(new Size(size, size)); image.Arrange(new Rect(0, 0, size, size));
+            var scale = size / 300;
+            Require(image.ContainsVisiblePoint(new Point(110 * scale, 90 * scale)), "Translated vector shape stays clickable when scaled");
+            Require(!image.ContainsVisiblePoint(new Point(150 * scale, 130 * scale)), "Vector holes remain transparent to clicks");
+            Require(!image.ContainsVisiblePoint(new Point(175 * scale, 90 * scale)), "Clipped vector area does not receive clicks");
+            Require(!image.ContainsVisiblePoint(new Point(10 * scale, 10 * scale)), "Transparent vector padding does not receive clicks");
+        }
+        DrawingImage Oval(double x, double y)
+        {
+            var result = new DrawingImage(new GeometryDrawing(Brushes.Gold, null, new EllipseGeometry(new Point(x, y), 100, 50)));
+            result.Freeze(); return result;
+        }
+        image.Source = Oval(0, 0);
+        Require(image.ContainsVisiblePoint(new Point(1200, 1200)), "Frozen vector bounds can have a nonzero origin");
+        image.Source = Oval(500, 250);
+        Require(image.ContainsVisiblePoint(new Point(1200, 1200)), "Replacing a frozen vector refreshes its cached bounds");
+        var mutable = new EllipseGeometry(new Point(0, 0), 100, 50);
+        image.Source = new DrawingImage(new GeometryDrawing(Brushes.Gold, null, mutable));
+        _ = image.ContainsVisiblePoint(new Point(1200, 1200));
+        mutable.Center = new Point(500, 250);
+        Require(image.ContainsVisiblePoint(new Point(1200, 1200)), "Editing a mutable vector refreshes hit-test bounds");
     }
 
     private static void CheckEngineConfiguration()
@@ -309,6 +381,28 @@ internal static class Program
         meter.Reset(); Require(meter.Sample(new(123, 456), 200).Upload == 0, "Reconnect resets session totals");
     }
 
+    private static void CheckHysteria()
+    {
+        var profile = SubscriptionParser.Parse(HysteriaChecks.ProfileJson).Single();
+        Require(profile.Protocol == "HYSTERIA" && profile.Address == "vpn.example.test" && profile.Port == 443, "Provider Hysteria2 uses direct settings.address/port instead of servers[]");
+        var config = System.Text.Json.Nodes.JsonNode.Parse(XrayConfiguration.Build(new EngineRequest { Profile = profile, ProbePort = 49152, EndpointAddress = "192.0.2.1" }))!;
+        var outbound = config["outbounds"]![0]!;
+        Require(outbound["protocol"]!.ToString() == "hysteria" && outbound["settings"]!["address"]!.ToString() == "192.0.2.1", "Hysteria endpoint resolves before TUN startup");
+        Require(outbound["streamSettings"]!["hysteriaSettings"]!["auth"]!.ToString() == "test-hysteria-password", "Hysteria auth is preserved");
+        Require(outbound["streamSettings"]!["finalmask"]!["quicParams"]!["congestion"]!.ToString() == "bbr", "Provider QUIC settings are preserved");
+        Require(SubscriptionParser.Parse("[" + HysteriaChecks.ProfileJson + "," + Config + "]").Count == 2, "Mixed VLESS/Hysteria subscriptions import every profile");
+        foreach (var scheme in new[] { "hy2", "hysteria2" })
+        {
+            var share = SubscriptionParser.Parse(scheme + "://test-password@vpn.example.test?sni=example.test#Test").Single();
+            var built = System.Text.Json.Nodes.JsonNode.Parse(XrayConfiguration.Build(new EngineRequest { Profile = share, ProbePort = 49152 }))!;
+            Require(built["outbounds"]![0]!["settings"]!["port"]!.GetValue<int>() == 443 && new ServerItem { Protocol = share.Protocol }.CanConnect, scheme + " share link is connectable with default port 443");
+        }
+        Reject(() => XrayConfiguration.Build(new EngineRequest { Profile = SubscriptionParser.Parse("hy2://test-password@vpn.example.test?insecure=1").Single(), ProbePort = 49152 }), "Hysteria cannot disable certificate verification");
+        Reject(() => SubscriptionParser.Parse(HysteriaChecks.ProfileJson.Replace("\"version\":2", "\"version\":1")), "Hysteria v1 is not mistaken for v2");
+        Require(!ServerLatency.SupportsTcpPing("HYSTERIA") && !ServerLatency.SupportsTcpPing("HY2") && ServerLatency.SupportsTcpPing("VLESS"), "UDP protocols do not produce false TCP timeouts");
+        Require(!new SecretRedactor(HysteriaChecks.ProfileJson).Clean("auth test-hysteria-password").Contains("test-hysteria-password") && !SecretRedactor.Generic("hy2://secret@vpn.example.test").Contains("secret"), "Hysteria credentials and share links are hidden in logs");
+    }
+
     private static void CheckActivity(string fixtures)
     {
         var directory = Path.Combine(fixtures, "activity-" + Guid.NewGuid().ToString("N"));
@@ -342,6 +436,11 @@ internal static class Program
         Require(((ColumnDefinition)window.FindName("NavigationColumn")).Width.Value == 208, "Arrow expands navigation labels");
         CheckLayout(window, fixtures, new Size(760, 540));
         var iconBox = (Border)window.FindName("ImportIconBox");
+        var settingsIcon = (FrameworkElement)window.FindName("SettingsIcon");
+        var gear = (System.Windows.Shapes.Path)window.FindName("SettingsGear");
+        var gearBounds = gear.TransformToAncestor(settingsIcon).TransformBounds(gear.RenderedGeometry.GetRenderBounds(new Pen(gear.Stroke, gear.StrokeThickness)));
+        Require(gearBounds.Left >= 0 && gearBounds.Top >= 0 && gearBounds.Right <= settingsIcon.ActualWidth && gearBounds.Bottom <= settingsIcon.ActualHeight,
+            "Settings gear stroke fits inside its icon without clipping");
         var cross = (Grid)iconBox.Child;
         foreach (FrameworkElement stroke in cross.Children)
         {
@@ -417,6 +516,25 @@ internal static class Program
                         Require(status.TransformToAncestor(root).TransformBounds(new Rect(status.RenderSize)).Bottom <= size.Height, category + " feedback stays visible at minimum size");
                     }
                 }
+                window.ShowSettingsCategory("routing");
+                var ipEditor = (TextBox)window.FindName("SplitNetworksText");
+                var savedIps = ipEditor.Text;
+                ipEditor.Clear();
+                root.Measure(new Size(1040,740)); root.Arrange(new Rect(0,0,1040,740)); root.UpdateLayout();
+                var placeholder = (TextBlock)ipEditor.Template.FindName("Placeholder", ipEditor);
+                var hintBounds = placeholder.TransformToAncestor(ipEditor).TransformBounds(new Rect(placeholder.RenderSize));
+                Require(placeholder.Text.Contains("192.0.2.") && placeholder.Text != (string)ipEditor.Tag &&
+                    hintBounds.Left <= ipEditor.Padding.Left + 3 && hintBounds.Top <= ipEditor.Padding.Top + 3,
+                    "IP hint uses a real example at the top left instead of the internal routing tag");
+                ipEditor.Text = "192.0.2.15\n2001:db8::1"; root.UpdateLayout();
+                var caret = ipEditor.GetRectFromCharacterIndex(0);
+                Require(!caret.IsEmpty && caret.Left <= ipEditor.Padding.Left + 4 && caret.Top <= ipEditor.Padding.Top + 4,
+                    "Typed multiline routing rules start at the top left with a single padding inset");
+                ipEditor.Text = savedIps;
+                ((ScrollViewer)window.FindName("SettingsScroller")).ScrollToEnd(); root.UpdateLayout();
+                var routingBitmap = new RenderTargetBitmap(1040,740,96,96,PixelFormats.Pbgra32); routingBitmap.Render(root);
+                var routingEncoder = new PngBitmapEncoder(); routingEncoder.Frames.Add(BitmapFrame.Create(routingBitmap));
+                using var routingOutput = File.Create(Path.Combine(fixtures,"settings-routing-bottom-1040x740.png")); routingEncoder.Save(routingOutput);
             }
         }
         Click("SectionBackButton");
@@ -444,10 +562,12 @@ internal static class Program
         try
         {
             window.UpdatePings().GetAwaiter().GetResult();
-            Require(((FrameworkElement)window.FindName("PingWarning")).Visibility == Visibility.Collapsed, "Blocked automatic ping stays quiet");
+            Require(((FrameworkElement)window.FindName("PingWarning")).Visibility == Visibility.Collapsed, "Automatic ping does not display a repeated VPN warning");
             window.UpdatePings(true).GetAwaiter().GetResult();
             Require(((FrameworkElement)window.FindName("PingWarning")).Visibility == Visibility.Visible &&
-                ((TextBlock)window.FindName("PingWarningText")).Text == PingPolicy.BlockedMessage, "Manual ping while connected shows an in-app warning");
+                ((TextBlock)window.FindName("PingWarningText")).Text == PingPolicy.WarningMessage, "Manual ping while connected shows an accuracy warning without blocking");
+            typeof(MainWindow).GetMethod("UpdateServerControls", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(window, null);
+            Require(((Button)window.FindName("CheckLatencyButton")).IsEnabled, "Ping button remains available with an active VPN");
             var size = new Size(760, 540);
             root.Measure(size); root.Arrange(new Rect(size)); root.UpdateLayout();
             var bitmap = new RenderTargetBitmap(760, 540, 96, 96, PixelFormats.Pbgra32); bitmap.Render(root);
@@ -461,21 +581,45 @@ internal static class Program
     {
         var ethernet = System.Net.NetworkInformation.NetworkInterfaceType.Ethernet;
         var up = System.Net.NetworkInformation.OperationalStatus.Up;
-        Require(PingPolicy.IsTunAdapter("VPN4ik-TUN", "Virtual adapter", ethernet, up), "Own active TUN blocks ping");
-        Require(PingPolicy.IsTunAdapter("happ-xray", "Virtual adapter", ethernet, up), "Happ active TUN blocks ping");
-        Require(PingPolicy.IsTunAdapter("Custom name", "Wintun Userspace Tunnel", ethernet, up), "Renamed Wintun adapter blocks ping");
+        Require(PingPolicy.IsTunAdapter("VPN4ik-TUN", "Virtual adapter", ethernet, up), "Own active TUN triggers the accuracy warning");
+        Require(PingPolicy.IsTunAdapter("happ-xray", "Virtual adapter", ethernet, up), "Other active TUN triggers the accuracy warning");
+        Require(PingPolicy.IsTunAdapter("Custom name", "Wintun Userspace Tunnel", ethernet, up), "Renamed Wintun adapter is recognized for the warning");
         Require(!PingPolicy.IsTunAdapter("VPN4ik-TUN", "Wintun", ethernet, System.Net.NetworkInformation.OperationalStatus.Down), "Inactive TUN does not block ping");
         Require(!PingPolicy.IsTunAdapter("Radmin VPN", "Famatech Radmin VPN Ethernet Adapter", ethernet, up), "Virtual LAN does not falsely block ping");
         Require(!PingPolicy.IsTunAdapter("Ethernet", "Realtek Ethernet", ethernet, up), "Ordinary Ethernet allows ping");
-        var published = false;
+        var listener = new System.Net.Sockets.TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
         try
         {
-            ServerLatency.MeasureAsync(new[] { ("test", new SubscriptionProfile { Address = "must-not-resolve.invalid", Port = 443 }) },
-                _ => published = true, CancellationToken.None, tunActive: () => true).GetAwaiter().GetResult();
-            throw new Exception("Active TUN must reject ping before DNS and socket creation");
+            var port = ((IPEndPoint)listener.LocalEndpoint).Port;
+            LatencyResult? measured = null;
+            ServerLatency.MeasureAsync(new[] { ("test", new SubscriptionProfile { Address = "127.0.0.1", Port = port }) },
+                result => measured = result, CancellationToken.None, tunActive: () => true).GetAwaiter().GetResult();
+            Require(measured is { Measured: true, PotentiallyInaccurate: true } && measured.Detail.Contains(PingPolicy.WarningMessage),
+                "TCP connects to a real loopback listener with active TUN and marks the result as approximate");
+            var server = new ServerItem(); server.SetLatency(measured!);
+            Require(server.PingDisplay.StartsWith("≈ "), "Potentially inaccurate VPN latency is marked in the server list");
+            measured = null;
+            ServerLatency.MeasureAsync(new[] { ("test", new SubscriptionProfile { Address = "127.0.0.1", Port = port }) },
+                result => measured = result, CancellationToken.None, tunActive: () => false).GetAwaiter().GetResult();
+            Require(measured is { Measured: true, PotentiallyInaccurate: false }, "TCP measurement without VPN does not add an accuracy warning");
         }
-        catch (PingUnavailableException ex)
-        { Require(!published && ex.Message == PingPolicy.BlockedMessage, "Active TUN rejects ping before DNS and socket creation with Happ-style warning"); }
+        finally { listener.Stop(); }
+    }
+
+    private static void CheckCountryFlags()
+    {
+        foreach (var (name, code) in new[] { ("🇸🇪 Швеция", "SE"), ("Эстония", "EE"), ("Нидерланды #2", "NL"),
+            ("USA TCP", "US"), ("Германия", "DE"), ("LV | Riga", "LV"), ("🇩🇪 Sweden", "DE"), ("Unknown server", ""), ("Hysteria", "") })
+        {
+            var server = new ServerItem { Name = name };
+            Require(server.CountryCode == code && server.CountryFlag is DrawingImage { IsFrozen: true },
+                "Server flag follows its explicit emoji or country name: " + name);
+        }
+        var item = new ServerItem { Name = "🇸🇪 Швеция" };
+        Require(item.DisplayName == "Швеция", "Existing flag emoji is not duplicated next to the rendered flag");
+        item.Name = "Germany #2";
+        Require(item.CountryCode == "DE", "Changing a server name refreshes the flag");
     }
 
     private static void WaitForAnimation(int milliseconds)

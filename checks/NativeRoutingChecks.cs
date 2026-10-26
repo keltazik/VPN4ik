@@ -12,10 +12,12 @@ internal static class NativeRoutingChecks
     internal static async Task<int> RunAsync()
     {
         EngineHost.VerifyFiles();
+        await HysteriaChecks.ValidateNativeAsync(XrayConfiguration.Build(new EngineRequest
+        { Profile = SubscriptionParser.Parse(HysteriaChecks.ProfileJson).Single(), EnableTun = false, ProbePort = 49152 }));
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(25));
         await using var direct = new TestHttpServer("direct", timeout.Token);
         await using var proxy = new TestHttpServer("proxy", timeout.Token);
-        var assertions = 0;
+        var assertions = 1;
         foreach (var scenario in new[] { "all", "bypass-ip", "include-ip", "include-miss", "bypass-domain", "bypass-process" })
         {
             using var reserve = new TcpListener(IPAddress.Loopback, 0); reserve.Start();

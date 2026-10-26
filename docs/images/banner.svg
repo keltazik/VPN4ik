@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="400" viewBox="0 0 1280 400" role="img" aria-labelledby="title description">
+  <title id="title">VPN4ik — личный VPN для Windows</title>
+  <desc id="description">Бордово-золотая обложка VPN4ik с геометрическим орнаментом. Xray TUN, подписки и раздельное туннелирование.</desc>
+  <defs>
+    <linearGradient id="background" x2="1" y2="1">
+      <stop stop-color="#160d16"/>
+      <stop offset="1" stop-color="#371622"/>
+    </linearGradient>
+    <linearGradient id="gold" x2="1" y2="1">
+      <stop stop-color="#ffe1a0"/>
+      <stop offset="1" stop-color="#ad7942"/>
+    </linearGradient>
+    <radialGradient id="glow">
+      <stop stop-color="#9b5a3c" stop-opacity=".24"/>
+      <stop offset="1" stop-color="#9b5a3c" stop-opacity="0"/>
+    </radialGradient>
+    <path id="petal" d="M0-138 C58-105 64-49 0 0 C-64-49-58-105 0-138Z"/>
+  </defs>
+  <rect width="1280" height="400" rx="20" fill="url(#background)"/>
+  <rect x="16" y="16" width="1248" height="368" rx="12" fill="none" stroke="#c99c60" stroke-opacity=".3"/>
+  <circle cx="1030" cy="200" r="260" fill="url(#glow)"/>
+  <g transform="translate(1040 200)" fill="none" stroke="url(#gold)">
+    <circle r="153" stroke-opacity=".16"/>
+    <circle r="138" stroke-opacity=".25"/>
+    <g stroke-width="1.5" stroke-opacity=".75">
+      <use href="#petal"/>
+      <use href="#petal" transform="rotate(45)"/>
+      <use href="#petal" transform="rotate(90)"/>
+      <use href="#petal" transform="rotate(135)"/>
+      <use href="#petal" transform="rotate(180)"/>
+      <use href="#petal" transform="rotate(225)"/>
+      <use href="#petal" transform="rotate(270)"/>
+      <use href="#petal" transform="rotate(315)"/>
+    </g>
+    <path d="M0-86 61-61 86 0 61 61 0 86-61 61-86 0-61-61Z" stroke-opacity=".55"/>
+    <path d="M0-57 57 0 0 57-57 0Z" fill="#25111d" stroke-width="1.5"/>
+    <path d="M0-27 27 0 0 27-27 0Z" fill="url(#gold)" stroke="none"/>
+    <g fill="#d6ad72" stroke="none">
+      <circle cy="-153" r="3"/>
+      <circle cx="153" r="3"/>
+      <circle cy="153" r="3"/>
+      <circle cx="-153" r="3"/>
+    </g>
+  </g>
+  <g font-family="Segoe UI, Arial, sans-serif">
+    <text x="72" y="83" fill="#cfa772" font-size="13" letter-spacing="3">ЛИЧНЫЙ VPN ДЛЯ WINDOWS</text>
+    <text x="68" y="180" fill="url(#gold)" font-size="88" font-weight="700" letter-spacing="-3">VPN4ik</text>
+    <text x="72" y="225" fill="#f4dfc5" font-size="24">Для себя, семьи и друзей.</text>
+    <path d="M72 257H138" stroke="#cfa772" stroke-width="2"/>
+    <text x="72" y="293" fill="#c3a6a9" font-size="18">Xray TUN · Подписки · Раздельное туннелирование</text>
+    <rect x="72" y="321" width="122" height="28" rx="14" fill="#cfa772" fill-opacity=".12" stroke="#cfa772" stroke-opacity=".3"/>
+    <text x="133" y="340" text-anchor="middle" fill="#e9c994" font-size="12" font-weight="600">WINDOWS x64</text>
+    <text x="211" y="340" fill="#b39699" font-size="13">Переносимое приложение</text>
+  </g>
+</svg>
