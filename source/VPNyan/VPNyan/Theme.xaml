@@ -1,5 +1,30 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style TargetType="ContextMenu">
+        <Setter Property="Background" Value="#20131D"/><Setter Property="Foreground" Value="#E6CBB0"/>
+        <Setter Property="BorderBrush" Value="#503441"/><Setter Property="Padding" Value="5"/>
+        <Setter Property="HasDropShadow" Value="False"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ContextMenu"><Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="{TemplateBinding Padding}"><StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle"/></Border></ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style TargetType="MenuItem">
+        <Setter Property="Foreground" Value="#E6CBB0"/><Setter Property="FontSize" Value="13"/><Setter Property="MinWidth" Value="220"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="MenuItem">
+            <Border x:Name="MenuSurface" Background="Transparent" CornerRadius="5" Padding="10,8">
+                <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="20"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                    <ContentPresenter ContentSource="Icon" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <TextBlock x:Name="MenuCheck" Text="✓" Foreground="#E6C07B" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <ContentPresenter Grid.Column="1" ContentSource="Header" Margin="9,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True"/>
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsHighlighted" Value="True"><Setter TargetName="MenuSurface" Property="Background" Value="#3B2935"/></Trigger>
+                <Trigger Property="IsChecked" Value="True"><Setter TargetName="MenuCheck" Property="Visibility" Value="Visible"/></Trigger>
+                <Trigger Property="IsEnabled" Value="False"><Setter TargetName="MenuSurface" Property="Opacity" Value="0.55"/></Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style TargetType="Separator"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Separator"><Border Height="1" Background="#503441" Margin="8,5"/></ControlTemplate></Setter.Value></Setter></Style>
+    <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator" BasedOn="{StaticResource {x:Type Separator}}"/>
     <Style x:Key="KeyboardFocus" TargetType="Control">
         <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Control">
             <Border BorderBrush="#FFD27A" BorderThickness="1" CornerRadius="6" Margin="2" IsHitTestVisible="False"/>

@@ -17,6 +17,7 @@ namespace VPNyan
         public string Theme { get; set; } = "dark";
         public int TunMtu { get; set; } = 1500;
         public bool NavigationExpanded { get; set; }
+        public string ServerSort { get; set; } = "original";
         public bool AutoCheckPings { get; set; } = true;
         public int PingIntervalSeconds { get; set; } = 60;
         public string TrafficUnit { get; set; } = "Mbps";
@@ -50,7 +51,7 @@ namespace VPNyan
         {
             KillSwitch = KillSwitch, StartWithWindows = StartWithWindows, MinimizeToTray = MinimizeToTray,
             StartMinimized = StartMinimized, AutoConnect = AutoConnect, ShowNotifications = ShowNotifications,
-            LastServer = LastServer, Theme = Theme, TunMtu = TunMtu, NavigationExpanded = NavigationExpanded, StoragePath = StoragePath,
+            LastServer = LastServer, Theme = Theme, TunMtu = TunMtu, NavigationExpanded = NavigationExpanded, ServerSort = ServerSort, StoragePath = StoragePath,
             AutoCheckPings = AutoCheckPings, PingIntervalSeconds = PingIntervalSeconds, TrafficUnit = TrafficUnit,
             BypassLocalNetwork = BypassLocalNetwork, DnsServers = DnsServers, SplitTunnelEnabled = SplitTunnelEnabled,
             SplitTunnelMode = SplitTunnelMode, SplitApplications = new(SplitApplications), SplitDomains = new(SplitDomains), SplitNetworks = new(SplitNetworks)

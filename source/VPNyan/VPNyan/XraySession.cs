@@ -15,7 +15,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace VPNyan;
 
-internal sealed class XraySession : IAsyncDisposable
+internal sealed class XraySession : IVpnSession
 {
     private NamedPipeServerStream? pipe;
     private Process? host;
@@ -26,11 +26,11 @@ internal sealed class XraySession : IAsyncDisposable
     private readonly TaskCompletionSource hello = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private EngineRequest? request;
     private bool engineRunning;
-    internal bool IsRunning => engineRunning && host is { HasExited: false };
-    internal event Action<string>? Log;
+    public bool IsRunning => engineRunning && host is { HasExited: false };
+    public event Action<string>? Log;
     internal string VerificationStage { get; private set; } = "Запуск";
 
-    internal async Task<string> StartAsync(SubscriptionProfile profile, int mtu, CancellationToken cancellationToken,
+    public async Task<string> StartAsync(SubscriptionProfile profile, int mtu, CancellationToken cancellationToken,
         bool enableTun = true, bool elevate = true, bool diagnostics = false, AppSettings? routing = null)
     {
         EngineHost.VerifyFiles();
@@ -142,7 +142,7 @@ internal sealed class XraySession : IAsyncDisposable
         }
     }
 
-    internal async Task<string> ProbeAsync(CancellationToken cancellationToken, bool useProxy = true)
+    public async Task<string> ProbeAsync(CancellationToken cancellationToken, bool useProxy = true)
     {
         if (request == null) throw new InvalidOperationException();
         using var handler = new SocketsHttpHandler { UseProxy = useProxy, ConnectTimeout = TimeSpan.FromSeconds(8),
@@ -165,7 +165,7 @@ internal sealed class XraySession : IAsyncDisposable
         return address.ToString();
     }
 
-    internal async Task<TrafficCounters> ReadTrafficAsync(CancellationToken cancellationToken)
+    public async Task<TrafficCounters> ReadTrafficAsync(CancellationToken cancellationToken)
     {
         if (request == null || !IsRunning) throw new IOException("VPN-движок остановлен.");
         using var handler = new SocketsHttpHandler { UseProxy = true, AllowAutoRedirect = false,

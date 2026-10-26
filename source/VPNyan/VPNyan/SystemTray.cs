@@ -9,17 +9,19 @@ namespace VPNyan
     {
         private readonly NotifyIcon? trayIcon;
         private readonly MainWindow mainWindow;
+        private readonly System.Drawing.Icon? applicationIcon;
 
         public SystemTray(MainWindow window)
         {
             mainWindow = window;
             try
             {
-                var processPath = Environment.ProcessPath
-                    ?? throw new InvalidOperationException("Не найден путь приложения.");
+                using var iconStream = System.Windows.Application.GetResourceStream(new Uri("pack://application:,,,/VPNyan;component/Assets/VPN4ik.ico"))!.Stream;
+                using var resourceIcon = new System.Drawing.Icon(iconStream);
+                applicationIcon = (System.Drawing.Icon)resourceIcon.Clone();
                 trayIcon = new NotifyIcon
                 {
-                    Icon = System.Drawing.Icon.ExtractAssociatedIcon(processPath)!,
+                    Icon = applicationIcon,
                     Text = "VPN4ik",
                     Visible = true
                 };
@@ -65,7 +67,7 @@ namespace VPNyan
 
         public void Dispose()
         {
-            try { trayIcon?.Dispose(); }
+            try { trayIcon?.ContextMenuStrip?.Dispose(); trayIcon?.Dispose(); applicationIcon?.Dispose(); }
             catch { }
         }
 

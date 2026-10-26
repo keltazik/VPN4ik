@@ -35,11 +35,13 @@ public partial class MainWindow
         if (useBackground && settings.MinimizeToTray && WindowState == WindowState.Minimized) Hide();
     }
 
-    public async Task Connect()
+    public Task Connect() => isSwitching || isManagingData || isResetting ? Task.CompletedTask : ConnectCoreAsync();
+
+    private async Task ConnectCoreAsync()
     {
         if (isConnecting || activeServer != null || isImporting) return;
         if (ServerSelect.SelectedItem is not ServerItem server) { ShowSection("import"); return; }
-        if (!useBackground) { StatusText.Text = "Подключение доступно при обычном запуске приложения"; return; }
+        if (!canCreateSession) { StatusText.Text = "Подключение доступно при обычном запуске приложения"; return; }
         isConnecting = true;
         connectionCancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
         connectionCancellation.CancelAfter(TimeSpan.FromSeconds(100));
@@ -69,12 +71,17 @@ public partial class MainWindow
             {
                 var profile = subscriptions.SelectMany(s => s.Profiles).FirstOrDefault(p => p.Id == server.ProfileId)
                     ?? throw new InvalidDataException("Профиль не найден. Обнови подписку.");
-                xraySession = new XraySession();
+                xraySession = sessionFactory();
+                var ownedSession = xraySession;
                 var redactor = new SecretRedactor(profile.Configuration);
                 xraySession.Log += line =>
                 {
                     if (!Dispatcher.HasShutdownStarted)
-                        Dispatcher.BeginInvoke(new Action(() => activity.Add(line.Contains("[Error]", StringComparison.OrdinalIgnoreCase) ? "Ошибка" : "Движок", redactor.Clean(line))));
+                        Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            if (ReferenceEquals(xraySession, ownedSession) && !isResetting && !lifetime.IsCancellationRequested)
+                                activity.Add(line.Contains("[Error]", StringComparison.OrdinalIgnoreCase) ? "Ошибка" : "Движок", redactor.Clean(line));
+                        }));
                 };
                 var ip = await xraySession.StartAsync(profile, settings.TunMtu, connectionCancellation.Token, routing: settings);
                 connectionCancellation.CancelAfter(Timeout.InfiniteTimeSpan);
@@ -97,7 +104,7 @@ public partial class MainWindow
             catch { /* Next successful sample establishes the baseline. */ }
             UpdateStatusIndicator(server.Protocol != "WireGuard");
             AnimateStatusColor(server.Protocol == "WireGuard" ? "#D4AA65" : "#8FCF9C");
-            AnimateGlow(0.8, 22);
+
             SaveServer();
             if (settings.ShowNotifications) systemTray?.ShowNotification("VPN4ik", StatusText.Text + ": " + server.Name);
             return;
@@ -152,7 +159,7 @@ public partial class MainWindow
         }
     }
 
-    public Task Disconnect() => DisconnectCoreAsync("Отключено");
+    public Task Disconnect() => isSwitching || isManagingData || isResetting ? Task.CompletedTask : DisconnectCoreAsync("Отключено");
 
     private async Task DisconnectCoreAsync(string result)
     {
@@ -164,7 +171,7 @@ public partial class MainWindow
         {
             await StopOwnedTunnelAsync();
             activity.End(currentRecord, result);
-            activity.Add("Информация", result == "Отключено" ? "VPN отключён." : "VPN-соединение прервано: движок остановился.");
+            activity.Add("Информация", result == "Разрыв" ? "VPN-соединение прервано: движок остановился." : "VPN отключён: " + result + ".");
             currentRecord = null;
             activeServer = null;
             isConnected = false;
@@ -173,9 +180,8 @@ public partial class MainWindow
             IpText.Text = "";
             UpdateStatusIndicator(false);
             AnimateStatusColor("#C9A15C");
-            AnimateGlow(0, 0);
             AnimateScale(1);
-            SpeedText.Text = "0 Mbps";
+            SpeedText.Text = "0 " + settings.TrafficUnit;
             trafficMeter.Reset();
             TimeConnectedText.Text = "00:00:00";
             TrafficText.Text = "↑ 0 MB | ↓ 0 MB";
@@ -223,7 +229,7 @@ public partial class MainWindow
         return Task.FromResult(new TrafficCounters(stats.BytesSent, stats.BytesReceived));
     }
 
-    private async Task RecheckConnectionAsync(XraySession session)
+    private async Task RecheckConnectionAsync(IVpnSession session)
     {
         isCheckingConnection = true;
         lastConnectionCheck = DateTime.UtcNow;
@@ -254,7 +260,7 @@ public partial class MainWindow
         if (allowClose) { base.OnClosing(e); return; }
         e.Cancel = true;
         base.OnClosing(e);
-        if (isConnecting) { closeRequested = true; connectionCancellation?.Cancel(); return; }
+        if (isConnecting || isSwitching || isManagingData || isResetting) { closeRequested = true; connectionCancellation?.Cancel(); return; }
         closeRequested = false;
         if (activeServer != null) await Disconnect();
         if (activeServer != null) return;
@@ -289,6 +295,7 @@ public partial class MainWindow
             SettingsStatusText.Text = "";
             loadingSettings = false;
         }
+        if (section == "import") RefreshImportedSources();
     }
     private void Home_Click(object sender, RoutedEventArgs e) => ShowSection("home");
     private void ImportMenu_Click(object sender, RoutedEventArgs e) => ShowSection("import");

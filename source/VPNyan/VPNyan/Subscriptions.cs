@@ -19,6 +19,8 @@ public sealed class SubscriptionProfile
 
 public sealed class Subscription
 {
+    public string DisplayName { get; set; } = "";
+    public List<string> DeletedProfileIds { get; set; } = new();
     public string Url { get; set; } = "";
     public DateTime UpdatedAt { get; set; }
     public List<SubscriptionProfile> Profiles { get; set; } = new();

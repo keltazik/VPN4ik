@@ -19,6 +19,7 @@ internal static class Program
     {
         try
         {
+            if (args is ["--generate-icon", var iconPath]) { IconGenerator.Generate(iconPath); return 0; }
             if (args is ["--provider-response", var response, var report])
                 return ProviderSubscriptionChecks.RunAsync(response, report).GetAwaiter().GetResult();
             if (args.Contains("--native-routing"))
@@ -76,6 +77,7 @@ internal static class Program
                 CheckLayout(window, fixtures, size);
             CheckOrnamentAnimation(window);
             CheckSections(window, fixtures);
+            ManagementChecks.Run(fixtures, Require);
             var wasClosed = false;
             window.Closed += (_, _) => wasClosed = true;
             window.Close();

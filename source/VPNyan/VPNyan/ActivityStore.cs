@@ -73,6 +73,12 @@ internal sealed class ActivityStore
     internal void End(ConnectionRecord? record, string result)
     { if (record == null) return; record.EndedAt = DateTimeOffset.UtcNow; record.Result = result; record.Refresh(); Save(); }
     internal void ClearLogs() { Logs.Clear(); Save(); }
+    internal void Reset()
+    {
+        File.Delete(path);
+        File.Delete(path + ".tmp");
+        Logs.Clear(); History.Clear();
+    }
     internal void ClearHistory(ConnectionRecord? active)
     { foreach (var item in History.Where(item => item != active).ToArray()) History.Remove(item); Save(); }
     private void Save()

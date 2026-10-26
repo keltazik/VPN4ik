@@ -158,7 +158,9 @@ namespace VPNyan
         AppSettings settings = new();
         SystemTray? systemTray;
         ActivityStore activity = null!;
-        XraySession? xraySession;
+        IVpnSession? xraySession;
+        readonly Func<IVpnSession> sessionFactory;
+        readonly bool canCreateSession;
         ConnectionRecord? currentRecord;
         CancellationTokenSource? connectionCancellation;
         bool useBackground, closeRequested, isCheckingConnection, lastProbeFailed;
@@ -169,8 +171,10 @@ namespace VPNyan
 
         public MainWindow() : this(true) { }
 
-        internal MainWindow(bool startMonitoring, string? dataDirectory = null)
+        internal MainWindow(bool startMonitoring, string? dataDirectory = null, Func<IVpnSession>? connectionFactory = null)
         {
+            sessionFactory = connectionFactory ?? (() => new XraySession());
+            canCreateSession = startMonitoring || connectionFactory != null;
             InitializeComponent();
             UpdateOrnamentCache();
             Loaded += (_, _) => UpdateOrnamentCache();
@@ -206,6 +210,7 @@ namespace VPNyan
 
             ServerSelect.ItemsSource = servers;
             ServerSelect.SelectionChanged += ServerSelect_SelectionChanged;
+            InitializeServerManagement();
             LoadSavedServer();
             if (servers.Count == 0) StatusText.Text = "Добавь подписку или конфигурацию сервера";
             UpdateServerControls();
@@ -249,8 +254,11 @@ namespace VPNyan
         }
 
         internal static ServerItem ReadServer(string configPath)
+            => ReadServerText(File.ReadAllText(configPath), configPath);
+
+        internal static ServerItem ReadServerText(string text, string configPath)
         {
-            var endpoint = File.ReadLines(configPath)
+            var endpoint = text.Split('\n')
                 .Select(line => line.Split('#')[0].Trim())
                 .Select(line => line.Split('=', 2))
                 .FirstOrDefault(parts => parts.Length == 2 &&
@@ -293,10 +301,11 @@ namespace VPNyan
                 else
                 {
                     var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(Path.GetFullPath(dialog.FileName))));
-                    ApplySubscription(new Subscription { Url = "local:" + hash, UpdatedAt = DateTime.UtcNow, Profiles = SubscriptionParser.Parse(File.ReadAllText(dialog.FileName)) });
+                    ApplySubscription(new Subscription { Url = "local:" + hash, DisplayName = Path.GetFileName(dialog.FileName), UpdatedAt = DateTime.UtcNow, Profiles = SubscriptionParser.Parse(File.ReadAllText(dialog.FileName)) });
                 }
                 UpdateServerControls();
                 activity.Add("Информация", "Конфигурация импортирована из файла.");
+                RefreshImportedSources();
                 ShowSection("home");
             }
             catch (Exception ex) { SubscriptionStatusText.Text = ex is InvalidDataException ? ex.Message : "Не удалось импортировать файл. Проверь формат и имя файла."; }
@@ -323,17 +332,22 @@ namespace VPNyan
 
         void UpdateServerControls()
         {
-            var available = !isConnecting && activeServer == null && !isImporting;
-            ServerSelect.IsEnabled = BestServerButton.IsEnabled = ImportConfigButton.IsEnabled = available;
+            var canManage = !isConnecting && !isImporting && !isSwitching && !isManagingData && !isResetting;
+            var available = canManage && activeServer == null;
+            ServerSelect.IsEnabled = canManage;
+            ImportConfigButton.IsEnabled = available;
             SubscriptionUrlText.IsEnabled = ImportSubscriptionButton.IsEnabled = available;
-            ServerSearchText.IsEnabled = available;
+            ServerSearchText.IsEnabled = canManage;
+            ImportedSourcesList.IsEnabled = canManage;
+            SortServersButton.IsEnabled = canManage;
+            ResetAllButton.IsEnabled = canManage;
             RefreshSubscriptionButton.IsEnabled = available && subscriptions.Any(s => s.Url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
             EmptyServersText.Text = servers.Count == 0 ? "Добавь подписку или файл WireGuard .conf" : "Серверы не найдены";
             EmptyServersText.Visibility = CollectionViewSource.GetDefaultView(servers).IsEmpty ? Visibility.Visible : Visibility.Collapsed;
             ServerCountText.Text = servers.Count.ToString();
             CheckLatencyButton.IsEnabled = !isImporting && !isUpdatingPings && servers.Any(s => ServerLatency.SupportsTcpPing(s.Protocol));
             if (!isUpdatingPings) UpdateLatencySummary();
-            BestServerButton.IsEnabled = available && !isUpdatingPings && servers.Any(s => s.Ping >= 0 && s.LatencyMeasuredAt >= DateTime.UtcNow.AddMinutes(-2));
+            BestServerButton.IsEnabled = canManage && !isUpdatingPings && servers.Any(s => s.Ping >= 0 && s.LatencyMeasuredAt >= DateTime.UtcNow.AddMinutes(-2));
         }
 
         internal async Task ImportSubscriptionAsync(string url)
@@ -367,15 +381,19 @@ namespace VPNyan
         {
             if (isUpdatingPings) { latencyRefreshRequested = true; latencyCancellation?.Cancel(); }
             var selected = (ServerSelect.SelectedItem as ServerItem)?.SelectionKey;
+            var previous = subscriptions.FirstOrDefault(s => s.Url == subscription.Url);
+            subscription = CopySubscription(subscription);
+            if (previous != null)
+            {
+                subscription.DeletedProfileIds = previous.DeletedProfileIds.Union(subscription.DeletedProfileIds).ToList();
+                if (subscription.DisplayName == "") subscription.DisplayName = previous.DisplayName;
+            }
+            subscription.Profiles = subscription.Profiles.Where(p => !subscription.DeletedProfileIds.Contains(p.Id)).ToList();
             var next = subscriptions.Where(s => s.Url != subscription.Url).Append(subscription).ToList();
             // Persist atomically before replacing the visible list; a failed update leaves the old list intact.
             SubscriptionStore.Save(SubscriptionPath, next);
-            subscriptions = next;
-            foreach (var item in servers.Where(s => s.SubscriptionUrl == subscription.Url).ToArray()) servers.Remove(item);
-            AddSubscriptionServers(subscription);
-            ServerSelect.SelectedItem = servers.FirstOrDefault(s => s.SelectionKey == selected)
-                ?? servers.FirstOrDefault(s => s.SubscriptionUrl == subscription.Url);
-            ServerSelect.ScrollIntoView(ServerSelect.SelectedItem);
+            ReplaceSubscriptionRows(next, selected);
+            if (ServerSelect.SelectedItem != null) ServerSelect.ScrollIntoView(ServerSelect.SelectedItem);
             SubscriptionStatusText.Text = $"Серверов в подписке: {subscription.Profiles.Count} · обновлено {subscription.UpdatedAt.ToLocalTime():HH:mm}";
             UpdateServerControls();
         }
@@ -442,12 +460,14 @@ namespace VPNyan
 
         internal async Task UpdatePings(bool manual = false)
         {
+            if (isResetting) return;
             if (!manual && !settings.AutoCheckPings) return;
             if (manual && PingMayBeInaccurate) ShowPingWarning();
             if (!useBackground || isUpdatingPings) return;
             var snapshot = servers.Where(s => ServerLatency.SupportsTcpPing(s.Protocol)).ToArray();
             if (snapshot.Length == 0) return;
             isUpdatingPings = true;
+            pingsCompleted = new(TaskCreationOptions.RunContinuationsAsynchronously);
             using var run = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
             latencyCancellation = run;
             foreach (var server in snapshot) server.SetLatencyPending();
@@ -483,8 +503,10 @@ namespace VPNyan
                     UpdateLatencySummary();
                 latencyCancellation = null;
                 isUpdatingPings = false;
+                pingsCompleted?.TrySetResult();
+                ApplyServerSort(settings.ServerSort, false);
                 if (!lifetime.IsCancellationRequested) UpdateServerControls();
-                if (latencyRefreshRequested && !lifetime.IsCancellationRequested)
+                if (latencyRefreshRequested && !lifetime.IsCancellationRequested && !isResetting)
                 {
                     latencyRefreshRequested = false;
                     _ = Dispatcher.BeginInvoke(new Action(() => _ = UpdatePings()));
@@ -563,14 +585,6 @@ namespace VPNyan
             if (Math.Abs(cache.RenderAtScale - scale) > 0.001) cache.RenderAtScale = scale;
         }
 
-        void AnimateGlow(double opacity, double blur)
-        {
-            var o = new DoubleAnimation { To = opacity, Duration = TimeSpan.FromMilliseconds(300) };
-            var b = new DoubleAnimation { To = blur, Duration = TimeSpan.FromMilliseconds(300) };
-            GlowEffect?.BeginAnimation(DropShadowEffect.OpacityProperty, o);
-            GlowEffect?.BeginAnimation(DropShadowEffect.BlurRadiusProperty, b);
-        }
-
         void AnimateStatusColor(string toColor)
         {
             var brush = (StatusText.Foreground as SolidColorBrush)?.Clone() ?? new SolidColorBrush();
@@ -606,9 +620,12 @@ namespace VPNyan
             ServerSelect.SelectedItem = servers.FirstOrDefault(s => s.SelectionKey == settings.LastServer)
                 ?? servers.FirstOrDefault();
         }
-        private void ServerSelect_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void ServerSelect_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (suppressSelectionSwitch || isConnecting || isSwitching || isManagingData || isResetting) return;
             SaveServer();
+            if (activeServer != null && ServerSelect.SelectedItem is ServerItem target && !ReferenceEquals(activeServer, target))
+            { await SwitchToServerAsync(target); return; }
             if (activeServer != null || isConnecting) return;
             if (ServerSelect.SelectedItem is ServerItem server)
             {
@@ -635,11 +652,17 @@ namespace VPNyan
             if (ServerSelect?.ItemsSource == null) return;
             var search = ServerSearchText.Text.Trim();
             var view = CollectionViewSource.GetDefaultView(ServerSelect.ItemsSource);
-            view.Filter = item => item is ServerItem server &&
-                (server.Name.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
-                 server.Protocol.Contains(search, StringComparison.OrdinalIgnoreCase));
-            if (ServerSelect.SelectedItem == null && !view.IsEmpty)
-                ServerSelect.SelectedItem = view.Cast<ServerItem>().FirstOrDefault();
+            var wasSuppressed = suppressSelectionSwitch;
+            suppressSelectionSwitch = true;
+            try
+            {
+                view.Filter = item => item is ServerItem server &&
+                    (server.Name.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
+                     server.Protocol.Contains(search, StringComparison.OrdinalIgnoreCase));
+                if (ServerSelect.SelectedItem == null && !view.IsEmpty)
+                    ServerSelect.SelectedItem = activeServer != null ? (view.Contains(activeServer) ? activeServer : null) : view.Cast<ServerItem>().FirstOrDefault();
+            }
+            finally { suppressSelectionSwitch = wasSuppressed; }
             EmptyServersText.Text = servers.Count == 0 ? "Добавь подписку или файл WireGuard .conf" : "Серверы не найдены";
             EmptyServersText.Visibility = view.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
         }
@@ -672,52 +695,14 @@ namespace VPNyan
         // ✅ ИСПРАВЛЕНО: System.Windows.Input.MouseEventArgs вместо Forms
         private void Ornament_MouseEnter(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            Debug.WriteLine("✅ Ornament MouseEnter");
             isMouseOverOrnament = true;
             AnimateScale(1.04);
-
-            if (isConnected)
-            {
-                Debug.WriteLine("🟢 Already connected - keeping max glow");
-                return;
-            }
-
-            if (isConnecting)
-            {
-                Debug.WriteLine("🟡 Connecting - keeping connecting glow");
-                return;
-            }
-
-            var glowOpacity = new DoubleAnimation { To = 0.6, Duration = TimeSpan.FromMilliseconds(200) };
-            var glowBlur = new DoubleAnimation { To = 15, Duration = TimeSpan.FromMilliseconds(200) };
-            GlowEffect?.BeginAnimation(DropShadowEffect.OpacityProperty, glowOpacity);
-            GlowEffect?.BeginAnimation(DropShadowEffect.BlurRadiusProperty, glowBlur);
         }
-
         private void Ornament_MouseLeave(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            Debug.WriteLine("❌ Ornament MouseLeave");
             isMouseOverOrnament = false;
             AnimateScale(1.0);
-
-            if (isConnected)
-            {
-                Debug.WriteLine("🟢 Connected - keeping max glow");
-                return;
-            }
-
-            if (isConnecting)
-            {
-                Debug.WriteLine("🟡 Connecting - keeping connecting glow");
-                return;
-            }
-
-            var glowOpacity = new DoubleAnimation { To = 0, Duration = TimeSpan.FromMilliseconds(200) };
-            var glowBlur = new DoubleAnimation { To = 0, Duration = TimeSpan.FromMilliseconds(200) };
-            GlowEffect?.BeginAnimation(DropShadowEffect.OpacityProperty, glowOpacity);
-            GlowEffect?.BeginAnimation(DropShadowEffect.BlurRadiusProperty, glowBlur);
         }
-
         private void TestButton_Click(object sender, RoutedEventArgs e) => WpfMessageBox.Show("Кнопка работает!");
 
         private void ItemsHost_IsKeyboardFocusWithinChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -729,4 +714,3 @@ namespace VPNyan
         }
     }
 }
-
