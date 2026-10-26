@@ -10,6 +10,18 @@ namespace VPNyan;
 
 internal static class DiagnosticsRunner
 {
+    internal static async Task<int> RunZapretStatusAsync(string folder, string resultPath)
+    {
+        try
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            var result = await new ZapretController(false).RunAsync(new ZapretRequest { Action = "status", Folder = folder }, timeout.Token);
+            File.WriteAllText(resultPath, JsonSerializer.Serialize(new { result.Success, Processes = result.State.Processes.Count, Services = result.State.Services.Count, result.State.OtherProcesses, result.State.UnreadableProcesses }));
+            return result.Success ? 0 : 1;
+        }
+        catch (Exception ex) { File.WriteAllText(resultPath, JsonSerializer.Serialize(new { Success = false, ErrorType = ex.GetType().Name })); return 1; }
+    }
+
     // Offline packaging check: no profiles, monitoring, tray, UAC or connection.
     internal static int RunStartup(string resultPath)
     {

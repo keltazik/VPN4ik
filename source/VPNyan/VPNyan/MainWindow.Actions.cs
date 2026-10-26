@@ -229,12 +229,14 @@ public partial class MainWindow
 
     internal async Task ResetAllAsync()
     {
-        if (isConnecting || isSwitching || isManagingData || isImporting || isResetting) throw new InvalidOperationException("Дождись завершения операции.");
+        if (isConnecting || isSwitching || isManagingData || isImporting || isResetting || zapretBusy) throw new InvalidOperationException("Дождись завершения операции.");
         isResetting = true; UpdateServerControls();
         try
         {
             if (activeServer != null) await DisconnectCoreAsync("Сброс данных");
             if (activeServer != null) throw new IOException("Туннель не остановлен.");
+            await RestorePausedZapretAsync();
+            if (pausedZapret?.HasEntries == true) throw new IOException("Сначала восстанови zapret или отключи возврат его состояния.");
             latencyRefreshRequested = false; latencyCancellation?.Cancel();
             if (isUpdatingPings && pingsCompleted != null) await pingsCompleted.Task;
             if (useBackground) SetAutoStart(false);
@@ -246,6 +248,7 @@ public partial class MainWindow
             activity.Reset();
             contextServer = null; CloseActionDialog();
             settings = defaults; draftSettings = null; subscriptions.Clear();
+            ResetZapretUi();
             suppressSelectionSwitch = true;
             try { servers.Clear(); ServerSelect.SelectedItem = null; } finally { suppressSelectionSwitch = false; }
             MenuToggleButton.IsChecked = false; ApplyNavigationLayout();

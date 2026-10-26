@@ -19,7 +19,10 @@ internal static class Program
     {
         try
         {
+            if (args.Length == 2 && args[0].StartsWith("--wf-tcp=", StringComparison.Ordinal) && args[1] == "--vpn4ik-zapret-test-fixture") { Thread.Sleep(50000); return 0; }
+            if (args is ["--verify-zapret-processes"]) { ZapretChecks.VerifyProcessesAsync().GetAwaiter().GetResult(); return 0; }
             if (args is ["--generate-icon", var iconPath]) { IconGenerator.Generate(iconPath); return 0; }
+            if (args is ["--verify-zapret-folder", var zapretFolder]) return ZapretChecks.VerifyFolder(zapretFolder);
             if (args is ["--verify-updater", var updateBuild]) { UpdateChecks.VerifyPortableAsync(Path.GetFullPath(updateBuild)).GetAwaiter().GetResult(); return 0; }
             if (args is ["--verify-published-update", var installed, var expected, var hash]) { UpdateChecks.VerifyPublishedAsync(installed, expected, hash).GetAwaiter().GetResult(); return 0; }
             if (args is ["--check-update-feed"])
@@ -88,6 +91,7 @@ internal static class Program
             ManagementChecks.Run(fixtures, Require);
             UpdateChecks.Run(fixtures, Require);
             SubscriptionRegressionChecks.CheckMixedUi(fixtures, Require);
+            ZapretChecks.Run(fixtures, Require);
             var wasClosed = false;
             window.Closed += (_, _) => wasClosed = true;
             window.Close();

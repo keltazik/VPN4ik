@@ -14,6 +14,10 @@ namespace VPNyan
         public bool AutoConnect { get; set; }
         public bool ShowNotifications { get; set; } = true;
         public bool CheckForUpdates { get; set; } = true;
+        public string ZapretFolder { get; set; } = "";
+        public string ZapretStrategy { get; set; } = "";
+        public bool DisableZapretOnConnect { get; set; }
+        public bool RestoreZapretAfterVpn { get; set; } = true;
         public string LastServer { get; set; } = "";
         public string Theme { get; set; } = "dark";
         public int TunMtu { get; set; } = 1500;
@@ -52,6 +56,7 @@ namespace VPNyan
         {
             KillSwitch = KillSwitch, StartWithWindows = StartWithWindows, MinimizeToTray = MinimizeToTray,
             StartMinimized = StartMinimized, AutoConnect = AutoConnect, ShowNotifications = ShowNotifications, CheckForUpdates = CheckForUpdates,
+            ZapretFolder = ZapretFolder, ZapretStrategy = ZapretStrategy, DisableZapretOnConnect = DisableZapretOnConnect, RestoreZapretAfterVpn = RestoreZapretAfterVpn,
             LastServer = LastServer, Theme = Theme, TunMtu = TunMtu, NavigationExpanded = NavigationExpanded, ServerSort = ServerSort, StoragePath = StoragePath,
             AutoCheckPings = AutoCheckPings, PingIntervalSeconds = PingIntervalSeconds, TrafficUnit = TrafficUnit,
             BypassLocalNetwork = BypassLocalNetwork, DnsServers = DnsServers, SplitTunnelEnabled = SplitTunnelEnabled,

@@ -11,6 +11,18 @@ public partial class App : System.Windows.Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if (e.Args is ["--verify-zapret-status", var statusFolder, var statusResult])
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            Shutdown(await DiagnosticsRunner.RunZapretStatusAsync(statusFolder, statusResult));
+            return;
+        }
+        if (e.Args is ["--zapret-host", var zapretPipe, var zapretParent] && int.TryParse(zapretParent, out var zapretParentId))
+        {
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+            Shutdown(await ZapretController.RunHostAsync(zapretPipe, zapretParentId));
+            return;
+        }
         if (e.Args is ["--apply-update", var updateJob])
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;

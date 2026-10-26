@@ -336,6 +336,46 @@
                             <ListBox.ItemTemplate><DataTemplate><StackPanel><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding TimeDisplay}" Foreground="#A78762" FontSize="11"/><TextBlock Text="{Binding Level}" Foreground="{Binding LevelColor}" FontSize="11" Margin="12,0,0,0"/></StackPanel><TextBlock Text="{Binding Message}" Foreground="#E6C07B" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/></StackPanel></DataTemplate></ListBox.ItemTemplate>
                         </ListBox>
                     </Grid>
+                    <ScrollViewer x:Name="ZapretPage" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="0,0,12,0">
+                            <Border Background="#25141F" BorderBrush="#503441" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,18">
+                                <StackPanel>
+                                    <TextBlock x:Name="ZapretStateText" Text="Папка zapret не выбрана" Foreground="#F1D6A5" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="ZapretVersionText" Text="Подключи установленную сборку Flowseal" Foreground="#A78762" TextWrapping="Wrap" Margin="0,7,0,12"/>
+                                    <WrapPanel><Button x:Name="ZapretStartButton" Content="Включить" Click="ZapretStart_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button x:Name="ZapretStopButton" Content="Выключить" Click="ZapretStop_Click" Style="{StaticResource ActionButton}" Foreground="#FFA5B0" Margin="0,0,8,8"/><Button x:Name="ZapretRestartButton" Content="Перезапустить" Click="ZapretRestart_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button x:Name="ZapretRefreshButton" Content="Обновить статус" Click="ZapretRefresh_Click" Style="{StaticResource ActionButton}" Margin="0,0,0,8"/></WrapPanel>
+                                    <TextBlock Text="Статус показывает процесс или службу. Доступность сайтов зависит от стратегии. При запуске и остановке Windows может запросить права администратора." Foreground="#947765" FontSize="11" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Border>
+                            <Border BorderBrush="#412332" BorderThickness="0,1,0,0" Padding="0,18,0,0">
+                                <StackPanel><TextBlock Text="Совместная работа с VPN" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                                    <CheckBox x:Name="DisableZapretOnConnectBox" Content="Выключать zapret при подключении VPN" Click="ZapretCompatibility_Click"/>
+                                    <TextBlock Text="По умолчанию выключено. Пока функция отключена, при подключении появляется предупреждение о возможном конфликте." Foreground="#A78762" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                    <CheckBox x:Name="RestoreZapretAfterVpnBox" Content="Возвращать прежнее состояние после отключения VPN" Click="ZapretCompatibility_Click"/>
+                                    <TextBlock Text="Возвращается только тот zapret, который приложение само выключило перед VPN. Изначально выключенный zapret не запускается." Foreground="#947765" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="Папка zapret" Foreground="#F1D6A5" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            <TextBox x:Name="ZapretFolderText" IsReadOnly="True" AutomationProperties.Name="Папка zapret" AutomationProperties.HelpText="Выбери папку с service.bat и bin/winws.exe" Margin="0,0,0,10"/>
+                            <WrapPanel Margin="0,0,0,20"><Button x:Name="ZapretChooseFolderButton" Content="Выбрать папку" Click="ZapretChooseFolder_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,0"/><Button x:Name="ZapretOpenFolderButton" Content="Открыть папку" Click="ZapretOpenFolder_Click" Style="{StaticResource ActionButton}"/></WrapPanel>
+                            <TextBlock Text="Стратегия для запуска" Foreground="#F1D6A5" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            <ComboBox x:Name="ZapretStrategySelect" DisplayMemberPath="Name" SelectedValuePath="FileName" SelectionChanged="ZapretStrategy_Changed" Style="{StaticResource ZapretSelector}" AutomationProperties.Name="Стратегия zapret"/>
+                            <TextBlock Text="Выбранная стратегия применяется при включении или перезапуске. BAT-меню запускать не нужно." Foreground="#947765" FontSize="11" TextWrapping="Wrap" Margin="0,8,0,18"/>
+                            <WrapPanel Margin="0,0,0,18">
+                                <StackPanel Width="200" Margin="0,0,12,10"><TextBlock Text="Игровой фильтр" Foreground="#C9A15C" Margin="0,0,0,8"/><ComboBox x:Name="ZapretGameSelect" Style="{StaticResource ZapretSelector}" SelectionChanged="ZapretFilters_Changed"><ComboBoxItem Content="Выключен" Tag="disabled"/><ComboBoxItem Content="TCP и UDP" Tag="all"/><ComboBoxItem Content="Только TCP" Tag="tcp"/><ComboBoxItem Content="Только UDP" Tag="udp"/></ComboBox></StackPanel>
+                                <StackPanel Width="200" Margin="0,0,0,10"><TextBlock Text="IPSet" Foreground="#C9A15C" Margin="0,0,0,8"/><ComboBox x:Name="ZapretIpSetSelect" Style="{StaticResource ZapretSelector}" SelectionChanged="ZapretFilters_Changed"><ComboBoxItem Content="По загруженному списку" Tag="loaded"/><ComboBoxItem Content="Выключен" Tag="none"/><ComboBoxItem Content="Любые адреса" Tag="any"/></ComboBox></StackPanel>
+                            </WrapPanel>
+                            <Expander x:Name="ZapretListsExpander" Header="Пользовательские списки" Foreground="#E6C07B" Expanded="ZapretLists_Expanded" Margin="0,0,0,18">
+                                <StackPanel Margin="0,14,0,0"><TextBlock Text="Изменения сохраняются автоматически. Для применения к работающему zapret нажми «Перезапустить»." Foreground="#A78762" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <TextBlock Text="Домены для zapret" Foreground="#C9A15C" Margin="0,0,0,8"/><TextBox x:Name="ZapretDomainsText" Tag="domains" Height="120" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextChanged="ZapretList_Changed" AutomationProperties.HelpText="Домены по одному на строку" Margin="0,0,0,14"/>
+                                    <TextBlock Text="Домены-исключения" Foreground="#C9A15C" Margin="0,0,0,8"/><TextBox x:Name="ZapretExcludeText" Tag="exclude" Height="110" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextChanged="ZapretList_Changed" AutomationProperties.HelpText="Домены, которые zapret пропускает" Margin="0,0,0,14"/>
+                                    <TextBlock Text="IP/CIDR-исключения" Foreground="#C9A15C" Margin="0,0,0,8"/><TextBox x:Name="ZapretIpsText" Tag="ips" Height="110" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextChanged="ZapretList_Changed" AutomationProperties.HelpText="IP-адреса и подсети по одному на строку"/>
+                                    <Button x:Name="ZapretSaveListsAdminButton" Content="Применить с правами администратора" Click="ZapretSaveListsAdmin_Click" Visibility="Collapsed" Style="{StaticResource ActionButton}" HorizontalAlignment="Left" Margin="0,12,0,0"/>
+                                </StackPanel>
+                            </Expander>
+                            <TextBlock x:Name="ZapretActionStatus" Foreground="#D4AA65" TextWrapping="Wrap" Margin="0,0,0,14"/>
+                            <TextBlock Text="Последние действия" Foreground="#F1D6A5" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/><TextBlock x:Name="ZapretLogText" Text="События zapret появятся здесь и в общем журнале." Foreground="#947765" FontSize="12" TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </ScrollViewer>
                     <Grid x:Name="HistoryPage" Visibility="Collapsed">
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
                         <DockPanel Margin="0,0,0,14"><Button Content="Очистить историю" Click="ClearHistory_Click" Style="{StaticResource ActionButton}" DockPanel.Dock="Right"/><TextBlock Text="Реальные попытки и сеансы подключения" Foreground="#A78762" VerticalAlignment="Center"/></DockPanel>
@@ -388,6 +428,9 @@
                             <Grid Width="20" Height="20"><Path Data="M 2,9 A 8,8 0 1 1 3,15 M 2,3 L 2,9 L 8,9 M 10,5 L 10,11 L 14,13" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.5" StrokeLineJoin="Round"/></Grid>
                             <TextBlock Grid.Column="1" Text="История" Style="{StaticResource NavigationLabel}"/>
                         </Grid>
+                    </RadioButton>
+                    <RadioButton x:Name="ZapretMenuButton" GroupName="Navigation" Click="ZapretMenu_Click" Style="{StaticResource NavigationItem}" AutomationProperties.Name="Управление zapret">
+                        <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition/></Grid.ColumnDefinitions><Grid Width="22" Height="22"><Path Data="M 11,1 L 20,5 L 19,13 Q 17,18 11,21 Q 5,18 3,13 L 2,5 Z M 12,5 L 7,12 L 11,12 L 10,17 L 15,9 L 11,9 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.35" StrokeLineJoin="Round"/></Grid><TextBlock Grid.Column="1" Text="zapret" Style="{StaticResource NavigationLabel}"/></Grid>
                     </RadioButton>
                 </StackPanel>
                 <Border x:Name="CreatorSignature" Grid.Row="2" Margin="10,12,10,0" Padding="2,12,0,0" BorderThickness="0,1,0,0" BorderBrush="#412332">

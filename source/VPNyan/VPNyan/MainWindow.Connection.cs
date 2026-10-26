@@ -35,11 +35,11 @@ public partial class MainWindow
         if (useBackground && settings.MinimizeToTray && WindowState == WindowState.Minimized) Hide();
     }
 
-    public Task Connect() => isSwitching || isManagingData || isResetting ? Task.CompletedTask : ConnectCoreAsync();
+    public Task Connect() => isSwitching || isManagingData || isResetting || zapretBusy ? Task.CompletedTask : ConnectCoreAsync();
 
     private async Task ConnectCoreAsync()
     {
-        if (isConnecting || activeServer != null || isImporting) return;
+        if (isConnecting || activeServer != null || isImporting || zapretBusy) return;
         if (ServerSelect.SelectedItem is not ServerItem server) { ShowSection("import"); return; }
         if (!canCreateSession) { StatusText.Text = "Подключение доступно при обычном запуске приложения"; return; }
         isConnecting = true;
@@ -47,7 +47,6 @@ public partial class MainWindow
         connectionCancellation.CancelAfter(TimeSpan.FromSeconds(100));
         currentRecord = activity.Begin(server.Name, server.Protocol);
         activity.Add("Информация", $"Подключение: {server.Name} · {server.Protocol}.");
-        activeServer = server;
         UpdateServerControls();
         StartConnectingAnimation();
         AnimateStatusColor("#D4AA65");
@@ -55,6 +54,9 @@ public partial class MainWindow
         try
         {
             if (!server.CanConnect) throw new InvalidDataException("Подключение этого протокола пока не поддерживается.");
+            await PrepareZapretForConnectionAsync(connectionCancellation.Token);
+            connectionCancellation.Token.ThrowIfCancellationRequested();
+            activeServer = server;
             if (server.Protocol == "WireGuard")
             {
                 if (!File.Exists(wgPath) || !File.Exists(server.ConfigPath)) throw new FileNotFoundException("Не найдены WireGuard или конфигурация.");
@@ -133,6 +135,7 @@ public partial class MainWindow
                     currentRecord = null;
                 }
                 catch { StatusText.Text = "Отключение не подтверждено. Нажми на орнамент ещё раз."; activity.Add("Ошибка", "Не удалось подтвердить остановку VPN после ошибки подключения."); }
+                if (activeServer == null) await RestorePausedZapretAsync();
                 UpdateStatusIndicator(false);
                 AnimateStatusColor("#FF8E8E");
                 IpText.Text = "";
@@ -175,6 +178,7 @@ public partial class MainWindow
             currentRecord = null;
             activeServer = null;
             isConnected = false;
+            if (!isSwitching && !isResetting) await RestorePausedZapretAsync();
             StopConnectingAnimation();
             StatusText.Text = result == "Отключено" ? "Отключено" : "Соединение прервано";
             IpText.Text = "";
@@ -260,12 +264,15 @@ public partial class MainWindow
         if (allowClose) { base.OnClosing(e); return; }
         e.Cancel = true;
         base.OnClosing(e);
-        if (isConnecting || isSwitching || isManagingData || isResetting) { closeRequested = true; connectionCancellation?.Cancel(); if (installingUpdate) updateCancellation?.Cancel(); return; }
+        if (isConnecting || isSwitching || isManagingData || isResetting || zapretBusy) { closeRequested = true; connectionCancellation?.Cancel(); zapretOperation?.Cancel(); if (installingUpdate) updateCancellation?.Cancel(); return; }
         closeRequested = false;
+        if (pendingZapretLists.Count > 0) await SaveZapretListsAsync(false);
+        var hadConnection = activeServer != null;
         if (activeServer != null) await Disconnect();
         if (activeServer != null) return;
+        if (!hadConnection) await RestorePausedZapretAsync();
         lifetime.Cancel();
-        pingTimer?.Stop(); pingWarningTimer?.Stop(); trafficTimer?.Stop(); connectionTimer?.Stop(); updateTimer?.Stop(); StopConnectingAnimation();
+        pingTimer?.Stop(); pingWarningTimer?.Stop(); trafficTimer?.Stop(); connectionTimer?.Stop(); updateTimer?.Stop(); zapretTimer?.Stop(); zapretSaveTimer?.Stop(); StopConnectingAnimation();
         settings.Save(); systemTray?.Dispose();
         allowClose = true;
         _ = Dispatcher.BeginInvoke(new Action(Close));
@@ -278,13 +285,15 @@ public partial class MainWindow
         SettingsMenuButton.IsChecked = section == "settings";
         LogsMenuButton.IsChecked = section == "logs";
         HistoryMenuButton.IsChecked = section == "history";
+        ZapretMenuButton.IsChecked = section == "zapret";
         ContentGrid.Visibility = section == "home" ? Visibility.Visible : Visibility.Collapsed;
         SectionPanel.Visibility = section == "home" ? Visibility.Collapsed : Visibility.Visible;
         ImportPage.Visibility = section == "import" ? Visibility.Visible : Visibility.Collapsed;
         SettingsPage.Visibility = section == "settings" ? Visibility.Visible : Visibility.Collapsed;
         LogsPage.Visibility = section == "logs" ? Visibility.Visible : Visibility.Collapsed;
         HistoryPage.Visibility = section == "history" ? Visibility.Visible : Visibility.Collapsed;
-        SectionTitle.Text = section switch { "import" => "Импорт конфигурации", "settings" => "Настройки", "logs" => "Журнал событий", "history" => "История подключения", _ => "VPN4ik" };
+        ZapretPage.Visibility = section == "zapret" ? Visibility.Visible : Visibility.Collapsed;
+        SectionTitle.Text = section switch { "import" => "Импорт конфигурации", "settings" => "Настройки", "logs" => "Журнал событий", "history" => "История подключения", "zapret" => "Управление zapret", _ => "VPN4ik" };
         if (section == "settings")
         {
             loadingSettings = true;
@@ -296,6 +305,7 @@ public partial class MainWindow
             loadingSettings = false;
         }
         if (section == "import") RefreshImportedSources();
+        if (section == "zapret") { LoadZapretCompatibility(); _ = RefreshZapretAsync(); }
     }
     private void Home_Click(object sender, RoutedEventArgs e) => ShowSection("home");
     private void ImportMenu_Click(object sender, RoutedEventArgs e) => ShowSection("import");
@@ -333,6 +343,8 @@ public partial class MainWindow
             RoutingSettings.Validate(draftSettings, requireRules: false);
             draftSettings.LastServer = settings.LastServer;
             draftSettings.NavigationExpanded = MenuToggleButton.IsChecked == true;
+            draftSettings.ZapretFolder = settings.ZapretFolder; draftSettings.ZapretStrategy = settings.ZapretStrategy;
+            draftSettings.DisableZapretOnConnect = settings.DisableZapretOnConnect; draftSettings.RestoreZapretAfterVpn = settings.RestoreZapretAfterVpn;
             if (useBackground && startupChanged) SetAutoStart(draftSettings.StartWithWindows);
             draftSettings.SaveOrThrow();
             settings = draftSettings.Copy();

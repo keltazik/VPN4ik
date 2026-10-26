@@ -67,6 +67,26 @@
             </ControlTemplate.Triggers>
         </ControlTemplate></Setter.Value></Setter>
     </Style>
+    <Style TargetType="Expander"><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Expander">
+        <StackPanel><ToggleButton IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Content="{TemplateBinding Header}" Foreground="#E6C07B" HorizontalContentAlignment="Left">
+            <ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border x:Name="ExpandSurface" Background="Transparent" CornerRadius="7" Padding="8"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="24"/><ColumnDefinition/></Grid.ColumnDefinitions><Path Data="M 4,2 L 9,7 L 4,12" Width="14" Height="14" Stroke="#C9A15C" StrokeThickness="1.6" RenderTransformOrigin="0.5,0.5"><Path.Style><Style TargetType="Path"><Style.Triggers><DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}" Value="True"><Setter Property="RenderTransform"><Setter.Value><RotateTransform Angle="90"/></Setter.Value></Setter></DataTrigger></Style.Triggers></Style></Path.Style></Path><ContentPresenter Grid.Column="1" VerticalAlignment="Center"/></Grid></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ExpandSurface" Property="Background" Value="#352933"/></Trigger></ControlTemplate.Triggers></ControlTemplate></ToggleButton.Template>
+        </ToggleButton><ContentPresenter x:Name="ExpandedContent" Visibility="Collapsed"/></StackPanel>
+        <ControlTemplate.Triggers><Trigger Property="IsExpanded" Value="True"><Setter TargetName="ExpandedContent" Property="Visibility" Value="Visible"/></Trigger></ControlTemplate.Triggers>
+    </ControlTemplate></Setter.Value></Setter></Style>
+    <Style x:Key="ZapretSelector" TargetType="ComboBox">
+        <Setter Property="Foreground" Value="#E6C07B"/><Setter Property="Background" Value="#140B13"/><Setter Property="BorderBrush" Value="#4B2C36"/><Setter Property="Height" Value="38"/><Setter Property="MaxDropDownHeight" Value="300"/>
+        <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBox">
+            <Grid>
+                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="7">
+                    <Grid Margin="10,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="24"/></Grid.ColumnDefinitions><ContentPresenter Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" VerticalAlignment="Center" HorizontalAlignment="Left"/><Path Grid.Column="1" Data="M 2,3 L 7,8 L 12,3" Width="14" Height="12" Stroke="#C9A15C" StrokeThickness="1.6" VerticalAlignment="Center" HorizontalAlignment="Right"/></Grid>
+                </Border>
+                <ToggleButton Focusable="False" IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" Background="Transparent"><ToggleButton.Template><ControlTemplate TargetType="ToggleButton"><Border Background="Transparent"/></ControlTemplate></ToggleButton.Template></ToggleButton>
+                <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True" Focusable="False"><Border MinWidth="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" Background="#20131D" BorderBrush="#503441" BorderThickness="1" CornerRadius="8" Padding="5"><ScrollViewer MaxHeight="300" CanContentScroll="True" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"><ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/></ScrollViewer></Border></Popup>
+            </Grid>
+            <ControlTemplate.Triggers><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45"/></Trigger></ControlTemplate.Triggers>
+        </ControlTemplate></Setter.Value></Setter>
+    </Style>
+    <Style TargetType="ComboBoxItem"><Setter Property="Foreground" Value="#E6CBB0"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ComboBoxItem"><Border x:Name="ItemSurface" Background="Transparent" CornerRadius="5" Padding="10,8"><ContentPresenter/></Border><ControlTemplate.Triggers><Trigger Property="IsHighlighted" Value="True"><Setter TargetName="ItemSurface" Property="Background" Value="#3B2935"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter Property="Foreground" Value="#FFD27A"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style>
     <Style x:Key="SettingsTab" TargetType="RadioButton">
         <Setter Property="Foreground" Value="#BCA28E"/><Setter Property="Cursor" Value="Hand"/><Setter Property="Margin" Value="0,0,6,6"/>
         <Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocus}"/>

@@ -171,7 +171,7 @@ namespace VPNyan
 
         public MainWindow() : this(true) { }
 
-        internal MainWindow(bool startMonitoring, string? dataDirectory = null, Func<IVpnSession>? connectionFactory = null)
+        internal MainWindow(bool startMonitoring, string? dataDirectory = null, Func<IVpnSession>? connectionFactory = null, IZapretController? zapret = null)
         {
             sessionFactory = connectionFactory ?? (() => new XraySession());
             canCreateSession = startMonitoring || connectionFactory != null;
@@ -180,6 +180,7 @@ namespace VPNyan
             Loaded += (_, _) => UpdateOrnamentCache();
             DpiChanged += (_, _) => UpdateOrnamentCache();
             useBackground = startMonitoring;
+            zapretController = zapret ?? (startMonitoring ? new ZapretController() : new InactiveZapretController());
             // Keep the initial window inside the available desktop, including at high DPI.
             Height = Math.Min(Height, SystemParameters.WorkArea.Height);
             Width = Math.Min(Width, SystemParameters.WorkArea.Width);
@@ -216,12 +217,18 @@ namespace VPNyan
             UpdateServerControls();
 
             InitializeUpdates();
+            InitializeZapret();
             if (startMonitoring)
             {
                 StartPingLoop();
                 StartConnectionTimer();
                 StartTrafficMonitor();
-                Loaded += async (_, _) => { if (settings.StartMinimized) WindowState = WindowState.Minimized; if (settings.AutoConnect) await Connect(); };
+                Loaded += async (_, _) =>
+                {
+                    if (settings.StartMinimized) WindowState = WindowState.Minimized;
+                    if (zapretInitialization != null) await zapretInitialization;
+                    if (settings.AutoConnect && !lifetime.IsCancellationRequested && !closeRequested) await Connect();
+                };
             }
         }
 
@@ -334,7 +341,7 @@ namespace VPNyan
 
         void UpdateServerControls()
         {
-            var canManage = !isConnecting && !isImporting && !isSwitching && !isManagingData && !isResetting;
+            var canManage = !isConnecting && !isImporting && !isSwitching && !isManagingData && !isResetting && !zapretBusy;
             var available = canManage && activeServer == null;
             ServerSelect.IsEnabled = canManage;
             ImportConfigButton.IsEnabled = available;
@@ -350,6 +357,7 @@ namespace VPNyan
             CheckLatencyButton.IsEnabled = !isImporting && !isUpdatingPings && servers.Any(s => ServerLatency.SupportsTcpPing(s.Protocol));
             if (!isUpdatingPings) UpdateLatencySummary();
             BestServerButton.IsEnabled = canManage && !isUpdatingPings && servers.Any(s => s.Ping >= 0 && s.LatencyMeasuredAt >= DateTime.UtcNow.AddMinutes(-2));
+            UpdateZapretControls();
         }
 
         internal async Task ImportSubscriptionAsync(string url)
