@@ -149,25 +149,40 @@ internal static class UpdateInstaller
                 string? saved = null;
                 if (File.Exists(destination))
                 {
-                    saved = Path.Combine(backup, relative.Replace('/', Path.DirectorySeparatorChar)); Directory.CreateDirectory(Path.GetDirectoryName(saved)!); File.Copy(destination, saved, false);
+                    saved = Path.Combine(backup, relative.Replace('/', Path.DirectorySeparatorChar)); Directory.CreateDirectory(Path.GetDirectoryName(saved)!);
+                    await RetryFileAsync(() => File.Copy(destination, saved, true));
                 }
                 var pending = destination + ".vpn4ik-update-" + Guid.NewGuid().ToString("N");
-                staged.Add((destination, pending, saved)); File.Copy(source, pending, false);
+                staged.Add((destination, pending, saved)); await RetryFileAsync(() => File.Copy(source, pending, true));
                 if (!ApplicationUpdates.HashFile(pending).Equals(hash, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Копия файла обновления повреждена.");
             }
-            foreach (var file in staged) { File.Move(file.Pending, file.Path, true); replaced.Add((file.Path, file.Backup)); }
+            foreach (var file in staged) { await RetryFileAsync(() => File.Move(file.Pending, file.Path, true)); replaced.Add((file.Path, file.Backup)); }
             await healthCheck(target, CancellationToken.None);
         }
         catch
         {
             var failures = new List<Exception>();
             foreach (var file in replaced.AsEnumerable().Reverse())
-                try { if (file.Backup == null) File.Delete(file.Path); else File.Copy(file.Backup, file.Path, true); }
+                try { await RetryFileAsync(() => { if (file.Backup == null) File.Delete(file.Path); else File.Copy(file.Backup, file.Path, true); }); }
                 catch (Exception ex) { failures.Add(ex); }
             if (failures.Count > 0) throw new IOException("Не все прежние файлы восстановлены. Резервная копия сохранена.", new AggregateException(failures));
             throw;
         }
         finally { foreach (var file in staged) { try { File.Delete(file.Pending); } catch { } } }
+    }
+
+    private static async Task RetryFileAsync(Action action)
+    {
+        var elapsed = Stopwatch.StartNew();
+        while (true)
+        {
+            try { action(); return; }
+            catch (Exception ex) when (ex is UnauthorizedAccessException || ex is IOException && (ex.HResult & 0xffff) is 5 or 32 or 33)
+            {
+                if (elapsed.Elapsed > TimeSpan.FromSeconds(6)) throw;
+                await Task.Delay(200);
+            }
+        }
     }
 
     private static void RejectLinks(string root, string destination)

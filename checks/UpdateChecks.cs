@@ -66,9 +66,16 @@ internal static class UpdateChecks
         catch (IOException) { }
         check(File.ReadAllText(Path.Combine(target, "VPNyan.exe")) == "rollback app" && !File.Exists(Path.Combine(target, "Engine", "geoip.dat")), "Failed startup rolls back replacements and removes newly introduced files");
         check(!Directory.EnumerateFiles(target, "*.vpn4ik-update-*", SearchOption.AllDirectories).Any(), "Success and rollback remove pending replacement files");
+        using (var held = new FileStream(Path.Combine(target, "VPNyan.exe"), FileMode.Open, FileAccess.Read, FileShare.Read))
+        {
+            var releaseLock = Task.Run(async () => { await Task.Delay(150); held.Dispose(); });
+            UpdateInstaller.InstallAsync(payload, target, Path.Combine(root, "retry"), hashes, (_, _) => Task.CompletedTask).GetAwaiter().GetResult();
+            releaseLock.GetAwaiter().GetResult();
+        }
+        check(File.ReadAllText(Path.Combine(target, "VPNyan.exe")) == "new app", "Installer tolerates temporary Windows file locks without killing processes");
         File.WriteAllText(Path.Combine(payload, "VPNyan.exe"), "tampered");
         Reject(() => UpdateInstaller.InstallAsync(payload, target, Path.Combine(root, "tampered"), hashes, (_, _) => Task.CompletedTask).GetAwaiter().GetResult());
-        check(File.ReadAllText(Path.Combine(target, "VPNyan.exe")) == "rollback app", "Changed staging content is rejected before replacing installed files");
+        check(File.ReadAllText(Path.Combine(target, "VPNyan.exe")) == "new app", "Changed staging content is rejected before replacing installed files");
 
         var window = new MainWindow(false, Path.Combine(root, "ui"));
         check(((FrameworkElement)window.FindName("UpdateBanner")).Visibility == Visibility.Collapsed, "No fake update banner appears before detecting a new release");
