@@ -26,7 +26,7 @@ public partial class MainWindow
     {
         LoadZapretCompatibility(); UpdateZapretControls();
         if (!useBackground) return;
-        Loaded += (_, _) => { if (settings.ZapretFolder != "") zapretInitialization = LoadZapretFolderAsync(settings.ZapretFolder, false); };
+        Loaded += (_, _) => zapretInitialization = InitializeZapretFolderAsync();
         zapretTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
         zapretTimer.Tick += async (_, _) => { if (ZapretPage.Visibility == Visibility.Visible) await RefreshZapretAsync(); };
         zapretTimer.Start();
@@ -65,6 +65,7 @@ public partial class MainWindow
                 ZapretFolderText.Text = info.Folder; ZapretVersionText.Text = $"Flowseal · версия {info.Version} · стратегий: {info.Profiles.Count}";
                 ZapretStrategySelect.ItemsSource = info.Profiles; ZapretStrategySelect.SelectedItem = strategy;
                 SelectTag(ZapretGameSelect, info.GameMode); SelectTag(ZapretIpSetSelect, info.IpSetMode);
+                LoadZapretAdvanced(info.Folder);
                 ZapretDomainsText.Clear(); ZapretExcludeText.Clear(); ZapretIpsText.Clear();
             }
             finally { loadingZapret = false; }
@@ -113,6 +114,7 @@ public partial class MainWindow
             ? zapretState.Services.Any(service => service.State == 4) ? "zapret работает как служба" : $"zapret работает · процессов: {zapretState.Processes.Count}"
             : zapretState.OtherProcesses > 0 ? "zapret работает из другой папки" : pausedZapret?.HasEntries == true ? "zapret выключен на время VPN" : "zapret выключен";
         ZapretStateText.Foreground = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(zapretState.Running ? "#8FCF9C" : "#F1D6A5"));
+        ZapretServiceText.Text = zapretState.Services.Count == 0 ? "Служба этой установки не установлена." : "Службы этой установки: " + string.Join(", ", zapretState.Services.Select(service => service.Name + (service.State == 4 ? " · работает" : " · выключена")));
     }
     private void UpdateZapretControls()
     {
@@ -120,6 +122,7 @@ public partial class MainWindow
         var ready = !zapretBusy && !isConnecting && !isSwitching && !isManagingData && !isResetting && !isImporting;
         var configured = zapretInfo != null;
         ZapretChooseFolderButton.IsEnabled = ready && pausedZapret?.HasEntries != true && pendingZapretLists.Count == 0;
+        ZapretFindFolderButton.IsEnabled = ZapretInstallationsSelect.IsEnabled = ZapretChooseFolderButton.IsEnabled;
         ZapretOpenFolderButton.IsEnabled = configured;
         ZapretStrategySelect.IsEnabled = ready && configured;
         ZapretStartButton.IsEnabled = ready && configured && !zapretState.Running;
@@ -132,6 +135,10 @@ public partial class MainWindow
         ZapretDomainsText.IsEnabled = ZapretExcludeText.IsEnabled = ZapretIpsText.IsEnabled = ready && configured;
         ZapretSaveListsAdminButton.IsEnabled = ready && pendingZapretLists.Count > 0;
         ZapretListsExpander.IsEnabled = ready && configured;
+        ZapretAdvancedPanel.IsEnabled = ready && configured;
+        ZapretTestButton.IsEnabled = activeServer == null && pausedZapret?.HasEntries != true;
+        ZapretInstallServiceButton.IsEnabled = !zapretState.Running && pausedZapret?.HasEntries != true;
+        ZapretRemoveServiceButton.IsEnabled = zapretState.Services.Count > 0 && pausedZapret?.HasEntries != true;
     }
     private void ZapretError(Exception error)
     {
@@ -172,20 +179,23 @@ public partial class MainWindow
         finally { zapretOperation?.Dispose(); zapretOperation = null; zapretBusy = false; UpdateServerControls(); FinishPendingClose(); }
     }
 
-    private async void ZapretFilters_Changed(object sender, SelectionChangedEventArgs e)
+    private async void ZapretFilters_Changed(object sender, SelectionChangedEventArgs e) => await SaveZapretFiltersAsync();
+    private async Task SaveZapretFiltersAsync()
     {
         if (loadingZapret || zapretBusy || zapretInfo == null || ZapretGameSelect.SelectedItem is not ComboBoxItem game || ZapretIpSetSelect.SelectedItem is not ComboBoxItem ipset) return;
         zapretBusy = true; UpdateServerControls();
         var gameMode = (string)game.Tag; var ipSetMode = (string)ipset.Tag;
         try
         {
-            try { await Task.Run(() => ZapretProfiles.Configure(settings.ZapretFolder, gameMode, ipSetMode)); }
+            var tcp = ZapretProfiles.ValidatePorts(ZapretTcpPorts.Text); var udp = ZapretProfiles.ValidatePorts(ZapretUdpPorts.Text);
+            try { await Task.Run(() => ZapretProfiles.Configure(settings.ZapretFolder, gameMode, ipSetMode, tcp, udp)); }
             catch (UnauthorizedAccessException)
             {
-                var result = await zapretController.RunAsync(new() { Action = "configure", Folder = settings.ZapretFolder, GameMode = gameMode, IpSetMode = ipSetMode }, lifetime.Token);
+                var result = await zapretController.RunAsync(new() { Action = "configure", Folder = settings.ZapretFolder, GameMode = gameMode, IpSetMode = ipSetMode, TcpPorts = tcp, UdpPorts = udp }, lifetime.Token);
                 if (!result.Success) throw new InvalidDataException(result.Message);
             }
             zapretInfo = ZapretProfiles.Read(settings.ZapretFolder);
+            ZapretTcpPorts.Text = tcp; ZapretUdpPorts.Text = udp;
             ZapretActionStatus.Text = "Фильтры сохранены. Для применения к работающему zapret нажми «Перезапустить»."; LogZapret("Изменены фильтры zapret.");
         }
         catch (Exception ex)
@@ -285,7 +295,7 @@ public partial class MainWindow
     {
         zapretSaveTimer?.Stop(); pendingZapretLists.Clear(); zapretEvents.Clear(); zapretInfo = null; zapretState = new(); zapretListsLoaded = false;
         loadingZapret = true;
-        try { ZapretFolderText.Clear(); ZapretStrategySelect.ItemsSource = null; ZapretGameSelect.SelectedItem = null; ZapretIpSetSelect.SelectedItem = null; ZapretDomainsText.Clear(); ZapretExcludeText.Clear(); ZapretIpsText.Clear(); }
+        try { ZapretFolderText.Clear(); ZapretStrategySelect.ItemsSource = null; ZapretGameSelect.SelectedItem = null; ZapretIpSetSelect.SelectedItem = null; ZapretDomainsText.Clear(); ZapretExcludeText.Clear(); ZapretIpsText.Clear(); ResetZapretAdvanced(); }
         finally { loadingZapret = false; }
         ZapretStateText.Text = "Папка zapret не выбрана"; ZapretVersionText.Text = "Подключи установленную сборку Flowseal";
         ZapretStateText.Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(241,214,165));

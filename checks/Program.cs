@@ -23,6 +23,13 @@ internal static class Program
             if (args is ["--verify-zapret-processes"]) { ZapretChecks.VerifyProcessesAsync().GetAwaiter().GetResult(); return 0; }
             if (args is ["--generate-icon", var iconPath]) { IconGenerator.Generate(iconPath); return 0; }
             if (args is ["--verify-zapret-folder", var zapretFolder]) return ZapretChecks.VerifyFolder(zapretFolder);
+            if (args is ["--verify-zapret-discovery"])
+            {
+                var clock = System.Diagnostics.Stopwatch.StartNew();
+                var installations = ZapretDiscovery.Find("", CancellationToken.None);
+                foreach (var installation in installations) Console.WriteLine(installation);
+                Console.WriteLine($"Discovery: {installations.Count} installation(s), {clock.ElapsedMilliseconds} ms. Read only; no process or driver was started."); return 0;
+            }
             if (args is ["--verify-updater", var updateBuild]) { UpdateChecks.VerifyPortableAsync(Path.GetFullPath(updateBuild)).GetAwaiter().GetResult(); return 0; }
             if (args is ["--verify-published-update", var installed, var expected, var hash]) { UpdateChecks.VerifyPublishedAsync(installed, expected, hash).GetAwaiter().GetResult(); return 0; }
             if (args is ["--check-update-feed"])

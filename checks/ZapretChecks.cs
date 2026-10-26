@@ -12,8 +12,98 @@ internal static class ZapretChecks
     internal static void Run(string fixtures, Action<bool, string> check)
     {
         var saved = SynchronizationContext.Current; SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext());
-        try { Profiles(fixtures, check); Lifecycle(fixtures, check); } finally { SynchronizationContext.SetSynchronizationContext(saved); }
+        try { Profiles(fixtures, check); DiscoveryAndSettings(fixtures, check); StrategyTests(check); Lifecycle(fixtures, check); } finally { SynchronizationContext.SetSynchronizationContext(saved); }
     }
+    private static void DiscoveryAndSettings(string fixtures, Action<bool, string> check)
+    {
+        var root = Path.Combine(fixtures, "discovery-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(root);
+        var first = Folder(root); var second = Folder(root);
+        var invalid = Path.Combine(root, "zapret incomplete"); Directory.CreateDirectory(invalid); File.WriteAllText(Path.Combine(invalid, "service.bat"), "test");
+        var found = ZapretDiscovery.Find("", CancellationToken.None, new[] { root, first, root });
+        check(found.Count == 2 && found.Select(item => item.Folder).Distinct(StringComparer.OrdinalIgnoreCase).Count() == 2, "Auto discovery validates complete installations and deduplicates overlapping search roots");
+        var preferred = ZapretDiscovery.Find(second, CancellationToken.None, new[] { root });
+        check(preferred[0].Folder == second, "Explicitly chosen valid zapret folder takes priority over discovery results");
+        var moved = ZapretDiscovery.Find(Path.Combine(root, "missing"), CancellationToken.None, new[] { root });
+        check(moved.Count == 2, "Discovery recovers from a stale saved zapret path");
+        using (var cancelled = new CancellationTokenSource())
+        {
+            cancelled.Cancel(); var observed = false; try { ZapretDiscovery.Find("", cancelled.Token, new[] { root }); } catch (OperationCanceledException) { observed = true; }
+            check(observed, "Zapret folder discovery observes cancellation");
+        }
+        foreach (var bad in new[] { "0", "65536", "443,", "10-1", "1,,2", "443 & shutdown", "01", "1-65536" })
+        { Reject(() => ZapretProfiles.Configure(first, "all", "loaded", bad, "1024-65535")); }
+        check(!File.Exists(Path.Combine(first, "utils", "game_filter.enabled")), "Invalid game port lists do not change saved filter files");
+        ZapretProfiles.Configure(first, "tcp", "loaded", "443,1024-1934, 1936-65535", "3478,50000-50050");
+        var args = ZapretProfiles.BuildArguments(first, "general.bat");
+        check(args.Contains("--wf-tcp=443,443,1024-1934,1936-65535") && args.Contains("--filter-udp=12"), "Game Filter supports separate comma-separated TCP/UDP ports and ranges with protocol-specific enablement");
+        ZapretProfiles.Configure(first, "disabled", "loaded"); ZapretProfiles.Configure(first, "udp", "loaded");
+        check(ZapretProfiles.ReadGameRanges(first).Tcp == "443,1024-1934,1936-65535" && ZapretProfiles.BuildArguments(first, "general.bat").Contains("--filter-udp=3478,50000-50050"), "Disabling and re-enabling Game Filter preserves custom port lists");
+        ZapretProfiles.WriteUpdateCheck(first, true); check(ZapretProfiles.ReadUpdateCheck(first), "Auto-update check writes the original service.bat flag");
+        ZapretProfiles.WriteUpdateCheck(first, false); check(!ZapretProfiles.ReadUpdateCheck(first), "Disabling zapret update checks removes the original flag");
+        var bin = Path.Combine(first, "bin"); File.WriteAllBytes(Path.Combine(bin, "sample.bin"), new byte[] { 1,2,3 }); File.WriteAllBytes(Path.Combine(bin, "ACTIVE_GAME_UDP.bin"), new byte[] { 7,8 });
+        ZapretProfiles.ReplaceFake(first, "game", "sample.bin");
+        check(ZapretProfiles.CurrentFake(first, "game") == "sample.bin" && File.ReadAllBytes(Path.Combine(bin, "ACTIVE_GAME_UDP.bin.vpn4ik-backup")).SequenceEqual(new byte[] { 7,8 }), "Replacing an active fake uses a local candidate and backs up the original bytes");
+        Reject(() => ZapretProfiles.ReplaceFake(first, "game", "../outside.bin")); check(ZapretProfiles.FakeFiles(first).SequenceEqual(new[] { "sample.bin" }), "Fake selector excludes active files and rejects path traversal");
+        ZapretProfiles.Configure(first, "udp", "none"); ZapretProfiles.UpdateIpSet(first, "198.51.100.0/24\n");
+        check(ZapretProfiles.ReadIpSetMode(first) == "none", "IPSet update preserves the user's disabled filter mode");
+        ZapretProfiles.Configure(first, "udp", "loaded");
+        check(File.ReadAllText(Path.Combine(first, "lists", "ipset-all.txt")).Contains("198.51.100.0/24"), "Enabling a disabled IPSet restores the newly downloaded list");
+        Reject(() => ZapretProfiles.UpdateIpSet(first, "<html>error</html>")); Reject(() => ZapretProfiles.UpdateIpSet(first, "# empty\n"));
+        check(File.ReadAllText(Path.Combine(first, "lists", "ipset-all.txt")).Contains("198.51.100.0/24"), "Empty or invalid downloaded IPSet cannot overwrite the working list");
+        var command = ZapretNative.BuildServiceCommand(first, "general.bat"); ZapretNative.ValidateServiceCommand(command, first);
+        Reject(() => ZapretNative.ValidateServiceCommand(command, second));
+        check(ZapretProfiles.SplitCommandLine(command)[0] == Path.Combine(first, "bin", "winws.exe"), "Service commands preserve spaced paths and reject a different installation");
+        var data = Path.Combine(fixtures, "discovery-ui-" + Guid.NewGuid().ToString("N")); var window = new MainWindow(false, data, zapret: new FakeZapret());
+        Await(window.DiscoverZapretAsync(new[] { root }));
+        var selector = (System.Windows.Controls.ComboBox)window.FindName("ZapretInstallationsSelect");
+        check(selector.Visibility == Visibility.Visible && selector.Items.Count == 2 && AppSettings.LoadFromPath(Path.Combine(data, "settings.json")).ZapretFolder != "", "GUI auto-discovery saves the found path and exposes multiple installations");
+        selector.SelectedIndex = 1; Pump(); var expected = ((ZapretInstallation)selector.SelectedItem).Folder;
+        var deadline = DateTime.UtcNow.AddSeconds(5); while (AppSettings.LoadFromPath(Path.Combine(data, "settings.json")).ZapretFolder != expected && DateTime.UtcNow < deadline) { Pump(); Thread.Sleep(5); }
+        check(AppSettings.LoadFromPath(Path.Combine(data, "settings.json")).ZapretFolder == expected && ((System.Windows.Controls.Button)window.FindName("ZapretChooseFolderButton")).Content.ToString()!.Contains("вручную"), "A discovered installation can be switched and manual folder choice remains available");
+        ((System.Windows.Controls.TextBox)window.FindName("ZapretTcpPorts")).Text = "443,5000-5100";
+        var savePorts = typeof(MainWindow).GetMethod("SaveZapretFiltersAsync", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        Await((Task)savePorts.Invoke(window, null)!);
+        check(ZapretProfiles.ReadGameRanges(expected).Tcp == "443,5000-5100", "GUI saves custom Game Filter ports to the selected installation");
+        window.Close(); Pump();
+        using var handler = new ZapretDownloadHandler(); using var downloads = new ZapretMaintenance(handler);
+        check(AwaitValue(downloads.DownloadAsync("version", CancellationToken.None)).Trim() == "1.10.4", "Zapret version checks use the official fixed source");
+        check(AwaitValue(downloads.DownloadAsync("ipset", CancellationToken.None)).Contains("192.0.2.0/24"), "IPSet download accepts valid data");
+        handler.Response = "<html>error</html>"; var rejected = false;
+        try { AwaitValue(downloads.DownloadAsync("ipset", CancellationToken.None)); } catch (InvalidDataException) { rejected = true; }
+        check(rejected, "Download validation rejects an HTML page returned as IPSet");
+    }
+    private sealed class ZapretDownloadHandler : System.Net.Http.HttpMessageHandler
+    {
+        internal string? Response;
+        protected override Task<System.Net.Http.HttpResponseMessage> SendAsync(System.Net.Http.HttpRequestMessage request, CancellationToken token)
+        {
+            if (request.RequestUri?.Host != "raw.githubusercontent.com" || !request.RequestUri.AbsolutePath.StartsWith("/Flowseal/zapret-discord-youtube/main/.service/")) throw new Exception("Unexpected update host");
+            return Task.FromResult(new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.OK) { Content = new System.Net.Http.StringContent(Response ?? (request.RequestUri.AbsolutePath.EndsWith("version.txt") ? "1.10.4" : "192.0.2.0/24\n")) });
+        }
+    }
+    private static void StrategyTests(Action<bool, string> check)
+    {
+        var profiles = new[] { new ZapretProfile("general.bat", "general"), new ZapretProfile("general 2.bat", "general 2") };
+        var zapret = new FakeZapret { Running = true }; var restoredCommands = false;
+        var report = AwaitValue(ZapretStrategyTests.RunAsync("C:\\test-zapret", profiles, async request =>
+        {
+            if (request.Action == "resume" && !restoredCommands) throw new Exception("Service command must be restored before restarting");
+            return await zapret.RunAsync(request, CancellationToken.None);
+        }, () => Task.FromResult("YouTube 10 мс · Discord 15 мс"), () => restoredCommands = true));
+        check(zapret.Running && restoredCommands && zapret.Actions.SequenceEqual(new[] { "pause", "start", "stop", "start", "stop", "resume" }) && report.Contains("general 2"), "Strategy test brackets every launch with scoped stop and restores the original running instance after restoring service commands");
+        var stopped = new FakeZapret();
+        AwaitValue(ZapretStrategyTests.RunAsync("C:\\test-zapret", profiles, request => stopped.RunAsync(request, CancellationToken.None), () => Task.FromResult("fixture"), () => { }));
+        check(!stopped.Running && !stopped.Actions.Contains("resume"), "Strategy testing leaves an initially stopped zapret stopped");
+        var failure = new FakeZapret { Running = true }; var failed = false;
+        try { AwaitValue(ZapretStrategyTests.RunAsync("C:\\test-zapret", profiles, request => failure.RunAsync(request, CancellationToken.None), () => Task.FromException<string>(new IOException("probe failed")), () => { })); }
+        catch (IOException) { failed = true; }
+        check(failed && failure.Running && failure.Actions.SequenceEqual(new[] { "pause", "start", "stop", "resume" }), "An unexpected probe error still stops the test strategy and restores the original instance");
+        var denied = new FakeZapret { Running = true, FailPause = true }; var blocked = false;
+        try { AwaitValue(ZapretStrategyTests.RunAsync("C:\\test-zapret", profiles, request => denied.RunAsync(request, CancellationToken.None), () => Task.FromResult("fixture"), () => { })); }
+        catch (InvalidDataException) { blocked = true; }
+        check(blocked && denied.Running && denied.Actions.SequenceEqual(new[] { "pause" }), "Failed initial shutdown prevents all strategy test launches");
+    }
+    private static T AwaitValue<T>(Task<T> task) { Await(task); return task.GetAwaiter().GetResult(); }
     private static string Folder(string fixtures)
     {
         var root = Path.Combine(fixtures, "zapret fixture " + Guid.NewGuid().ToString("N"));
@@ -59,6 +149,13 @@ internal static class ZapretChecks
         typeof(MainWindow).GetMethod("ApplyNavigationLayout", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(window, new object[] { false });
         var animationDeadline = DateTime.UtcNow.AddMilliseconds(250); while (DateTime.UtcNow < animationDeadline) { Pump(); Thread.Sleep(5); }
         Render(window, Path.Combine(fixtures, "zapret-1040x740.png"), new Size(1040,740));
+        foreach (var name in new[] { "ZapretFakesExpander", "ZapretServiceExpander", "ZapretToolsExpander" }) ((Expander)window.FindName(name)).IsExpanded = true;
+        var page = (ScrollViewer)window.FindName("ZapretPage");
+        Render(window, Path.Combine(fixtures, "zapret-full-1040x740.png"), new Size(1040,740));
+        page.ScrollToVerticalOffset(600); Pump(); Render(window, Path.Combine(fixtures, "zapret-filters-760x540.png"), new Size(760,540));
+        page.ScrollToVerticalOffset(1200); Pump(); Render(window, Path.Combine(fixtures, "zapret-tools-760x540.png"), new Size(760,540));
+        page.ScrollToBottom(); Pump(); Render(window, Path.Combine(fixtures, "zapret-tools-bottom-760x540.png"), new Size(760,540));
+        page.ScrollToTop(); Pump();
         var checkbox = (System.Windows.Controls.CheckBox)window.FindName("DisableZapretOnConnectBox"); checkbox.IsChecked = true; checkbox.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
         check(AppSettings.LoadFromPath(Path.Combine(data, "settings.json")).DisableZapretOnConnect, "Zapret compatibility settings save immediately");
         ((System.Windows.Controls.TextBox)window.FindName("ZapretDomainsText")).Text = "saved.example.test";
@@ -91,7 +188,13 @@ internal static class ZapretChecks
             }
             Await(connect);
             if (scenario == "warning")
+            {
                 check(first.IsRunning && zapret.Actions.Count == 0 && zapret.Running && ((TextBlock)window.FindName("PingWarningText")).Text.Contains("Автоотключение"), "Default mode warns at VPN connection without modifying zapret");
+                // The guard must work even when invoked outside a disabled button.
+                typeof(MainWindow).GetField("zapretInfo", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.SetValue(window, new ZapretFolderInfo("C:\\test-zapret", "1.10.4", new(), "disabled", "none"));
+                Await(window.RunZapretToolAsync("test-strategies"));
+                check(zapret.Actions.Count == 0 && first.IsRunning && ((TextBlock)window.FindName("PingWarningText")).Text.Contains("Выключи VPN"), "Strategy tests cannot run while VPN is connected, including direct invocation");
+            }
             else if (scenario == "stop-failure") check(first.Starts == 0 && zapret.Running, "Failed zapret shutdown prevents starting the VPN");
             else if (scenario == "start-failure") check(!first.IsRunning && zapret.Running && zapret.Actions.SequenceEqual(new[] { "pause", "resume" }), "A failed VPN start restores the zapret state it paused");
             else if (scenario == "initially-off") check(first.IsRunning && zapret.Actions.Count == 0, "An initially stopped zapret is neither started nor paused");
@@ -129,8 +232,9 @@ internal static class ZapretChecks
             {
                 if (HoldPause) await PauseGate.Task;
                 if (FailPause) return new() { Success = false, Message = "Отключение zapret не подтверждено.", State = State() };
+                var wasRunning = Running;
                 Running = false;
-                return new() { Success = true, State = State(), Lease = request.CaptureRestore ? new() { Folder = request.Folder, Processes = new() { new[] { "--wf-tcp=443" } } } : null };
+                return new() { Success = true, State = State(), Lease = request.CaptureRestore && wasRunning ? new() { Folder = request.Folder, Processes = new() { new[] { "--wf-tcp=443" } } } : null };
             }
             if (request.Action is "start" or "restart" or "resume") Running = true;
             if (request.Action == "stop") Running = false;

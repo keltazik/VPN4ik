@@ -22,6 +22,7 @@ internal sealed class ZapretLease
 {
     public string Folder { get; set; } = "";
     public List<string> Services { get; set; } = new();
+    public Dictionary<string, string> ServiceCommands { get; set; } = new();
     public List<string[]> Processes { get; set; } = new();
     public bool HasEntries => Services.Count > 0 || Processes.Count > 0;
 }
@@ -34,6 +35,11 @@ internal sealed class ZapretRequest
     public ZapretLease? Lease { get; set; }
     public string GameMode { get; set; } = "disabled";
     public string IpSetMode { get; set; } = "none";
+    public string? TcpPorts { get; set; }
+    public string? UdpPorts { get; set; }
+    public bool Enabled { get; set; }
+    public string FakeKind { get; set; } = "";
+    public string FakeFile { get; set; } = "";
     public string ListKind { get; set; } = "";
     public string ListText { get; set; } = "";
     public Dictionary<string, string> Lists { get; set; } = new();
@@ -46,8 +52,15 @@ internal sealed class ZapretResult
     public ZapretLease? Lease { get; set; }
 }
 
-internal static class ZapretNative
+internal static partial class ZapretNative
 {
+    internal static string? ProcessFolder(int id)
+    {
+        using var handle = OpenProcess(0x1000, false, id);
+        if (handle.IsInvalid) return null;
+        var binary = ImagePath(handle);
+        return Path.GetFileName(binary).Equals("winws.exe", StringComparison.OrdinalIgnoreCase) ? Path.GetDirectoryName(Path.GetDirectoryName(binary)) : null;
+    }
     internal static bool IsSelectedBinary(string path, string folder) => string.Equals(Path.GetFullPath(path), ZapretProfiles.SafePath(folder, "bin/winws.exe"), StringComparison.OrdinalIgnoreCase);
 
     internal static ZapretState ReadState(string folder, bool readArguments = false)
@@ -95,7 +108,17 @@ internal static class ZapretNative
         try
         {
             var folder = ZapretProfiles.ValidateFolder(request.Folder);
-            if (request.Action == "configure") ZapretProfiles.Configure(folder, request.GameMode, request.IpSetMode);
+            if (request.Action == "configure") ZapretProfiles.Configure(folder, request.GameMode, request.IpSetMode, request.TcpPorts, request.UdpPorts);
+            else if (request.Action == "updates-setting") ZapretProfiles.WriteUpdateCheck(folder, request.Enabled);
+            else if (request.Action == "fake") ZapretProfiles.ReplaceFake(folder, request.FakeKind, request.FakeFile);
+            else if (request.Action == "ipset-update") ZapretProfiles.UpdateIpSet(folder, request.ListText);
+            else if (request.Action == "install-service") await InstallServiceAsync(folder, request.Strategy);
+            else if (request.Action == "remove-service") await RemoveServicesAsync(folder);
+            else if (request.Action == "timestamps") await EnableTimestampsAsync();
+            else if (request.Action == "test-strategies")
+            {
+                result.Message = await TestStrategiesAsync(folder); result.State = ReadState(folder); result.Success = true; return result;
+            }
             else if (request.Action == "list") ZapretProfiles.WriteList(folder, request.ListKind, request.ListText);
             else if (request.Action == "lists")
             {
@@ -115,9 +138,17 @@ internal static class ZapretNative
                 if (request.CaptureRestore) foreach (var process in standalone) ZapretProfiles.ValidateArguments(process.Arguments);
                 foreach (var entry in state.Services.Where(service => service.State != 1))
                 {
+                    string? command = null;
+                    if (request.CaptureRestore)
+                    {
+                        using var key = Registry.LocalMachine.OpenSubKey(@"SYSTEM\CurrentControlSet\Services\" + entry.Name);
+                        command = key?.GetValue("ImagePath") as string ?? throw new InvalidDataException("Не удалось сохранить параметры службы zapret.");
+                        ValidateServiceCommand(command, folder);
+                    }
                     using var service = new ServiceHandle(entry.Name, 4 | 32);
                     service.Stop(); await service.WaitAsync(1);
                     result.Lease.Services.Add(entry.Name);
+                    if (command != null) result.Lease.ServiceCommands[entry.Name] = command;
                 }
                 foreach (var entry in standalone)
                 {
@@ -146,7 +177,10 @@ internal static class ZapretNative
                 foreach (var name in lease.Services)
                 {
                     if (!state.Services.Any(service => service.Name == name)) throw new InvalidDataException("Служба zapret больше не относится к выбранной папке.");
-                    using var service = new ServiceHandle(name, 4 | 16); service.Start(); await service.WaitAsync(4);
+                    if (lease.ServiceCommands.TryGetValue(name, out var command)) ValidateServiceCommand(command, folder);
+                    using var service = new ServiceHandle(name, 4 | 16 | (command != null ? 2u : 0));
+                    if (command != null) service.ChangeCommand(command);
+                    service.Start(); await service.WaitAsync(4);
                 }
                 foreach (var args in lease.Processes)
                 {
@@ -222,6 +256,8 @@ internal static class ZapretNative
         internal void Start() { if (Status().State == 4) return; if (!StartService(service, 0, IntPtr.Zero) && Marshal.GetLastWin32Error() != 1056) throw new Win32Exception(Marshal.GetLastWin32Error()); }
         internal void Stop() { if (Status().State == 1) return; if (!ControlService(service, 1, out _) && Marshal.GetLastWin32Error() != 1062) throw new Win32Exception(Marshal.GetLastWin32Error()); }
         internal void ChangeCommand(string command) { if (!ChangeServiceConfig(service, uint.MaxValue, uint.MaxValue, uint.MaxValue, command, null, IntPtr.Zero, null, null, null, null)) throw new Win32Exception(Marshal.GetLastWin32Error()); }
+        internal void AutoStart() { if (!ChangeServiceConfig(service, uint.MaxValue, 2, uint.MaxValue, null!, null, IntPtr.Zero, null, null, null, null)) throw new Win32Exception(Marshal.GetLastWin32Error()); }
+        internal void Delete() { if (!DeleteService(service)) throw new Win32Exception(Marshal.GetLastWin32Error()); }
         internal async Task WaitAsync(uint expected) { var timer = Stopwatch.StartNew(); while (Status().State != expected) { if (timer.Elapsed.TotalSeconds > 20) throw new IOException("Служба zapret ещё не завершила переход."); await Task.Delay(200); } }
         public void Dispose() { CloseServiceHandle(service); CloseServiceHandle(manager); }
     }
@@ -240,4 +276,5 @@ internal static class ZapretNative
     [DllImport("advapi32.dll", SetLastError = true)] private static extern bool ControlService(IntPtr service, uint control, out ServiceStatus status);
     [DllImport("advapi32.dll", CharSet = CharSet.Unicode, SetLastError = true)] private static extern bool ChangeServiceConfig(IntPtr service, uint type, uint start, uint error, string command, string? group, IntPtr tag, string? dependencies, string? user, string? password, string? display);
     [DllImport("advapi32.dll")] private static extern bool CloseServiceHandle(IntPtr handle);
+    [DllImport("advapi32.dll", SetLastError = true)] private static extern bool DeleteService(IntPtr service);
 }

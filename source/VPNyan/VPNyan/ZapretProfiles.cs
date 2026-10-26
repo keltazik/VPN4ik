@@ -112,11 +112,28 @@ internal static class ZapretProfiles
         return values;
     }
     internal static string ReadGameMode(string folder) => GameSettings(folder).TryGetValue("mode", out var mode) && mode is "all" or "tcp" or "udp" ? mode : "disabled";
+    internal static string ValidatePorts(string text)
+    {
+        var clean = text.Replace(" ", "").Trim();
+        if (clean.Length is < 1 or > 1024) throw new InvalidDataException("Введи порты или диапазоны через запятую: 443,1024-1934,1936-65535.");
+        foreach (var item in clean.Split(','))
+        {
+            if (!Regex.IsMatch(item, @"^[1-9]\d{0,4}(?:-[1-9]\d{0,4})?$")) throw new InvalidDataException("Некорректный список портов Game Filter.");
+            var ports = item.Split('-').Select(int.Parse).ToArray();
+            if (ports.Any(port => port > 65535) || ports.Length == 2 && ports[0] > ports[1]) throw new InvalidDataException("Порты должны быть от 1 до 65535, начало диапазона — не больше конца.");
+        }
+        return clean;
+    }
+    internal static (string Tcp, string Udp) ReadGameRanges(string folder)
+    {
+        var values = GameSettings(folder, true);
+        string Range(string key) { try { return ValidatePorts(values.GetValueOrDefault(key, "1024-65535")); } catch (InvalidDataException) { return "1024-65535"; } }
+        return (Range("tcp"), Range("udp"));
+    }
     private static (string Tcp, string Udp) GameRanges(string folder)
     {
-        var values = GameSettings(folder); var mode = ReadGameMode(folder);
-        string Range(string key) => values.TryGetValue(key, out var value) && Regex.IsMatch(value, @"^\d{1,5}-\d{1,5}$") && value.Split('-').Select(int.Parse).ToArray() is var ports && ports[0] >= 1 && ports[0] <= ports[1] && ports[1] <= 65535 ? value : "1024-65535";
-        return (mode is "all" or "tcp" ? Range("tcp") : "12", mode is "all" or "udp" ? Range("udp") : "12");
+        var mode = ReadGameMode(folder); var ranges = ReadGameRanges(folder);
+        return (mode is "all" or "tcp" ? ranges.Tcp : "12", mode is "all" or "udp" ? ranges.Udp : "12");
     }
     internal static string ReadIpSetMode(string folder)
     {
@@ -126,10 +143,11 @@ internal static class ZapretProfiles
         return text == "" ? "any" : text.Contains("203.0.113.113/32", StringComparison.Ordinal) ? "none" : "loaded";
     }
 
-    internal static void Configure(string folder, string game, string ipset)
+    internal static void Configure(string folder, string game, string ipset, string? tcp = null, string? udp = null)
     {
         folder = ValidateFolder(folder);
         if (game is not ("disabled" or "all" or "tcp" or "udp") || ipset is not ("none" or "loaded" or "any")) throw new InvalidDataException("Некорректный режим фильтра.");
+        var previous = ReadGameRanges(folder); tcp = ValidatePorts(tcp ?? previous.Tcp); udp = ValidatePorts(udp ?? previous.Udp);
         var ipPath = SafePath(folder, "lists/ipset-all.txt"); var backup = SafePath(folder, "lists/ipset-all.txt.vpn4ik-backup");
         var current = ReadIpSetMode(folder);
         if (current != ipset)
@@ -140,13 +158,44 @@ internal static class ZapretProfiles
             AtomicWrite(ipPath, ipset == "any" ? "" : ipset == "none" ? "203.0.113.113/32\n" : ReadSmall(restored));
         }
         var flag = SafePath(folder, "utils/game_filter.enabled");
-        if (ReadGameMode(folder) == game) return;
-        if (game == "disabled") { if (File.Exists(flag)) { AtomicWrite(flag + ".vpn4ik-backup", ReadSmall(flag)); File.Delete(flag); } }
-        else
-        {
-            var values = GameSettings(folder, true); var tcp = values.GetValueOrDefault("tcp", "1024-65535"); var udp = values.GetValueOrDefault("udp", "1024-65535");
-            AtomicWrite(flag, $"mode={game}\ntcp={tcp}\nudp={udp}\n");
-        }
+        if (ReadGameMode(folder) == game && previous.Tcp == tcp && previous.Udp == udp) return;
+        if (File.Exists(flag)) AtomicWrite(flag + ".vpn4ik-backup", ReadSmall(flag));
+        AtomicWrite(flag, $"mode={game}\ntcp={tcp}\nudp={udp}\n");
+    }
+
+    internal static bool ReadUpdateCheck(string folder) => File.Exists(SafePath(ValidateFolder(folder), "utils/check_updates.enabled"));
+    internal static void WriteUpdateCheck(string folder, bool enabled)
+    {
+        var path = SafePath(ValidateFolder(folder), "utils/check_updates.enabled");
+        if (enabled) AtomicWrite(path, "ENABLED\n"); else if (File.Exists(path)) File.Delete(path);
+    }
+    internal static string[] FakeFiles(string folder) => new DirectoryInfo(SafePath(ValidateFolder(folder), "bin")).EnumerateFiles("*.bin")
+        .Where(file => file.LinkTarget == null && file.Length is > 0 and <= 1024 * 1024 && !file.Name.StartsWith("ACTIVE_", StringComparison.OrdinalIgnoreCase)).Select(file => file.Name).Order(StringComparer.OrdinalIgnoreCase).ToArray();
+    internal static string CurrentFake(string folder, string kind)
+    {
+        var active = FakePath(folder, kind); if (!File.Exists(active)) return "не выбран";
+        byte[] hash;
+        try { hash = System.Security.Cryptography.SHA256.HashData(ReadBinary(active)); }
+        catch (InvalidDataException) { return "файл повреждён"; }
+        return FakeFiles(folder).FirstOrDefault(file => System.Security.Cryptography.SHA256.HashData(ReadBinary(SafePath(folder, "bin/" + file))).SequenceEqual(hash)) ?? "свой файл";
+    }
+    private static string FakePath(string folder, string kind) => SafePath(ValidateFolder(folder), kind switch { "discord" => "bin/ACTIVE_DISCORD_UDP.bin", "game" => "bin/ACTIVE_GAME_UDP.bin", _ => throw new InvalidDataException("Неизвестный тип active fake.") });
+    private static byte[] ReadBinary(string path) { if (new FileInfo(path).Length is < 1 or > 1024 * 1024) throw new InvalidDataException("Размер fake-файла должен быть от 1 байта до 1 МБ."); return File.ReadAllBytes(path); }
+    internal static void ReplaceFake(string folder, string kind, string file)
+    {
+        if (Path.GetFileName(file) != file || !FakeFiles(folder).Contains(file, StringComparer.OrdinalIgnoreCase)) throw new InvalidDataException("Выбери fake-файл из папки bin.");
+        var bytes = ReadBinary(SafePath(folder, "bin/" + file)); var target = FakePath(folder, kind);
+        if (File.Exists(target)) File.Copy(target, SafePath(folder, "bin/" + Path.GetFileName(target) + ".vpn4ik-backup"), true);
+        var pending = target + ".vpn4ik-" + Guid.NewGuid().ToString("N");
+        try { File.WriteAllBytes(pending, bytes); File.Move(pending, target, true); } finally { if (File.Exists(pending)) File.Delete(pending); }
+    }
+    internal static void UpdateIpSet(string folder, string text)
+    {
+        folder = ValidateFolder(folder); ValidateList("ips", text);
+        if (!text.Split('\n').Any(line => line.Trim() != "" && !line.TrimStart().StartsWith('#'))) throw new InvalidDataException("Загружен пустой IPSet. Прежний список сохранён.");
+        var path = SafePath(folder, "lists/ipset-all.txt");
+        if (ReadIpSetMode(folder) == "loaded") { AtomicWrite(path + ".vpn4ik-backup", ReadSmall(path)); AtomicWrite(path, text); }
+        else { AtomicWrite(SafePath(folder, "lists/ipset-all.txt.vpn4ik-backup"), text); }
     }
 
     internal static string ReadList(string folder, string kind)
