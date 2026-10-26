@@ -36,9 +36,22 @@
         <Grid Grid.ColumnSpan="2" Height="40" VerticalAlignment="Top" Background="#1A0F1A" MouseDown="TopBar_MouseDown" Panel.ZIndex="10">
             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
             <TextBlock Grid.Column="1" Text="VPN4ik" Foreground="#A78762" VerticalAlignment="Center" FontSize="12" Margin="8,0" IsHitTestVisible="False"/>
-            <Button x:Name="MinimizeButton" Grid.Column="2" Content="—" Width="42" Height="40" Click="Minimize_Click" Style="{StaticResource WindowButton}" ToolTip="Свернуть"/>
-            <Button x:Name="MaximizeButton" Grid.Column="3" Content="□" Width="42" Height="40" Click="Maximize_Click" Style="{StaticResource WindowButton}" ToolTip="Развернуть"/>
-            <Button x:Name="CloseWindowButton" Tag="Close" Grid.Column="4" Content="×" Width="42" Height="40" Click="Close_Click" Style="{StaticResource WindowButton}" ToolTip="Закрыть приложение"/>
+            <Button x:Name="MinimizeButton" Grid.Column="2" Click="Minimize_Click" Style="{StaticResource WindowButton}" ToolTip="Свернуть" AutomationProperties.Name="Свернуть окно">
+                <Grid Width="20" Height="20" IsHitTestVisible="False"><Path Data="M 2,10 L 18,10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Grid>
+            </Button>
+            <Button x:Name="MaximizeButton" Grid.Column="3" Click="Maximize_Click">
+                <Button.Style><Style TargetType="Button" BasedOn="{StaticResource WindowButton}"><Setter Property="ToolTip" Value="Развернуть"/><Setter Property="AutomationProperties.Name" Value="Развернуть окно"/>
+                    <Style.Triggers><DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}" Value="Maximized"><Setter Property="ToolTip" Value="Восстановить размер"/><Setter Property="AutomationProperties.Name" Value="Восстановить размер окна"/></DataTrigger></Style.Triggers>
+                </Style></Button.Style>
+                <Grid Width="20" Height="20" IsHitTestVisible="False"><Path Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeLineJoin="Round">
+                    <Path.Style><Style TargetType="Path"><Setter Property="Data" Value="M 3,3 H 17 V 17 H 3 Z"/>
+                        <Style.Triggers><DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}" Value="Maximized"><Setter Property="Data" Value="M 6,3 H 17 V 14 H 14 M 3,6 H 14 V 17 H 3 Z"/></DataTrigger></Style.Triggers>
+                    </Style></Path.Style>
+                </Path></Grid>
+            </Button>
+            <Button x:Name="CloseWindowButton" Tag="Close" Grid.Column="4" Click="Close_Click" Style="{StaticResource WindowButton}" ToolTip="Закрыть приложение" AutomationProperties.Name="Закрыть окно">
+                <Grid Width="20" Height="20" IsHitTestVisible="False"><Path Data="M 3,3 L 17,17 M 17,3 L 3,17" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Grid>
+            </Button>
         </Grid>
         <Grid x:Name="ContentGrid" Grid.Column="1" Margin="0,40,0,0">
             <Grid.Background>
@@ -377,9 +390,9 @@
                         </Grid>
                     </RadioButton>
                 </StackPanel>
-                <Border x:Name="SarikSignature" Grid.Row="2" Margin="10,12,10,0" Padding="2,12,0,0" BorderThickness="0,1,0,0" BorderBrush="#412332">
+                <Border x:Name="CreatorSignature" Grid.Row="2" Margin="10,12,10,0" Padding="2,12,0,0" BorderThickness="0,1,0,0" BorderBrush="#412332">
                     <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding IsChecked, ElementName=MenuToggleButton}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                    <StackPanel><StackPanel Orientation="Horizontal"><TextBlock Text="◇" Foreground="#997448" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/><TextBlock Text="Sarik" FontFamily="Georgia" FontStyle="Italic" FontSize="21" Foreground="#D9B675"/></StackPanel><TextBlock Text="PERSONAL VPN" Foreground="#806253" FontSize="8" Margin="24,6,0,0"/></StackPanel>
+                    <StackPanel><StackPanel Orientation="Horizontal"><TextBlock Text="◇" Foreground="#997448" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/><TextBlock Text="keltazik" FontFamily="Georgia" FontStyle="Italic" FontSize="21" Foreground="#D9B675"/></StackPanel><TextBlock Text="PERSONAL VPN" Foreground="#806253" FontSize="8" Margin="24,6,0,0"/></StackPanel>
                 </Border>
             </Grid>
         </Border>

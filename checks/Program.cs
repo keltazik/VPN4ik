@@ -21,6 +21,7 @@ internal static class Program
         {
             if (args is ["--generate-icon", var iconPath]) { IconGenerator.Generate(iconPath); return 0; }
             if (args is ["--verify-updater", var updateBuild]) { UpdateChecks.VerifyPortableAsync(Path.GetFullPath(updateBuild)).GetAwaiter().GetResult(); return 0; }
+            if (args is ["--verify-published-update", var installed, var expected, var hash]) { UpdateChecks.VerifyPublishedAsync(installed, expected, hash).GetAwaiter().GetResult(); return 0; }
             if (args is ["--check-update-feed"])
             {
                 using var updates = new ApplicationUpdates();

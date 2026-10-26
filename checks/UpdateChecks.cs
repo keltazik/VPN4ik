@@ -149,6 +149,19 @@ internal static class UpdateChecks
     }
 
     private static ApplicationRelease? Select(object[] releases) => ApplicationUpdates.SelectRelease(JsonSerializer.SerializeToUtf8Bytes(releases), "1.0.0-beta.4");
+    internal static async Task VerifyPublishedAsync(string installed, string expected, string sha256)
+    {
+        using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(20), MaxResponseContentBufferSize = 2 * 1024 * 1024 };
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("VPN4ik-Release-Checks/1.0");
+        client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+        client.DefaultRequestHeaders.Add("X-GitHub-Api-Version", "2026-03-10");
+        var json = await client.GetByteArrayAsync("https://api.github.com/repos/keltazik/VPN4ik/releases?per_page=30");
+        var release = ApplicationUpdates.SelectRelease(json, installed);
+        if (release?.Version != expected || !release.CanInstall || !release.Sha256.Equals(sha256, StringComparison.OrdinalIgnoreCase))
+            throw new Exception("Published update does not match the expected version and archive hash.");
+        Console.WriteLine($"Published update OK: {installed} -> {release.Version}; automatic install available; archive SHA-256 matches.");
+    }
+
     private static object Release(string version, bool draft = false, string digest = "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", string? download = null) => new
     {
         tag_name = "v" + version, draft, published_at = "2026-10-27T00:00:00Z",

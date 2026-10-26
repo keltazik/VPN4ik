@@ -55,10 +55,12 @@
     </Style>
     <Style x:Key="WindowButton" TargetType="Button" BasedOn="{StaticResource ActionButton}">
         <Setter Property="Padding" Value="0"/><Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Width" Value="48"/><Setter Property="Height" Value="40"/><Setter Property="Foreground" Value="#D7B474"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
-            <Border x:Name="Surface" Background="{TemplateBinding Background}"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+            <Border x:Name="Surface" Background="{TemplateBinding Background}" CornerRadius="7" Margin="2,3"><ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
             <ControlTemplate.Triggers>
-                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="#392E39"/></Trigger>
+                <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Surface" Property="Background" Value="#392E39"/><Setter Property="Foreground" Value="#FFE0A1"/></Trigger>
                 <Trigger Property="IsPressed" Value="True"><Setter TargetName="Surface" Property="Background" Value="#493B49"/></Trigger>
                 <MultiTrigger><MultiTrigger.Conditions><Condition Property="Tag" Value="Close"/><Condition Property="IsMouseOver" Value="True"/></MultiTrigger.Conditions><Setter TargetName="Surface" Property="Background" Value="#C42B3A"/><Setter Property="Foreground" Value="White"/></MultiTrigger>
                 <MultiTrigger><MultiTrigger.Conditions><Condition Property="Tag" Value="Close"/><Condition Property="IsPressed" Value="True"/></MultiTrigger.Conditions><Setter TargetName="Surface" Property="Background" Value="#9E2330"/></MultiTrigger>
