@@ -1,5 +1,5 @@
 param(
-    [string]$Version = '1.0.0-beta.6',
+    [string]$Version = '1.0.0-beta.7',
     [string]$BuildDirectory = 'artifacts\VPN4ik-routing'
 )
 $ErrorActionPreference = 'Stop'
