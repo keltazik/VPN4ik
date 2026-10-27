@@ -217,7 +217,7 @@ internal sealed class SubscriptionClient : IDisposable
         var source = SubscriptionParser.ParseUrl(url);
         cancellationToken.ThrowIfCancellationRequested();
         if (SubscriptionParser.IsHitVpnAppLink(source))
-            throw new InvalidDataException("Это ссылка приложения HitVPN со встроенной конфигурацией, а не обычная подписка. Этот формат пока не поддерживается. Нужна обычная ссылка VLESS или экспорт WireGuard .conf из HitVPN.");
+            throw new InvalidDataException("Это ссылка приложения HitVPN со встроенной конфигурацией, а не обычная подписка. Этот формат пока не поддерживается. Запроси у провайдера обычную подписку VLESS/Xray или файл WireGuard .conf.");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(TimeSpan.FromSeconds(30));
         var target = source;
