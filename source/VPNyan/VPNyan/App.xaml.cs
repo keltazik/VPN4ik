@@ -47,6 +47,11 @@ public partial class App : System.Windows.Application
             Shutdown(await EngineHost.RunAsync(pipe, parentId));
             return;
         }
+        if (e.Args.Length == 0)
+        {
+            try { SystemProxyLease.RecoverAfterCrash(); }
+            catch { /* Active helper owns the proxy, or recovery will be retried on the next proxy connection. */ }
+        }
         if (e.Args.Length >= 3 && e.Args[0] == "--verify-latency")
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;

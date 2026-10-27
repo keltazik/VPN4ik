@@ -187,6 +187,7 @@ namespace VPNyan
             MinHeight = Math.Min(MinHeight, Height);
             MinWidth = Math.Min(MinWidth, Width);
             settings = AppSettings.LoadFromPath(dataDirectory == null ? null : Path.Combine(dataDirectory, "settings.json"));
+            UpdateConnectionModeUi();
             MenuToggleButton.IsChecked = settings.NavigationExpanded;
             ApplyNavigationLayout(false);
             if (startMonitoring) ApplySettings();

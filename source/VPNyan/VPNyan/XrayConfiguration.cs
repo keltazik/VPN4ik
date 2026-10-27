@@ -11,6 +11,8 @@ internal sealed class EngineRequest
     public bool EnableTun { get; set; } = true;
     public int Mtu { get; set; } = 1500;
     public int ProbePort { get; set; }
+    public bool EnableSystemProxy { get; set; }
+    public int HttpProxyPort { get; set; }
     public string ProbeUser { get; set; } = Guid.NewGuid().ToString("N");
     public string ProbePassword { get; set; } = Guid.NewGuid().ToString("N");
     public string? EndpointAddress { get; set; }
@@ -31,6 +33,8 @@ internal static class XrayConfiguration
         if (request.Mtu is < 1280 or > 1500 || request.ProbePort is < 1024 or > 65535)
             throw new InvalidDataException("Некорректные параметры VPN-движка.");
         RoutingSettings.Validate(request.Routing);
+        if (request.EnableSystemProxy && (request.EnableTun || request.HttpProxyPort is < 1024 or > 65535 || request.HttpProxyPort == request.ProbePort))
+            throw new InvalidDataException("Некорректные параметры системного прокси.");
         var profile = request.Profile;
         if (!Supports(profile.Protocol)) throw new InvalidDataException("Подключение этого протокола пока не поддерживается.");
         if (string.IsNullOrWhiteSpace(profile.Configuration)) throw new InvalidDataException("В профиле нет конфигурации подключения. Обнови подписку.");
@@ -66,6 +70,13 @@ internal static class XrayConfiguration
                     ["accounts"] = new JsonArray(new JsonObject { ["user"] = request.ProbeUser, ["pass"] = request.ProbePassword }) }
             }
         };
+        if (request.EnableSystemProxy)
+            inbounds.Add(new JsonObject
+            {
+                ["tag"] = "vpn4ik-system-proxy", ["listen"] = "127.0.0.1", ["port"] = request.HttpProxyPort,
+                ["protocol"] = "http", ["settings"] = new JsonObject(),
+                ["sniffing"] = new JsonObject { ["enabled"] = true, ["destOverride"] = new JsonArray("http", "tls"), ["routeOnly"] = true }
+            });
         if (request.EnableTun)
             inbounds.Add(new JsonObject
             {
@@ -76,7 +87,7 @@ internal static class XrayConfiguration
                 {
                     ["name"] = InterfaceName, ["desc"] = "VPN4ik", ["mtu"] = request.Mtu,
                     ["gateway"] = new JsonArray("172.31.255.1/30", "fd42:7670:3469::1/126"),
-                    ["dns"] = new JsonArray(RoutingSettings.Dns(request.Routing.DnsServers).Select(value => (JsonNode)JsonValue.Create(value)!).ToArray()),
+                    ["dns"] = new JsonArray("172.31.255.1"),
                     ["autoSystemRoutingTable"] = new JsonArray("0.0.0.0/1", "128.0.0.0/1", "::/1", "8000::/1"),
                     ["autoOutboundsInterface"] = request.UpstreamInterface, ["autoSystemWfpBlockLeak"] = new JsonArray("dns", "misconfigtun")
                 }
@@ -90,12 +101,20 @@ internal static class XrayConfiguration
         var outbounds = new JsonArray(outbound);
         if (request.EnableTun)
         {
+            // Resolve inside Xray, using TCP via the selected server instead of requiring UDP/IPv6 DNS support.
+            rules.Add(new JsonObject { ["type"] = "field", ["inboundTag"] = new JsonArray("vpn4ik-tun"), ["port"] = "53", ["outboundTag"] = "vpn4ik-dns" });
+            rules.Add(new JsonObject { ["type"] = "field", ["inboundTag"] = new JsonArray("vpn4ik-dns-query"), ["outboundTag"] = request.Routing.UseLocalDns ? "direct" : "proxy" });
+            outbounds.Add(new JsonObject { ["tag"] = "vpn4ik-dns", ["protocol"] = "dns", ["settings"] = new JsonObject() });
+        }
+        if (request.EnableTun || request.EnableSystemProxy)
+        {
             RoutingSettings.AddRules(rules, request.Routing);
-            if (request.Routing.SplitTunnelEnabled || request.Routing.BypassLocalNetwork)
+            if (request.Routing.SplitTunnelEnabled || request.Routing.BypassLocalNetwork || request.Routing.UseLocalDns)
                 outbounds.Add(new JsonObject { ["tag"] = "direct", ["protocol"] = "freedom", ["settings"] = new JsonObject() });
         }
         return new JsonObject
         {
+            ["dns"] = request.EnableTun ? BuildDns(request.Routing) : null,
             ["log"] = new JsonObject { ["access"] = "none", ["loglevel"] = request.Diagnostics ? "info" : "warning", ["dnsLog"] = false },
             ["inbounds"] = inbounds, ["outbounds"] = outbounds,
             ["stats"] = new JsonObject(),
@@ -103,6 +122,15 @@ internal static class XrayConfiguration
             ["metrics"] = new JsonObject { ["tag"] = "vpn4ik-metrics" },
             ["routing"] = new JsonObject { ["domainStrategy"] = "AsIs", ["rules"] = rules }
         }.ToJsonString();
+    }
+
+    private static JsonObject BuildDns(AppSettings settings)
+    {
+        var servers = new JsonArray();
+        if (settings.UseLocalDns) servers.Add("localhost");
+        else foreach (var ip in RoutingSettings.Dns(settings.DnsServers))
+            servers.Add(new JsonObject { ["address"] = "tcp://" + (ip.Contains(':') ? "[" + ip + "]" : ip), ["timeoutMs"] = 2000 });
+        return new JsonObject { ["servers"] = servers, ["queryStrategy"] = "UseIP", ["tag"] = "vpn4ik-dns-query" };
     }
 
     private static string BuildProbes(EngineRequest batch)

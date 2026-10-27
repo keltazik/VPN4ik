@@ -54,6 +54,7 @@ public partial class MainWindow
         try
         {
             if (!server.CanConnect) throw new InvalidDataException("Подключение этого протокола пока не поддерживается.");
+            if (server.Protocol == "WireGuard" && settings.ConnectionMode == "proxy") throw new InvalidDataException("WireGuard работает в режиме TUN. Выбери TUN перед подключением.");
             await PrepareZapretForConnectionAsync(connectionCancellation.Token);
             connectionCancellation.Token.ThrowIfCancellationRequested();
             activeServer = server;
@@ -85,13 +86,14 @@ public partial class MainWindow
                                 activity.Add(line.Contains("[Error]", StringComparison.OrdinalIgnoreCase) ? "Ошибка" : "Движок", redactor.Clean(line));
                         }));
                 };
-                var ip = await xraySession.StartAsync(profile, settings.TunMtu, connectionCancellation.Token, routing: settings);
+                activeUsesTun = settings.ConnectionMode != "proxy";
+                var ip = await xraySession.StartAsync(profile, settings.TunMtu, connectionCancellation.Token, enableTun: activeUsesTun, elevate: activeUsesTun, routing: settings);
                 connectionCancellation.CancelAfter(Timeout.InfiniteTimeSpan);
                 StopConnectingAnimation();
                 StatusText.Text = "Подключено";
                 IpText.Text = ExternalIpLabel(ip);
                 activity.Connected(currentRecord, ip);
-                activity.Add("Информация", "TUN и доступ через VPN подтверждены HTTPS-проверкой.");
+                activity.Add("Информация", activeUsesTun ? "TUN и доступ через VPN подтверждены HTTPS-проверкой." : "Системный прокси и доступ через сервер подтверждены HTTPS-проверкой.");
             }
             isConnected = true;
             lastProbeFailed = false;
@@ -237,6 +239,7 @@ public partial class MainWindow
     }
 
     private int failedConnectionChecks;
+    private bool activeUsesTun = true;
     private static string ExternalIpLabel(string ip) => string.IsNullOrEmpty(ip) ? "Доступ через VPN подтверждён" : $"Внешний IP: {ip}";
     private async Task RecheckConnectionAsync(IVpnSession session)
     {
@@ -244,9 +247,14 @@ public partial class MainWindow
         lastConnectionCheck = DateTime.UtcNow;
         try
         {
-            var ip = await session.ProbeAsync(connectionCancellation?.Token ?? lifetime.Token);
+            var token = connectionCancellation?.Token ?? lifetime.Token;
+            var proxyCheck = session.ProbeAsync(token);
+            var checks = activeUsesTun && !settings.SplitTunnelEnabled
+                ? await Task.WhenAll(proxyCheck, session.ProbeAsync(token, useProxy: false))
+                : new[] { await proxyCheck };
+            var ip = checks[0];
             if (xraySession != session || isConnecting) return;
-            if (!XraySession.HasTunRoute()) throw new IOException();
+            if (activeUsesTun && !XraySession.HasTunRoute()) throw new IOException();
             StatusText.Text = "Подключено";
             IpText.Text = ExternalIpLabel(ip);
             UpdateStatusIndicator(true);
@@ -364,6 +372,7 @@ public partial class MainWindow
         {
             RoutingSettings.Validate(draftSettings, requireRules: false);
             draftSettings.LastServer = settings.LastServer;
+            draftSettings.ConnectionMode = settings.ConnectionMode; draftSettings.UseLocalDns = settings.UseLocalDns;
             draftSettings.NavigationExpanded = MenuToggleButton.IsChecked == true;
             draftSettings.ZapretFolder = settings.ZapretFolder; draftSettings.ZapretStrategy = settings.ZapretStrategy;
             draftSettings.DisableZapretOnConnect = settings.DisableZapretOnConnect; draftSettings.RestoreZapretAfterVpn = settings.RestoreZapretAfterVpn;

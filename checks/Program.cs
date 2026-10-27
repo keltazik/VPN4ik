@@ -30,6 +30,7 @@ internal static class Program
                 foreach (var installation in installations) Console.WriteLine(installation);
                 Console.WriteLine($"Discovery: {installations.Count} installation(s), {clock.ElapsedMilliseconds} ms. Read only; no process or driver was started."); return 0;
             }
+            if (args is ["--verify-provider-dns", var dnsSource, var dnsReport]) return NativeDnsChecks.ProviderAsync(dnsSource,dnsReport).GetAwaiter().GetResult();
             if (args is ["--verify-updater", var updateBuild]) { UpdateChecks.VerifyPortableAsync(Path.GetFullPath(updateBuild)).GetAwaiter().GetResult(); return 0; }
             if (args is ["--verify-published-update", var installed, var expected, var hash]) { UpdateChecks.VerifyPublishedAsync(installed, expected, hash).GetAwaiter().GetResult(); return 0; }
             if (args is ["--check-update-feed"])
@@ -97,6 +98,7 @@ internal static class Program
             CheckSections(window, fixtures);
             ManagementChecks.Run(fixtures, Require);
             ConnectionChecks.Run(fixtures, Require);
+            ModeChecks.Run(fixtures, Require);
             TrayChecks.Run(fixtures, Require);
             UpdateChecks.Run(fixtures, Require);
             SubscriptionRegressionChecks.CheckMixedUi(fixtures, Require);
@@ -368,7 +370,7 @@ internal static class Program
         var request = new EngineRequest { Profile = profile, ProbePort = 49152 };
         var config = System.Text.Json.Nodes.JsonNode.Parse(XrayConfiguration.Build(request))!;
         Require(config["inbounds"]!.AsArray().Any(i => i?["protocol"]?.ToString() == "tun"), "Native Xray TUN included");
-        Require(config["outbounds"]!.AsArray().Count == 1 && config["outbounds"]![0]!["tag"]!.ToString() == "proxy", "All application traffic uses the selected proxy");
+        Require(config["outbounds"]!.AsArray().Count == 2 && config["outbounds"]![0]!["tag"]!.ToString() == "proxy" && config["outbounds"]![1]!["protocol"]!.ToString() == "dns", "All application traffic uses the selected proxy");
         Require(config["outbounds"]![0]!["streamSettings"]!["grpcSettings"]!["serviceName"]!.ToString() == "test-service", "gRPC service preserved");
         profile.Configuration = Config.Replace("\"remarks\":", "\"env\":{\"UNTRUSTED\":\"value\"},\"lua\":\"untrusted-script\",\"remarks\":")
             .Replace("\"serverName\":\"example.test\"", "\"masterKeyLog\":\"untrusted-path\",\"serverName\":\"example.test\"");
@@ -409,10 +411,10 @@ internal static class Program
         settings.SplitTunnelMode = "Include";
         config = System.Text.Json.Nodes.JsonNode.Parse(XrayConfiguration.Build(request))!;
         rules = config["routing"]!["rules"]!.AsArray();
-        Require(rules[^1]!["outboundTag"]!.ToString() == "direct" && rules[2]!["outboundTag"]!.ToString() == "proxy", "Include mode proxies matches and sends the rest direct");
+        Require(rules[^1]!["outboundTag"]!.ToString() == "direct" && rules.Any(rule => rule?["process"]?[0]?.ToString() == "chrome" && rule["outboundTag"]!.ToString() == "proxy"), "Include mode proxies matches and sends the rest direct");
         settings.BypassLocalNetwork = true;
         config = System.Text.Json.Nodes.JsonNode.Parse(XrayConfiguration.Build(request))!;
-        Require(config["routing"]!["rules"]![2]!["ip"]!.AsArray().Any(ip => ip!.ToString() == "fc00::/7"), "Local bypass covers both IP versions");
+        Require(config["routing"]!["rules"]!.AsArray().Any(rule => rule?["ip"] is System.Text.Json.Nodes.JsonArray ips && ips.Any(ip => ip!.ToString() == "fc00::/7")), "Local bypass covers both IP versions");
         Require(RoutingSettings.Parse("chrome.exe\nC:\\Program Files\\App\\App.exe", "process").SequenceEqual(new[] { "chrome", "C:/Program Files/App/App.exe" }), "Application names and paths normalize for native routing");
         Require(RoutingSettings.Parse("*.Example.org\nexample.org", "domain").SequenceEqual(new[] { "example.org" }), "Domain rules normalize and deduplicate");
         Reject(() => RoutingSettings.Parse("https://example.org/path", "domain"), "URLs cannot silently become wrong domain rules");

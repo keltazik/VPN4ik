@@ -62,6 +62,9 @@ internal static class RoutingSettings
     internal static void Validate(AppSettings settings, bool requireRules = true)
     {
         _ = Dns(settings.DnsServers);
+        if (settings.ConnectionMode is not ("tun" or "proxy")) throw new InvalidDataException("Неизвестный режим подключения.");
+        if (requireRules && settings.ConnectionMode == "proxy" && settings.SplitTunnelEnabled && settings.SplitApplications.Count > 0)
+            throw new InvalidDataException("Для правил по приложениям выбери TUN. Системный прокси поддерживают только программы с настройкой прокси.");
         if (settings.SplitTunnelMode is not ("Bypass" or "Include")) throw new InvalidDataException("Неизвестный режим маршрутизации.");
         _ = Parse(string.Join('\n', settings.SplitApplications), "process");
         _ = Parse(string.Join('\n', settings.SplitDomains), "domain");

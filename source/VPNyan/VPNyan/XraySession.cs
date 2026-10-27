@@ -38,6 +38,12 @@ internal sealed class XraySession : IVpnSession
         listener.Start();
         request = new EngineRequest { Profile = profile, Mtu = mtu, EnableTun = enableTun, Diagnostics = diagnostics,
             Routing = routing?.Copy() ?? new AppSettings(), ProbePort = ((IPEndPoint)listener.LocalEndpoint).Port };
+        request.EnableSystemProxy = !enableTun && !diagnostics && request.Routing.ConnectionMode == "proxy";
+        if (request.EnableSystemProxy)
+        {
+            using var httpListener = new TcpListener(IPAddress.Loopback, 0); httpListener.Start();
+            request.HttpProxyPort = ((IPEndPoint)httpListener.LocalEndpoint).Port;
+        }
         listener.Stop();
         VerificationStage = "Разрешение адреса сервера";
         var addresses = await Dns.GetHostAddressesAsync(profile.Address, cancellationToken);

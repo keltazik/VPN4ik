@@ -207,17 +207,30 @@
                     </StackPanel>
                     <Border Grid.Row="3" Background="#180D16" BorderBrush="#412332" BorderThickness="1" CornerRadius="12" Padding="16,12">
                         <Grid>
-                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="Время подключения" Foreground="#A78762" FontSize="10"/>
                                 <TextBlock x:Name="TimeConnectedText" Text="00:00:00" Foreground="#FFD27A" FontSize="16" Margin="0,4,0,0"/>
                             </StackPanel>
-                            <StackPanel Grid.Column="1">
-                                <TextBlock Text="Трафик VPN" Foreground="#A78762" FontSize="10"/>
-                                <TextBlock x:Name="TrafficText" Text="↑ 0 MB | ↓ 0 MB" Foreground="#FFD27A" FontSize="13" Margin="0,4,0,0"/>
-                            </StackPanel>
+                            <Button x:Name="ConnectionModeButton" Grid.Column="1" Margin="8,0,0,0" Padding="9,7" Style="{StaticResource ActionButton}" Click="ConnectionMode_Click" AutomationProperties.Name="Режим подключения">
+                                <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="16"/></Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="ConnectionModeLabel" Text="Xray TUN" FontSize="11" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                    <Path Grid.Column="1" Data="M 0,0 L 4,4 L 8,0" Stroke="#D4AA65" StrokeThickness="1.4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid>
+                                <Button.ContextMenu>
+                                    <ContextMenu x:Name="ConnectionModeMenu">
+                                        <MenuItem x:Name="ProxyModeItem" Header="Прокси" IsCheckable="True" Tag="proxy" Click="ConnectionModeItem_Click" ToolTip="Системный HTTP/HTTPS-прокси для приложений, которые его поддерживают. Без TUN; UDP и правила по процессам недоступны."/>
+                                        <Separator/>
+                                        <MenuItem Header="TUN" IsEnabled="False" FontWeight="SemiBold"/>
+                                        <MenuItem x:Name="XrayTunModeItem" Header="Xray TUN" IsCheckable="True" Tag="tun" Click="ConnectionModeItem_Click"/>
+                                        <Separator/>
+                                        <MenuItem x:Name="LocalDnsMenuItem" Header="Использовать локальный DNS" IsCheckable="True" StaysOpenOnClick="True" Click="LocalDns_Click" ToolTip="DNS физического подключения вместо DNS через VPN. Запросы имён будут видны локальной сети. Применится после переподключения."/>
+                                    </ContextMenu>
+                                </Button.ContextMenu>
+                            </Button>
                             <TextBlock x:Name="SpeedText" Grid.Row="1" Grid.ColumnSpan="2" Text="0 Mbps" Foreground="#C9A15C" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="TrafficText" Grid.Row="2" Grid.ColumnSpan="2" Text="↑ 0 MB | ↓ 0 MB" Foreground="#A78762" FontSize="11" Margin="0,5,0,0" TextWrapping="Wrap"/>
                         </Grid>
                     </Border>
                 </Grid>

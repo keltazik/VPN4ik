@@ -84,9 +84,33 @@ internal static class NativeRoutingChecks
                 await Task.WhenAll(output, errors);
             }
         }
-        return assertions;
+        return assertions + await NativeDnsChecks.RunAsync() + await CheckHttpProxyAsync(direct.Port);
     }
 
+    private static async Task<int> CheckHttpProxyAsync(int targetPort)
+    {
+        using var reserve = new TcpListener(IPAddress.Loopback,0); reserve.Start();
+        using var control = new TcpListener(IPAddress.Loopback,0); control.Start();
+        var port=((IPEndPoint)reserve.LocalEndpoint).Port;
+        var request=new EngineRequest { EnableTun=false,EnableSystemProxy=true,HttpProxyPort=port,ProbePort=((IPEndPoint)control.LocalEndpoint).Port,
+            Routing=new AppSettings{ConnectionMode="proxy"}, Profile=SubscriptionParser.Parse("vless://00000000-0000-4000-8000-000000000001@vpn.example.test:443?security=tls#HTTP").Single() };
+        var config=JsonNode.Parse(XrayConfiguration.Build(request))!;
+        config["outbounds"]![0]=new JsonObject{["tag"]="proxy",["protocol"]="freedom",["settings"]=new JsonObject{["redirect"]="127.0.0.1:"+targetPort}};
+        reserve.Stop(); control.Stop();
+        using var engine=new Process{StartInfo=new ProcessStartInfo(EngineHost.EnginePath){UseShellExecute=false,CreateNoWindow=true,RedirectStandardInput=true,RedirectStandardOutput=true,RedirectStandardError=true,WorkingDirectory=EngineHost.EngineDirectory}};
+        foreach(var arg in new[]{"run","-format=json","-c","stdin:"})engine.StartInfo.ArgumentList.Add(arg);
+        engine.Start();var output=engine.StandardOutput.ReadToEndAsync();var errors=engine.StandardError.ReadToEndAsync();
+        try
+        {
+            await engine.StandardInput.WriteAsync(config.ToJsonString());engine.StandardInput.Close();
+            await SystemProxyLease.WaitForListenerAsync(port,CancellationToken.None);
+            using var handler=new HttpClientHandler{UseProxy=true,Proxy=new WebProxy("http://127.0.0.1:"+port)};
+            using var http=new HttpClient(handler){Timeout=TimeSpan.FromSeconds(3)};
+            if(await http.GetStringAsync("http://example.invalid/")!="direct")throw new Exception("HTTP proxy did not forward the request.");
+            return 1;
+        }
+        finally { if(!engine.HasExited)engine.Kill(true);await engine.WaitForExitAsync();await Task.WhenAll(output,errors); }
+    }
     private sealed class TestHttpServer : IAsyncDisposable
     {
         private readonly TcpListener listener = new(IPAddress.Loopback, 0);

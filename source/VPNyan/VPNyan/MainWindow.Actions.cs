@@ -247,7 +247,7 @@ public partial class MainWindow
             foreach (var path in Directory.EnumerateFiles(tempPath, "*.conf.dpapi", SearchOption.TopDirectoryOnly)) File.Delete(path);
             activity.Reset();
             contextServer = null; CloseActionDialog();
-            settings = defaults; draftSettings = null; subscriptions.Clear();
+            settings = defaults; draftSettings = null; subscriptions.Clear(); UpdateConnectionModeUi();
             ResetZapretUi();
             suppressSelectionSwitch = true;
             try { servers.Clear(); ServerSelect.SelectedItem = null; } finally { suppressSelectionSwitch = false; }

@@ -40,6 +40,7 @@ internal static class EngineHost
         EngineJob? job = null;
         Semaphore? tunSession = null;
         bool ownsTunSession = false;
+        SystemProxyLease? proxyLease = null;
         using var sendLock = new SemaphoreSlim(1);
         StreamWriter? writer = null;
         async Task Send(string type, string text = "")
@@ -102,6 +103,11 @@ internal static class EngineHost
             }
             var stdout = Pump(engine.StandardOutput);
             var stderr = Pump(engine.StandardError);
+            if (request.EnableSystemProxy)
+            {
+                await SystemProxyLease.WaitForListenerAsync(request.HttpProxyPort, connectTimeout.Token);
+                proxyLease = SystemProxyLease.Start(request.HttpProxyPort);
+            }
             await Send("started");
             var command = reader.ReadLineAsync();
             var exited = engine.WaitForExitAsync();
@@ -126,6 +132,7 @@ internal static class EngineHost
                 engine.Dispose();
             }
             job?.Dispose();
+            proxyLease?.Dispose();
             if (ownsTunSession) tunSession?.Release();
             tunSession?.Dispose();
             writer?.Dispose();
