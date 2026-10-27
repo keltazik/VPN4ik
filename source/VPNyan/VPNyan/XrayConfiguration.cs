@@ -87,7 +87,7 @@ internal static class XrayConfiguration
                 {
                     ["name"] = InterfaceName, ["desc"] = "VPN4ik", ["mtu"] = request.Mtu,
                     ["gateway"] = new JsonArray("172.31.255.1/30", "fd42:7670:3469::1/126"),
-                    ["dns"] = new JsonArray("172.31.255.1"),
+                    ["dns"] = new JsonArray("172.31.255.2"),
                     ["autoSystemRoutingTable"] = new JsonArray("0.0.0.0/1", "128.0.0.0/1", "::/1", "8000::/1"),
                     ["autoOutboundsInterface"] = request.UpstreamInterface, ["autoSystemWfpBlockLeak"] = new JsonArray("dns", "misconfigtun")
                 }

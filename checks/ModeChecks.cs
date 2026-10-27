@@ -19,7 +19,8 @@ internal static class ModeChecks
         var profile = SubscriptionParser.Parse("vless://00000000-0000-4000-8000-000000000001@vpn.example.test:443?security=tls#Mode").Single();
         var request = new EngineRequest { Profile = profile, ProbePort = 49152 };
         var config = JsonNode.Parse(XrayConfiguration.Build(request))!;
-        check(config["inbounds"]![1]!["settings"]!["dns"]![0]!.ToString() == "172.31.255.1", "Windows TUN uses the in-tunnel DNS endpoint, not a fragile remote IPv6 DNS address");
+        check(config["inbounds"]![1]!["settings"]!["dns"]![0]!.ToString() == "172.31.255.2", "Windows TUN uses the in-tunnel DNS endpoint, not a fragile remote IPv6 DNS address");
+        check(config["inbounds"]![1]!["settings"]!["gateway"]!.AsArray().All(g => g!.ToString().Split('/')[0] != "172.31.255.2"), "TUN DNS is not a Windows local interface address, so queries enter the tunnel instead of local UDP port 53");
         check(config["dns"]!["servers"]!.AsArray().All(s => s!["address"]!.ToString().StartsWith("tcp://")), "Remote DNS is carried by TCP, without requiring provider UDP support");
         var rules = config["routing"]!["rules"]!.AsArray();
         check(rules.First(r => r?["port"]?.ToString() == "53")!["outboundTag"]!.ToString() == "vpn4ik-dns" && rules.First(r => r?["inboundTag"]?[0]?.ToString() == "vpn4ik-dns-query")!["outboundTag"]!.ToString() == "proxy", "DNS interception and internal upstream queries use separate routes and cannot form a routing loop");

@@ -47,7 +47,7 @@ internal static class NativeDnsChecks
         var config=JsonNode.Parse(XrayConfiguration.Build(request))!;
         // Keep production DNS routing; replace only the TUN input with a loopback UDP listener.
         config["inbounds"]![1]=new JsonObject { ["tag"]="vpn4ik-tun",["listen"]="127.0.0.1",["port"]=udpPort,["protocol"]="dokodemo-door",
-            ["settings"]=new JsonObject{["address"]="172.31.255.1",["port"]=53,["network"]="udp"} };
+            ["settings"]=new JsonObject{["address"]="172.31.255.2",["port"]=53,["network"]="udp"} };
         if(profile==null)
         {
             config["outbounds"]![0]=new JsonObject{["tag"]="proxy",["protocol"]="freedom",["settings"]=new JsonObject()};
