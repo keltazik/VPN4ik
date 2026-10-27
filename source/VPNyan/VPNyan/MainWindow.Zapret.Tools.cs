@@ -15,12 +15,12 @@ public partial class MainWindow
     {
         if (zapretBusy || isConnecting || isSwitching || pausedZapret?.HasEntries == true || pendingZapretLists.Count != 0 || lifetime.IsCancellationRequested) return;
         zapretBusy = true; UpdateServerControls();
-        ZapretDiscoveryStatus.Text = "Автоматически ищу zapret на компьютере…";
-        if (zapretInfo == null) ZapretStateText.Text = "Ищу установленный zapret…";
+        Localization.Set(ZapretDiscoveryStatus, System.Windows.Controls.TextBlock.TextProperty, "Автоматически ищу zapret на компьютере…");
+        if (zapretInfo == null) Localization.Set(ZapretStateText, System.Windows.Controls.TextBlock.TextProperty, "Ищу установленный zapret…");
         List<ZapretInstallation> found;
         try { found = await Task.Run(() => ZapretDiscovery.Find(settings.ZapretFolder, lifetime.Token, roots), lifetime.Token); }
         catch (OperationCanceledException) { return; }
-        catch (Exception ex) { ZapretError(ex); if (zapretInfo == null) ZapretStateText.Text = "Не удалось найти zapret"; ZapretDiscoveryStatus.Text = "Автопоиск не завершён. Можно указать папку вручную ниже."; ZapretFolderExpander.IsExpanded = true; return; }
+        catch (Exception ex) { ZapretError(ex); if (zapretInfo == null) Localization.Set(ZapretStateText, System.Windows.Controls.TextBlock.TextProperty, "Не удалось найти zapret"); Localization.Set(ZapretDiscoveryStatus, System.Windows.Controls.TextBlock.TextProperty, "Автопоиск не завершён. Можно указать папку вручную ниже."); ZapretFolderExpander.IsExpanded = true; return; }
         finally { zapretBusy = false; UpdateServerControls(); FinishPendingClose(); }
         if (lifetime.IsCancellationRequested) return;
         loadingZapret = true;
@@ -31,9 +31,9 @@ public partial class MainWindow
         }
         finally { loadingZapret = false; }
         if (found.Count > 0) await LoadZapretFolderAsync(found[0].Folder, true);
-        else if (zapretInfo == null) { ZapretStateText.Text = "zapret не найден"; ZapretFolderExpander.IsExpanded = true; }
-        ZapretDiscoveryStatus.Text = found.Count == 0 ? "zapret не найден в обычных местах. Нажми «Указать папку вручную» и выбери распакованную папку с service.bat."
-            : found.Count == 1 ? "" : $"Найдено установок: {found.Count}. Выбери нужную из списка.";
+        else if (zapretInfo == null) { Localization.Set(ZapretStateText, System.Windows.Controls.TextBlock.TextProperty, "zapret не найден"); ZapretFolderExpander.IsExpanded = true; }
+        Localization.Set(ZapretDiscoveryStatus, System.Windows.Controls.TextBlock.TextProperty, found.Count == 0 ? "zapret не найден в обычных местах. Нажми «Указать папку вручную» и выбери распакованную папку с service.bat."
+            : found.Count == 1 ? "" : $"Найдено установок: {found.Count}. Выбери нужную из списка.");
     }
     private async void ZapretInstallation_Changed(object sender, SelectionChangedEventArgs e)
     {
@@ -44,15 +44,15 @@ public partial class MainWindow
     {
         var ports = ZapretProfiles.ReadGameRanges(folder); ZapretTcpPorts.Text = ports.Tcp; ZapretUdpPorts.Text = ports.Udp;
         ZapretUpdateCheckBox.IsChecked = ZapretProfiles.ReadUpdateCheck(folder);
-        ZapretUpdatesStatus.Text = "";
+        Localization.Set(ZapretUpdatesStatus, System.Windows.Controls.TextBlock.TextProperty, "");
         var files = ZapretProfiles.FakeFiles(folder);
         ZapretDiscordFake.ItemsSource = files; ZapretGameFake.ItemsSource = files;
         var discord = ZapretProfiles.CurrentFake(folder, "discord"); var game = ZapretProfiles.CurrentFake(folder, "game");
         ZapretDiscordFake.SelectedItem = files.FirstOrDefault(file => file == discord) ?? files.FirstOrDefault();
         ZapretGameFake.SelectedItem = files.FirstOrDefault(file => file == game) ?? files.FirstOrDefault();
-        ZapretDiscordFakeCurrent.Text = "Discord UDP · сейчас: " + discord;
-        ZapretGameFakeCurrent.Text = "Game Filter UDP · сейчас: " + game;
-        ZapretHostsPanel.Visibility = ZapretReleaseButton.Visibility = Visibility.Collapsed; ZapretToolReport.Text = ""; ZapretHostsPreview.Clear();
+        Localization.Set(ZapretDiscordFakeCurrent, System.Windows.Controls.TextBlock.TextProperty, "Discord UDP · сейчас: " + discord);
+        Localization.Set(ZapretGameFakeCurrent, System.Windows.Controls.TextBlock.TextProperty, "Game Filter UDP · сейчас: " + game);
+        ZapretHostsPanel.Visibility = ZapretReleaseButton.Visibility = Visibility.Collapsed; Localization.Set(ZapretToolReport, System.Windows.Controls.TextBlock.TextProperty, ""); ZapretHostsPreview.Clear();
         if (useBackground && ZapretUpdateCheckBox.IsChecked == true && checkedZapretFolders.Add(folder)) _ = CheckZapretVersionAsync(folder, true);
     }
     private async void ZapretPorts_LostFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -82,7 +82,7 @@ public partial class MainWindow
                 var result = await zapretController.RunAsync(request, lifetime.Token);
                 if (!result.Success) throw new InvalidDataException(result.Message);
             }
-            ZapretActionStatus.Text = message; LogZapret(message);
+            Localization.Set(ZapretActionStatus, System.Windows.Controls.TextBlock.TextProperty, message); LogZapret(message);
         }
         catch (OperationCanceledException) { }
         catch (Exception ex) { ZapretError(ex); }
@@ -98,10 +98,10 @@ public partial class MainWindow
     private async void ZapretFake_Click(object sender, RoutedEventArgs e)
     {
         var kind = (string)((FrameworkElement)sender).Tag; var file = (kind == "discord" ? ZapretDiscordFake : ZapretGameFake).SelectedItem as string;
-        if (file == null) { ZapretActionStatus.Text = "В папке bin нет доступных fake-файлов."; return; }
+        if (file == null) { Localization.Set(ZapretActionStatus, System.Windows.Controls.TextBlock.TextProperty, "В папке bin нет доступных fake-файлов."); return; }
         var folder = settings.ZapretFolder;
         await ApplyZapretFileActionAsync(new() { Action = "fake", FakeKind = kind, FakeFile = file }, () => ZapretProfiles.ReplaceFake(folder, kind, file), "Active fake заменён. Для применения перезапусти zapret.");
-        try { ZapretDiscordFakeCurrent.Text = "Discord UDP · сейчас: " + ZapretProfiles.CurrentFake(folder, "discord"); ZapretGameFakeCurrent.Text = "Game Filter UDP · сейчас: " + ZapretProfiles.CurrentFake(folder, "game"); } catch { }
+        try { Localization.Set(ZapretDiscordFakeCurrent, System.Windows.Controls.TextBlock.TextProperty, "Discord UDP · сейчас: " + ZapretProfiles.CurrentFake(folder, "discord")); Localization.Set(ZapretGameFakeCurrent, System.Windows.Controls.TextBlock.TextProperty, "Game Filter UDP · сейчас: " + ZapretProfiles.CurrentFake(folder, "game")); } catch { }
     }
     private async void ZapretService_Click(object sender, RoutedEventArgs e) => await RunZapretToolAsync((string)((FrameworkElement)sender).Tag);
     private async void ZapretServiceBat_Click(object sender, RoutedEventArgs e)
@@ -112,7 +112,7 @@ public partial class MainWindow
         {
             var start = ZapretProfiles.ServiceMenuStart(settings.ZapretFolder);
             using var menu = await Task.Run(() => Process.Start(start));
-            ZapretActionStatus.Text = "service.bat открыт в отдельном окне."; LogZapret("Открыто штатное меню service.bat.");
+            Localization.Set(ZapretActionStatus, System.Windows.Controls.TextBlock.TextProperty, "service.bat открыт в отдельном окне."); LogZapret("Открыто штатное меню service.bat.");
         }
         catch (Exception ex) { ZapretError(ex); }
         finally { zapretBusy = false; UpdateServerControls(); FinishPendingClose(); }
@@ -129,12 +129,12 @@ public partial class MainWindow
         try
         {
             zapretOperation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
-            ZapretToolReport.Text = action == "test-strategies" ? "Проверяю стратегии. Прежнее состояние zapret будет возвращено после теста…" : "Выполняю…";
-            if (action == "diagnostics") ZapretToolReport.Text = await Task.Run(() => ZapretMaintenance.DiagnoseAsync(settings.ZapretFolder, zapretOperation.Token), zapretOperation.Token);
+            Localization.Set(ZapretToolReport, System.Windows.Controls.TextBlock.TextProperty, action == "test-strategies" ? "Проверяю стратегии. Прежнее состояние zapret будет возвращено после теста…" : "Выполняю…");
+            if (action == "diagnostics") Localization.Set(ZapretToolReport, System.Windows.Controls.TextBlock.TextProperty, await Task.Run(() => ZapretMaintenance.DiagnoseAsync(settings.ZapretFolder, zapretOperation.Token), zapretOperation.Token));
             else if (action == "hosts")
             {
                 using var downloads = new ZapretMaintenance(); ZapretHostsPreview.Text = await downloads.DownloadAsync("hosts", zapretOperation.Token);
-                ZapretHostsPanel.Visibility = Visibility.Visible; ZapretToolReport.Text = "Hosts скачан для просмотра. Системный файл не изменён.";
+                ZapretHostsPanel.Visibility = Visibility.Visible; Localization.Set(ZapretToolReport, System.Windows.Controls.TextBlock.TextProperty, "Hosts скачан для просмотра. Системный файл не изменён.");
             }
             else
             {
@@ -150,14 +150,14 @@ public partial class MainWindow
                     var result = await zapretController.RunAsync(request, zapretOperation.Token);
                     zapretState = result.State; RenderZapretState();
                     if (!result.Success) throw new InvalidDataException(result.Message);
-                    ZapretToolReport.Text = action == "test-strategies" ? result.Message : action == "install-service" ? "Служба установлена и запущена. Автозапуск Windows включён." : action == "remove-service" ? "Службы выбранной папки удалены." : action == "timestamps" ? "TCP timestamps включены в Windows." : "IPSet обновлён. Текущий режим фильтра сохранён; перезапусти zapret для применения.";
+                    Localization.Set(ZapretToolReport, System.Windows.Controls.TextBlock.TextProperty, action == "test-strategies" ? result.Message : action == "install-service" ? "Служба установлена и запущена. Автозапуск Windows включён." : action == "remove-service" ? "Службы выбранной папки удалены." : action == "timestamps" ? "TCP timestamps включены в Windows." : "IPSet обновлён. Текущий режим фильтра сохранён; перезапусти zapret для применения.");
                 }
-                else ZapretToolReport.Text = "IPSet обновлён. Текущий режим фильтра сохранён; перезапусти zapret для применения.";
+                else Localization.Set(ZapretToolReport, System.Windows.Controls.TextBlock.TextProperty, "IPSet обновлён. Текущий режим фильтра сохранён; перезапусти zapret для применения.");
             }
-            ZapretActionStatus.Text = "Готово."; LogZapret("Инструмент zapret: " + (action switch { "test-strategies" => "тест стратегий завершён", "diagnostics" => "диагностика завершена", "hosts" => "загружен hosts для просмотра", "ipset" => "IPSet обновлён", "timestamps" => "TCP timestamps включены", "install-service" => "служба установлена", _ => "служба удалена" }));
+            Localization.Set(ZapretActionStatus, System.Windows.Controls.TextBlock.TextProperty, "Готово."); LogZapret("Инструмент zapret: " + (action switch { "test-strategies" => "тест стратегий завершён", "diagnostics" => "диагностика завершена", "hosts" => "загружен hosts для просмотра", "ipset" => "IPSet обновлён", "timestamps" => "TCP timestamps включены", "install-service" => "служба установлена", _ => "служба удалена" }));
         }
-        catch (OperationCanceledException) { ZapretToolReport.Text = "Операция отменена или превышено время ожидания."; }
-        catch (Exception ex) { ZapretError(ex); ZapretToolReport.Text = ZapretActionStatus.Text; }
+        catch (OperationCanceledException) { Localization.Set(ZapretToolReport, System.Windows.Controls.TextBlock.TextProperty, "Операция отменена или превышено время ожидания."); }
+        catch (Exception ex) { ZapretError(ex); Localization.Set(ZapretToolReport, System.Windows.Controls.TextBlock.TextProperty, ZapretActionStatus.Text); }
         finally { zapretOperation?.Dispose(); zapretOperation = null; zapretBusy = false; UpdateServerControls(); FinishPendingClose(); }
     }
     private async Task CheckZapretVersionAsync(string folder, bool automatic)
@@ -170,14 +170,14 @@ public partial class MainWindow
             var current = ZapretProfiles.Read(folder).Version;
             var newer = Version.TryParse(latest, out var remote) && Version.TryParse(current, out var local) && remote > local;
             ZapretReleaseButton.Visibility = newer ? Visibility.Visible : Visibility.Collapsed;
-            if (!automatic || newer) ZapretUpdatesStatus.Text = newer ? $"Доступно обновление zapret {latest}; установлено {current}." : $"Установлена актуальная версия zapret: {current}.";
-            if (automatic && newer) ZapretActionStatus.Text = $"Доступно обновление zapret {latest}. Ссылка — в «Обновления и инструменты service.bat».";
+            if (!automatic || newer) Localization.Set(ZapretUpdatesStatus, System.Windows.Controls.TextBlock.TextProperty, newer ? $"Доступно обновление zapret {latest}; установлено {current}." : $"Установлена актуальная версия zapret: {current}.");
+            if (automatic && newer) Localization.Set(ZapretActionStatus, System.Windows.Controls.TextBlock.TextProperty, $"Доступно обновление zapret {latest}. Ссылка — в «Обновления и инструменты service.bat».");
         }
-        catch (OperationCanceledException) { if (!automatic && !lifetime.IsCancellationRequested) ZapretUpdatesStatus.Text = "Проверка обновлений zapret не завершена: время ожидания истекло."; }
-        catch { if (!automatic && !lifetime.IsCancellationRequested) ZapretUpdatesStatus.Text = "Не удалось проверить обновления zapret. Работа текущей версии не затронута."; }
+        catch (OperationCanceledException) { if (!automatic && !lifetime.IsCancellationRequested) Localization.Set(ZapretUpdatesStatus, System.Windows.Controls.TextBlock.TextProperty, "Проверка обновлений zapret не завершена: время ожидания истекло."); }
+        catch { if (!automatic && !lifetime.IsCancellationRequested) Localization.Set(ZapretUpdatesStatus, System.Windows.Controls.TextBlock.TextProperty, "Не удалось проверить обновления zapret. Работа текущей версии не затронута."); }
     }
     private void ZapretRelease_Click(object sender, RoutedEventArgs e) { try { Process.Start(new ProcessStartInfo(ZapretMaintenance.Releases) { UseShellExecute = true }); } catch (Exception ex) { ZapretError(ex); } }
-    private void ZapretCopyHosts_Click(object sender, RoutedEventArgs e) { try { System.Windows.Clipboard.SetText(ZapretHostsPreview.Text); ZapretActionStatus.Text = "Hosts скопирован."; } catch (Exception ex) { ZapretError(ex); } }
+    private void ZapretCopyHosts_Click(object sender, RoutedEventArgs e) { try { System.Windows.Clipboard.SetText(ZapretHostsPreview.Text); Localization.Set(ZapretActionStatus, System.Windows.Controls.TextBlock.TextProperty, "Hosts скопирован."); } catch (Exception ex) { ZapretError(ex); } }
     private void ZapretOpenHosts_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -192,9 +192,13 @@ public partial class MainWindow
         ZapretTcpPorts.Clear(); ZapretUdpPorts.Clear(); ZapretUpdateCheckBox.IsChecked = false;
         ZapretDiscordFake.ItemsSource = ZapretGameFake.ItemsSource = ZapretInstallationsSelect.ItemsSource = null;
         ZapretInstallationsSelect.Visibility = ZapretHostsPanel.Visibility = ZapretReleaseButton.Visibility = Visibility.Collapsed;
-        ZapretHostsPreview.Clear(); ZapretToolReport.Text = ZapretDiscordFakeCurrent.Text = ZapretGameFakeCurrent.Text = "";
-        ZapretServiceText.Text = ZapretUpdatesStatus.Text = "";
-        ZapretDiscoveryStatus.Text = "Папка не выбрана. Нажми «Найти автоматически» или укажи путь вручную.";
+        ZapretHostsPreview.Clear();
+        Localization.Set(ZapretToolReport, System.Windows.Controls.TextBlock.TextProperty, "");
+        Localization.Set(ZapretDiscordFakeCurrent, System.Windows.Controls.TextBlock.TextProperty, "");
+        Localization.Set(ZapretGameFakeCurrent, System.Windows.Controls.TextBlock.TextProperty, "");
+        Localization.Set(ZapretServiceText, System.Windows.Controls.TextBlock.TextProperty, "");
+        Localization.Set(ZapretUpdatesStatus, System.Windows.Controls.TextBlock.TextProperty, "");
+        Localization.Set(ZapretDiscoveryStatus, System.Windows.Controls.TextBlock.TextProperty, "Папка не выбрана. Нажми «Найти автоматически» или укажи путь вручную.");
         checkedZapretFolders.Clear();
         ZapretFolderExpander.IsExpanded = ZapretFiltersExpander.IsExpanded = false;
     }

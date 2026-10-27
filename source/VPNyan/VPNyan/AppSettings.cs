@@ -21,6 +21,7 @@ namespace VPNyan
         public bool RestoreZapretAfterVpn { get; set; } = true;
         public string LastServer { get; set; } = "";
         public string Theme { get; set; } = "dark";
+        public string Language { get; set; } = "ru";
         public int TunMtu { get; set; } = 1500;
         public string ConnectionMode { get; set; } = "tun";
         public bool UseLocalDns { get; set; }
@@ -60,7 +61,7 @@ namespace VPNyan
             KillSwitch = KillSwitch, StartWithWindows = StartWithWindows, MinimizeToTray = MinimizeToTray, CloseToTray = CloseToTray,
             StartMinimized = StartMinimized, AutoConnect = AutoConnect, ShowNotifications = ShowNotifications, CheckForUpdates = CheckForUpdates,
             ZapretFolder = ZapretFolder, ZapretStrategy = ZapretStrategy, DisableZapretOnConnect = DisableZapretOnConnect, RestoreZapretAfterVpn = RestoreZapretAfterVpn,
-            LastServer = LastServer, Theme = Theme, TunMtu = TunMtu, ConnectionMode = ConnectionMode, UseLocalDns = UseLocalDns, NavigationExpanded = NavigationExpanded, ServerSort = ServerSort, StoragePath = StoragePath,
+            LastServer = LastServer, Theme = Theme, Language = Language, TunMtu = TunMtu, ConnectionMode = ConnectionMode, UseLocalDns = UseLocalDns, NavigationExpanded = NavigationExpanded, ServerSort = ServerSort, StoragePath = StoragePath,
             AutoCheckPings = AutoCheckPings, PingIntervalSeconds = PingIntervalSeconds, TrafficUnit = TrafficUnit,
             BypassLocalNetwork = BypassLocalNetwork, DnsServers = DnsServers, SplitTunnelEnabled = SplitTunnelEnabled,
             SplitTunnelMode = SplitTunnelMode, SplitApplications = new(SplitApplications), SplitDomains = new(SplitDomains), SplitNetworks = new(SplitNetworks)
@@ -78,6 +79,7 @@ namespace VPNyan
                     var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(path)) ?? new AppSettings();
                     settings.StoragePath = storagePath;
                     if (settings.ConnectionMode is not ("tun" or "proxy")) settings.ConnectionMode = "tun";
+                    if (settings.Language is not ("ru" or "en" or "hy")) settings.Language = "ru";
                     // Migrate only our former factory DNS pair; preserve user-defined resolvers.
                     if (settings.DnsServers.Replace("\r", "") == "1.1.1.1\n2606:4700:4700::1111") settings.DnsServers = "1.1.1.1\n1.0.0.1";
                     return settings;

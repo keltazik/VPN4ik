@@ -104,6 +104,8 @@ namespace VPNyan
 
         internal void SetLatencyPending()
         {
+            // Keep the last complete average visible while a new series is collected.
+            if (Ping >= 0) return;
             Ping = -1;
             PingDisplay = "…";
             PingColor = "#A78762";
@@ -175,7 +177,10 @@ namespace VPNyan
         {
             sessionFactory = connectionFactory ?? (() => new XraySession());
             canCreateSession = startMonitoring || connectionFactory != null;
+            settings = AppSettings.LoadFromPath(dataDirectory == null ? null : Path.Combine(dataDirectory, "settings.json"));
+            Localization.Current.Apply(settings.Language);
             InitializeComponent();
+            ApplyLanguage();
             UpdateOrnamentCache();
             Loaded += (_, _) => UpdateOrnamentCache();
             DpiChanged += (_, _) => UpdateOrnamentCache();
@@ -186,7 +191,6 @@ namespace VPNyan
             Width = Math.Min(Width, SystemParameters.WorkArea.Width);
             MinHeight = Math.Min(MinHeight, Height);
             MinWidth = Math.Min(MinWidth, Width);
-            settings = AppSettings.LoadFromPath(dataDirectory == null ? null : Path.Combine(dataDirectory, "settings.json"));
             UpdateConnectionModeUi();
             MenuToggleButton.IsChecked = settings.NavigationExpanded;
             ApplyNavigationLayout(false);
@@ -208,13 +212,13 @@ namespace VPNyan
                 subscriptions = SubscriptionStore.Load(SubscriptionPath);
                 foreach (var subscription in subscriptions) AddSubscriptionServers(subscription);
             }
-            catch { SubscriptionStatusText.Text = "Не удалось прочитать подписки. Импортируй ссылку повторно."; }
+            catch { Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, "Не удалось прочитать подписки. Импортируй ссылку повторно."); }
 
             ServerSelect.ItemsSource = servers;
             ServerSelect.SelectionChanged += ServerSelect_SelectionChanged;
             InitializeServerManagement();
             LoadSavedServer();
-            if (servers.Count == 0) StatusText.Text = "Добавь подписку или конфигурацию сервера";
+            if (servers.Count == 0) Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Добавь подписку или конфигурацию сервера");
             UpdateServerControls();
 
             InitializeUpdates();
@@ -289,7 +293,7 @@ namespace VPNyan
         private void ImportConfig_Click(object sender, RoutedEventArgs e)
         {
             if (isConnecting || activeServer != null || isImporting) return;
-            var dialog = new Microsoft.Win32.OpenFileDialog { Filter = "Конфигурации VPN (*.conf;*.json;*.txt)|*.conf;*.json;*.txt" };
+            var dialog = new Microsoft.Win32.OpenFileDialog { Filter = Localization.T("Конфигурации VPN (*.conf;*.json;*.txt)|*.conf;*.json;*.txt") };
             if (dialog.ShowDialog(this) != true) return;
             try
             {
@@ -305,7 +309,7 @@ namespace VPNyan
                     if (existing == null) servers.Add(server);
                     ServerSelect.SelectedItem = existing ?? server;
                     SaveServer();
-                    SubscriptionStatusText.Text = "Конфигурация WireGuard импортирована.";
+                    Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, "Конфигурация WireGuard импортирована.");
                 }
                 else
                 {
@@ -318,7 +322,7 @@ namespace VPNyan
                 RefreshImportedSources();
                 ShowSection("home");
             }
-            catch (Exception ex) { SubscriptionStatusText.Text = ex is InvalidDataException ? ex.Message : "Не удалось импортировать файл. Проверь формат и имя файла."; }
+            catch (Exception ex) { Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, ex is InvalidDataException ? ex.Message : "Не удалось импортировать файл. Проверь формат и имя файла."); }
         }
         void AddSubscriptionServers(Subscription subscription)
         {
@@ -352,9 +356,9 @@ namespace VPNyan
             SortServersButton.IsEnabled = canManage;
             ResetAllButton.IsEnabled = canManage;
             RefreshSubscriptionButton.IsEnabled = available && subscriptions.Any(s => s.Url.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
-            EmptyServersText.Text = servers.Count == 0 ? "Добавь подписку или файл WireGuard .conf" : "Серверы не найдены";
+            Localization.Set(EmptyServersText, System.Windows.Controls.TextBlock.TextProperty, servers.Count == 0 ? "Добавь подписку или файл WireGuard .conf" : "Серверы не найдены");
             EmptyServersText.Visibility = CollectionViewSource.GetDefaultView(servers).IsEmpty ? Visibility.Visible : Visibility.Collapsed;
-            ServerCountText.Text = servers.Count.ToString();
+            Localization.Set(ServerCountText, System.Windows.Controls.TextBlock.TextProperty, servers.Count.ToString());
             CheckLatencyButton.IsEnabled = !isImporting && !isUpdatingPings && servers.Any(s => ServerLatency.SupportsTcpPing(s.Protocol));
             if (!isUpdatingPings) UpdateLatencySummary();
             BestServerButton.IsEnabled = canManage && !isUpdatingPings && servers.Any(s => s.Ping >= 0 && s.LatencyMeasuredAt >= DateTime.UtcNow.AddMinutes(-2));
@@ -367,7 +371,7 @@ namespace VPNyan
             if (isConnecting || activeServer != null || isImporting) return;
             isImporting = true;
             UpdateServerControls();
-            SubscriptionStatusText.Text = "Загружаю подписку…";
+            Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, "Загружаю подписку…");
             try
             {
                 using var client = new SubscriptionClient();
@@ -379,13 +383,13 @@ namespace VPNyan
                 _ = UpdatePings();
             }
             catch (OperationCanceledException) when (!lifetime.IsCancellationRequested)
-            { SubscriptionStatusText.Text = "Время ожидания истекло. Прежние серверы сохранены."; }
+            { Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, "Время ожидания истекло. Прежние серверы сохранены."); }
             catch (System.Net.Http.HttpRequestException)
-            { SubscriptionStatusText.Text = "Не удалось загрузить подписку. Проверь интернет и ссылку."; }
-            catch (InvalidDataException ex) { SubscriptionStatusText.Text = ex.Message; }
+            { Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, "Не удалось загрузить подписку. Проверь интернет и ссылку."); }
+            catch (InvalidDataException ex) { Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, ex.Message); }
             catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
             catch
-            { SubscriptionStatusText.Text = "Не удалось сохранить подписку. Прежние серверы сохранены."; }
+            { Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, "Не удалось сохранить подписку. Прежние серверы сохранены."); }
             finally { isImporting = false; UpdateServerControls(); }
         }
 
@@ -406,7 +410,7 @@ namespace VPNyan
             SubscriptionStore.Save(SubscriptionPath, next);
             ReplaceSubscriptionRows(next, selected);
             if (ServerSelect.SelectedItem != null) ServerSelect.ScrollIntoView(ServerSelect.SelectedItem);
-            SubscriptionStatusText.Text = $"Серверов в подписке: {subscription.Profiles.Count} · обновлено {subscription.UpdatedAt.ToLocalTime():HH:mm}";
+            Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, $"Серверов в подписке: {subscription.Profiles.Count} · обновлено {subscription.UpdatedAt.ToLocalTime():HH:mm}");
             if (subscription.IgnoredRoutingLines > 0)
             {
                 const string routingNotice = "Серверы добавлены. Служебная маршрутизация провайдера пропущена; используются настройки VPN4ik.";
@@ -429,8 +433,8 @@ namespace VPNyan
         void StartConnectionTimer()
         {
             connectionTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
-            connectionTimer.Tick += (s, e) => TimeConnectedText.Text = isConnected
-                ? (DateTime.Now - connectionStartTime).ToString(@"hh\:mm\:ss") : "00:00:00";
+            connectionTimer.Tick += (s, e) => Localization.Set(TimeConnectedText, System.Windows.Controls.TextBlock.TextProperty, isConnected
+                ? (DateTime.Now - connectionStartTime).ToString(@"hh\:mm\:ss") : "00:00:00");
             connectionTimer.Start();
         }
 
@@ -454,15 +458,15 @@ namespace VPNyan
         private void UpdateLatencySummary()
         {
             var count = servers.Count(s => ServerLatency.SupportsTcpPing(s.Protocol));
-            LatencyStatusText.Text = $"TCP-пинг · {servers.Count(s => ServerLatency.SupportsTcpPing(s.Protocol) && s.Ping >= 0)} из {count}" +
-                (PingMayBeInaccurate ? " · при VPN возможна погрешность" : "");
+            Localization.Set(LatencyStatusText, System.Windows.Controls.TextBlock.TextProperty, $"TCP-пинг · {servers.Count(s => ServerLatency.SupportsTcpPing(s.Protocol) && s.Ping >= 0)} из {count}" +
+                (PingMayBeInaccurate ? " · при VPN возможна погрешность" : ""));
         }
 
         private DispatcherTimer? pingWarningTimer;
 
         private void ShowPingWarning()
         {
-            PingWarningText.Text = PingPolicy.WarningMessage;
+            Localization.Set(PingWarningText, System.Windows.Controls.TextBlock.TextProperty, PingPolicy.WarningMessage);
             PingWarning.Visibility = Visibility.Visible;
             pingWarningTimer ??= new DispatcherTimer { Interval = TimeSpan.FromSeconds(4) };
             pingWarningTimer.Stop();
@@ -490,7 +494,7 @@ namespace VPNyan
             using var run = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
             latencyCancellation = run;
             foreach (var server in snapshot) server.SetLatencyPending();
-            LatencyStatusText.Text = "Проверяю TCP-пинг…" + (PingMayBeInaccurate ? " Возможна погрешность при VPN." : "");
+            Localization.Set(LatencyStatusText, System.Windows.Controls.TextBlock.TextProperty, "Проверяю TCP-пинг…" + (PingMayBeInaccurate ? " Возможна погрешность при VPN." : ""));
             UpdateServerControls();
             try
             {
@@ -646,7 +650,7 @@ namespace VPNyan
         void StartConnectingAnimation()
         {
             dotsTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
-            dotsTimer.Tick += (s, e) => { dotsCount = (dotsCount + 1) % 4; StatusText.Text = "Подключение" + new string('.', dotsCount); };
+            dotsTimer.Tick += (s, e) => { dotsCount = (dotsCount + 1) % 4; Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Подключение" + new string('.', dotsCount)); };
             dotsTimer.Start();
         }
 
@@ -674,16 +678,16 @@ namespace VPNyan
             if (activeServer != null || isConnecting) return;
             if (ServerSelect.SelectedItem is ServerItem server)
             {
-                StatusText.Text = server.CanConnect ? "Отключено" : $"{server.Protocol} · протокол пока не поддерживается";
-                IpText.Text = "";
+                Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, server.CanConnect ? "Отключено" : $"{server.Protocol} · протокол пока не поддерживается");
+                Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, "");
                 var subscription = subscriptions.FirstOrDefault(s => s.Url == server.SubscriptionUrl);
                 if (subscription != null)
-                    SubscriptionStatusText.Text = $"Серверов в подписке: {subscription.Profiles.Count} · обновлено {subscription.UpdatedAt.ToLocalTime():HH:mm}";
+                    Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, $"Серверов в подписке: {subscription.Profiles.Count} · обновлено {subscription.UpdatedAt.ToLocalTime():HH:mm}");
             }
             else
             {
-                StatusText.Text = "Отключено";
-                IpText.Text = "";
+                Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Отключено");
+                Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, "");
             }
         }
 
@@ -708,7 +712,7 @@ namespace VPNyan
                     ServerSelect.SelectedItem = activeServer != null ? (view.Contains(activeServer) ? activeServer : null) : view.Cast<ServerItem>().FirstOrDefault();
             }
             finally { suppressSelectionSwitch = wasSuppressed; }
-            EmptyServersText.Text = servers.Count == 0 ? "Добавь подписку или файл WireGuard .conf" : "Серверы не найдены";
+            Localization.Set(EmptyServersText, System.Windows.Controls.TextBlock.TextProperty, servers.Count == 0 ? "Добавь подписку или файл WireGuard .conf" : "Серверы не найдены");
             EmptyServersText.Visibility = view.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -734,7 +738,7 @@ namespace VPNyan
             if (animate)
                 BeginAnimation(NavigationWidthProperty, new DoubleAnimation(from, target, TimeSpan.FromMilliseconds(220))
                 { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }, FillBehavior = FillBehavior.Stop });
-            System.Windows.Automation.AutomationProperties.SetName(MenuToggleButton,
+            Localization.Set(MenuToggleButton, System.Windows.Automation.AutomationProperties.NameProperty,
                 MenuToggleButton.IsChecked == true ? "Свернуть названия разделов" : "Развернуть названия разделов");
         }
         // ✅ ИСПРАВЛЕНО: System.Windows.Input.MouseEventArgs вместо Forms
@@ -750,7 +754,7 @@ namespace VPNyan
             AnimateScale(1.0);
             UpdateOrnamentGlow();
         }
-        private void TestButton_Click(object sender, RoutedEventArgs e) => WpfMessageBox.Show("Кнопка работает!");
+        private void TestButton_Click(object sender, RoutedEventArgs e) => WpfMessageBox.Show(Localization.T("Кнопка работает!"));
 
         private void ItemsHost_IsKeyboardFocusWithinChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

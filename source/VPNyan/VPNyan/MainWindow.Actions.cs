@@ -19,7 +19,7 @@ public partial class MainWindow
 
     private void ShowNotice(string text)
     {
-        PingWarningText.Text = text;
+        Localization.Set(PingWarningText, System.Windows.Controls.TextBlock.TextProperty, text);
         PingWarning.Visibility = Visibility.Visible;
         pingWarningTimer ??= new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(5) };
         pingWarningTimer.Stop(); pingWarningTimer.Tick -= HidePingWarning; pingWarningTimer.Tick += HidePingWarning; pingWarningTimer.Start();
@@ -28,8 +28,8 @@ public partial class MainWindow
     private void OpenActionDialog(string kind, string title, string message, string primary)
     {
         dialogKind = kind; dialogBusy = false;
-        DialogTitle.Text = title; DialogDescription.Text = message; DialogError.Text = "";
-        DialogPrimary.Content = primary; DialogPrimary.IsEnabled = true; DialogCancel.IsEnabled = true;
+        Localization.Set(DialogTitle, System.Windows.Controls.TextBlock.TextProperty, title); Localization.Set(DialogDescription, System.Windows.Controls.TextBlock.TextProperty, message); Localization.Set(DialogError, System.Windows.Controls.TextBlock.TextProperty, "");
+        Localization.Set(DialogPrimary, System.Windows.Controls.Button.ContentProperty, primary); DialogPrimary.IsEnabled = true; DialogCancel.IsEnabled = true;
         EditorPanel.Visibility = kind == "edit" ? Visibility.Visible : Visibility.Collapsed;
         ProcessPickerPanel.Visibility = kind == "process" ? Visibility.Visible : Visibility.Collapsed;
         ActionOverlay.Visibility = Visibility.Visible;
@@ -63,14 +63,14 @@ public partial class MainWindow
         if (dialogKind == "process")
         {
             var selected = processChoices.Where(process => process.Selected).Select(process => process.Rule).ToArray();
-            if (selected.Length == 0) { DialogError.Text = "Выбери хотя бы одно приложение."; return; }
+            if (selected.Length == 0) { Localization.Set(DialogError, System.Windows.Controls.TextBlock.TextProperty, "Выбери хотя бы одно приложение."); return; }
             var entries = RoutingSettings.Lines(SplitApplicationsText.Text).Concat(selected).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
             CloseActionDialog(); SplitApplicationsText.Text = string.Join('\n', entries); return;
         }
         if (dialogKind != "edit" || editingServer == null) return;
         dialogBusy = true; DialogPrimary.IsEnabled = DialogCancel.IsEnabled = false;
         try { await EditServerAsync(editingServer, ConfigurationEditor.Text); CloseActionDialog(); }
-        catch (Exception ex) { DialogError.Text = ex is InvalidDataException ? ex.Message : "Не удалось сохранить конфигурацию. Прежняя версия сохранена, если отключение не подтверждено."; }
+        catch (Exception ex) { Localization.Set(DialogError, System.Windows.Controls.TextBlock.TextProperty, ex is InvalidDataException ? ex.Message : "Не удалось сохранить конфигурацию. Прежняя версия сохранена, если отключение не подтверждено."); }
         finally { dialogBusy = false; DialogPrimary.IsEnabled = DialogCancel.IsEnabled = true; }
     }
 
@@ -78,16 +78,16 @@ public partial class MainWindow
     {
         OpenActionDialog("process", "Запущенные приложения", "Выбери программы для правила раздельного туннелирования. Если Windows скрывает путь, добавится имя .exe.", "Добавить выбранные");
         var generation = ++processLoadGeneration;
-        ProcessSearchText.Clear(); DialogPrimary.IsEnabled = false; DialogError.Text = "Загружаю процессы…";
+        ProcessSearchText.Clear(); DialogPrimary.IsEnabled = false; Localization.Set(DialogError, System.Windows.Controls.TextBlock.TextProperty, "Загружаю процессы…");
         try
         {
             var entries = await ProcessCatalog.ListAsync();
             if (generation != processLoadGeneration || dialogKind != "process") return;
             processChoices = entries; ProcessPickerList.ItemsSource = processChoices; FilterProcessChoices();
-            DialogError.Text = entries.Count == 0 ? "Процессы не найдены. Можно выбрать .exe через файл." : "";
+            Localization.Set(DialogError, System.Windows.Controls.TextBlock.TextProperty, entries.Count == 0 ? "Процессы не найдены. Можно выбрать .exe через файл." : "");
             DialogPrimary.IsEnabled = true;
         }
-        catch { if (generation == processLoadGeneration) DialogError.Text = "Не удалось прочитать процессы. Используй выбор .exe."; }
+        catch { if (generation == processLoadGeneration) Localization.Set(DialogError, System.Windows.Controls.TextBlock.TextProperty, "Не удалось прочитать процессы. Используй выбор .exe."); }
     }
     private void ProcessSearch_TextChanged(object sender, TextChangedEventArgs e) { if (ProcessPickerList != null) FilterProcessChoices(); }
     private void FilterProcessChoices()
@@ -116,9 +116,9 @@ public partial class MainWindow
     private void PrepareServerMenu()
     {
         if (contextServer == null) return;
-        ContextServerName.Text = contextServer.DisplayName; ContextServerFlag.Source = contextServer.CountryFlag;
-        ContextConnect.Header = ReferenceEquals(contextServer, activeServer) ? "Отключиться" : activeServer != null ? "Переключиться на сервер" : "Подключиться";
-        ContextCopy.Header = contextServer.Protocol == "WireGuard" ? "Копировать конфигурацию" : "Копировать JSON / ссылку";
+        Localization.Set(ContextServerName, System.Windows.Controls.TextBlock.TextProperty, contextServer.DisplayName); ContextServerFlag.Source = contextServer.CountryFlag;
+        Localization.Set(ContextConnect, System.Windows.Controls.MenuItem.HeaderProperty, ReferenceEquals(contextServer, activeServer) ? "Отключиться" : activeServer != null ? "Переключиться на сервер" : "Подключиться");
+        Localization.Set(ContextCopy, System.Windows.Controls.MenuItem.HeaderProperty, contextServer.Protocol == "WireGuard" ? "Копировать конфигурацию" : "Копировать JSON / ссылку");
         var available = !isConnecting && !isSwitching && !isManagingData && !isResetting && !isImporting;
         ContextConnect.IsEnabled = available; ContextEdit.IsEnabled = ContextDelete.IsEnabled = available;
         ContextPing.IsEnabled = !isUpdatingPings && !isResetting;
@@ -247,7 +247,7 @@ public partial class MainWindow
             foreach (var path in Directory.EnumerateFiles(tempPath, "*.conf.dpapi", SearchOption.TopDirectoryOnly)) File.Delete(path);
             activity.Reset();
             contextServer = null; CloseActionDialog();
-            settings = defaults; draftSettings = null; subscriptions.Clear(); UpdateConnectionModeUi();
+            settings = defaults; ApplyLanguage(); draftSettings = null; subscriptions.Clear(); UpdateConnectionModeUi();
             ResetZapretUi();
             suppressSelectionSwitch = true;
             try { servers.Clear(); ServerSelect.SelectedItem = null; } finally { suppressSelectionSwitch = false; }
@@ -256,7 +256,7 @@ public partial class MainWindow
             ApplyServerSort("original", false); RefreshImportedSources();
             if (pingTimer != null) pingTimer.Interval = TimeSpan.FromSeconds(defaults.PingIntervalSeconds);
             ShowSection("settings"); ShowSettingsCategory("general");
-            SubscriptionStatusText.Text = "Добавь подписку или конфигурацию."; StatusText.Text = "Отключено"; IpText.Text = "";
+            Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, "Добавь подписку или конфигурацию."); Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Отключено"); Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, "");
             SaveServer();
         }
         finally { isResetting = false; UpdateServerControls(); FinishPendingClose(); }

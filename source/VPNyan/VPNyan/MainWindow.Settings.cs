@@ -7,6 +7,12 @@ namespace VPNyan;
 
 public partial class MainWindow
 {
+    private void ApplyLanguage()
+    {
+        Localization.Current.Apply(settings.Language);
+        Language = System.Windows.Markup.XmlLanguage.GetLanguage(settings.Language);
+    }
+
     internal void ShowSettingsCategory(string category)
     {
         GeneralSettings.Visibility = category == "general" ? Visibility.Visible : Visibility.Collapsed;
@@ -17,6 +23,7 @@ public partial class MainWindow
         ConnectionSettingsTab.IsChecked = category == "connection";
         RoutingSettingsTab.IsChecked = category == "routing";
         DisplaySettingsTab.IsChecked = category == "display";
+        SettingsFooter.Visibility = category == "general" ? Visibility.Visible : Visibility.Collapsed;
         SettingsScroller.ScrollToTop();
     }
 
@@ -28,6 +35,7 @@ public partial class MainWindow
     private void LoadExtraSettings()
     {
         if (draftSettings == null) return;
+        LanguageSelect.SelectedValue = draftSettings.Language;
         DnsServersText.Text = draftSettings.DnsServers;
         SplitApplicationsText.Text = string.Join('\n', draftSettings.SplitApplications);
         SplitDomainsText.Text = string.Join('\n', draftSettings.SplitDomains);
@@ -42,9 +50,9 @@ public partial class MainWindow
         UpdateRoutingDescription();
     }
 
-    private void UpdateRoutingDescription() => RoutingModeDescription.Text = draftSettings?.SplitTunnelMode == "Include"
+    private void UpdateRoutingDescription() => Localization.Set(RoutingModeDescription, System.Windows.Controls.TextBlock.TextProperty, draftSettings?.SplitTunnelMode == "Include"
         ? "Только совпавшие приложения, домены и IP идут через VPN. Остальное — напрямую. Для приложения с несколькими процессами добавь каждый нужный .exe."
-        : "Совпавшие приложения, домены и IP идут напрямую. Остальной трафик — через VPN.";
+        : "Совпавшие приложения, домены и IP идут напрямую. Остальной трафик — через VPN.");
 
     private void SplitMode_Click(object sender, RoutedEventArgs e)
     {
@@ -75,12 +83,12 @@ public partial class MainWindow
             SaveSettingsAutomatically();
         }
         catch (Exception ex) when (ex is InvalidDataException or ArgumentException)
-        { SettingsStatusText.Text = ex.Message + " Последние корректные правила сохранены."; }
+        { Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, ex.Message + " Последние корректные правила сохранены."); }
     }
 
     private void AddSplitApplication_Click(object sender, RoutedEventArgs e)
     {
-        var dialog = new Microsoft.Win32.OpenFileDialog { Title = "Выбери приложение", Filter = "Приложения Windows (*.exe)|*.exe", Multiselect = true };
+        var dialog = new Microsoft.Win32.OpenFileDialog { Title = Localization.T("Выбери приложение"), Filter = Localization.T("Приложения Windows (*.exe)|*.exe"), Multiselect = true };
         if (dialog.ShowDialog(this) != true) return;
         var entries = RoutingSettings.Lines(SplitApplicationsText.Text).Concat(dialog.FileNames.Select(path => path.Replace('\\', '/'))).Distinct();
         SplitApplicationsText.Text = string.Join('\n', entries);
@@ -98,5 +106,19 @@ public partial class MainWindow
         if (draftSettings == null || sender is not RadioButton button) return;
         draftSettings.PingIntervalSeconds = int.Parse((string)button.Tag);
         SaveSettingsAutomatically();
+    }
+
+    private void Language_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (loadingSettings || draftSettings == null || LanguageSelect.SelectedValue is not string language) return;
+        draftSettings.Language = language;
+        SaveSettingsAutomatically();
+        if (settings.Language == language) ApplyLanguage();
+        else
+        {
+            loadingSettings = true;
+            try { draftSettings.Language = settings.Language; LanguageSelect.SelectedValue = settings.Language; }
+            finally { loadingSettings = false; }
+        }
     }
 }

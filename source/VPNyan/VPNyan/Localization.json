@@ -1,0 +1,4514 @@
+[
+  {
+    "Id": "L000",
+    "Ru": "Свернуть",
+    "En": "Minimize",
+    "Hy": "Փոքրացնել"
+  },
+  {
+    "Id": "L001",
+    "Ru": "Свернуть окно",
+    "En": "Minimize window",
+    "Hy": "Փոքրացնել պատուհանը"
+  },
+  {
+    "Id": "L002",
+    "Ru": "Развернуть",
+    "En": "Maximize",
+    "Hy": "Մեծացնել"
+  },
+  {
+    "Id": "L003",
+    "Ru": "Развернуть окно",
+    "En": "Maximize window",
+    "Hy": "Մեծացնել պատուհանը"
+  },
+  {
+    "Id": "L004",
+    "Ru": "Восстановить размер",
+    "En": "Restore size",
+    "Hy": "Վերականգնել չափը"
+  },
+  {
+    "Id": "L005",
+    "Ru": "Восстановить размер окна",
+    "En": "Restore window size",
+    "Hy": "Վերականգնել պատուհանի չափը"
+  },
+  {
+    "Id": "L006",
+    "Ru": "Закрыть приложение",
+    "En": "Close application",
+    "Hy": "Փակել հավելվածը"
+  },
+  {
+    "Id": "L007",
+    "Ru": "Закрыть окно",
+    "En": "Close window",
+    "Hy": "Փակել պատուհանը"
+  },
+  {
+    "Id": "L008",
+    "Ru": "Серверы",
+    "En": "Servers",
+    "Hy": "Սերվերներ"
+  },
+  {
+    "Id": "L009",
+    "Ru": "Проверить задержку серверов",
+    "En": "Test server latency",
+    "Hy": "Ստուգել սերվերների ուշացումը"
+  },
+  {
+    "Id": "L010",
+    "Ru": "Обновить выбранную подписку",
+    "En": "Refresh selected subscription",
+    "Hy": "Թարմացնել ընտրված բաժանորդագրությունը"
+  },
+  {
+    "Id": "L011",
+    "Ru": "Сортировка серверов",
+    "En": "Sort servers",
+    "Hy": "Դասավորել սերվերները"
+  },
+  {
+    "Id": "L012",
+    "Ru": "Порядок подписки",
+    "En": "Subscription order",
+    "Hy": "Բաժանորդագրության հերթականությամբ"
+  },
+  {
+    "Id": "L013",
+    "Ru": "По имени · А–Я",
+    "En": "By name · A–Z",
+    "Hy": "Ըստ անվան · Ա–Ֆ"
+  },
+  {
+    "Id": "L014",
+    "Ru": "По стране",
+    "En": "By country",
+    "Hy": "Ըստ երկրի"
+  },
+  {
+    "Id": "L015",
+    "Ru": "По пингу · быстрые сначала",
+    "En": "By latency · fastest first",
+    "Hy": "Ըստ ուշացման · արագները սկզբում"
+  },
+  {
+    "Id": "L016",
+    "Ru": "По протоколу",
+    "En": "By protocol",
+    "Hy": "Ըստ արձանագրության"
+  },
+  {
+    "Id": "L017",
+    "Ru": "Поиск серверов",
+    "En": "Search servers",
+    "Hy": "Որոնել սերվերներ"
+  },
+  {
+    "Id": "L018",
+    "Ru": "Поиск по названию или протоколу",
+    "En": "Search by name or protocol",
+    "Hy": "Որոնել ըստ անվան կամ արձանագրության"
+  },
+  {
+    "Id": "L019",
+    "Ru": "Подключиться",
+    "En": "Connect",
+    "Hy": "Միանալ"
+  },
+  {
+    "Id": "L020",
+    "Ru": "Тест пинга",
+    "En": "Latency test",
+    "Hy": "Ուշացման ստուգում"
+  },
+  {
+    "Id": "L021",
+    "Ru": "Копировать JSON / ссылку",
+    "En": "Copy JSON / link",
+    "Hy": "Պատճենել JSON-ը / հղումը"
+  },
+  {
+    "Id": "L022",
+    "Ru": "Редактировать",
+    "En": "Edit",
+    "Hy": "Խմբագրել"
+  },
+  {
+    "Id": "L023",
+    "Ru": "Удалить сервер",
+    "En": "Delete server",
+    "Hy": "Ջնջել սերվերը"
+  },
+  {
+    "Id": "L024",
+    "Ru": "Добавь подписку через меню → Импорт",
+    "En": "Add a subscription via the menu → Import",
+    "Hy": "Ավելացրու բաժանորդագրություն՝ ընտրացանկ → Ներմուծում"
+  },
+  {
+    "Id": "L025",
+    "Ru": "TCP-пинг",
+    "En": "TCP latency",
+    "Hy": "TCP ուշացում"
+  },
+  {
+    "Id": "L026",
+    "Ru": "Выбрать лучший сервер",
+    "En": "Select best server",
+    "Hy": "Ընտրել լավագույն սերվերը"
+  },
+  {
+    "Id": "L027",
+    "Ru": "Выбрать сервер с наименьшим свежим TCP-пингом",
+    "En": "Select the server with the lowest recent TCP latency",
+    "Hy": "Ընտրել վերջին չափմամբ նվազագույն TCP ուշացմամբ սերվերը"
+  },
+  {
+    "Id": "L028",
+    "Ru": "Подключить или отключить VPN",
+    "En": "Connect or disconnect VPN",
+    "Hy": "Միացնել կամ անջատել VPN-ը"
+  },
+  {
+    "Id": "L030",
+    "Ru": "Отключено",
+    "En": "Disconnected",
+    "Hy": "Անջատված է"
+  },
+  {
+    "Id": "L031",
+    "Ru": "Время подключения",
+    "En": "Connection time",
+    "Hy": "Միացման տևողություն"
+  },
+  {
+    "Id": "L032",
+    "Ru": "Режим подключения",
+    "En": "Connection mode",
+    "Hy": "Միացման ռեժիմ"
+  },
+  {
+    "Id": "L033",
+    "Ru": "Прокси",
+    "En": "Proxy",
+    "Hy": "Պրոքսի"
+  },
+  {
+    "Id": "L034",
+    "Ru": "Системный HTTP/HTTPS-прокси для приложений, которые его поддерживают. Без TUN; UDP и правила по процессам недоступны.",
+    "En": "System HTTP/HTTPS proxy for compatible apps. No TUN, UDP or per-process routing.",
+    "Hy": "Համակարգային HTTP/HTTPS պրոքսի՝ աջակցող հավելվածների համար։ Առանց TUN-ի, UDP-ի և ըստ գործընթացների երթուղավորման։"
+  },
+  {
+    "Id": "L035",
+    "Ru": "Использовать локальный DNS",
+    "En": "Use local DNS",
+    "Hy": "Օգտագործել տեղային DNS"
+  },
+  {
+    "Id": "L036",
+    "Ru": "DNS физического подключения вместо DNS через VPN. Запросы имён будут видны локальной сети. Применится после переподключения.",
+    "En": "Use the physical connection's DNS instead of VPN DNS. Name queries will be visible to the local network. Applies on reconnect.",
+    "Hy": "Օգտագործել ֆիզիկական կապի DNS-ը՝ VPN-ի DNS-ի փոխարեն։ Անվան հարցումները տեսանելի կլինեն տեղային ցանցին։ Կկիրառվի վերամիացումից հետո։"
+  },
+  {
+    "Id": "L037",
+    "Ru": "Вернуться к серверам",
+    "En": "Back to servers",
+    "Hy": "Վերադառնալ սերվերներին"
+  },
+  {
+    "Id": "L038",
+    "Ru": "Подписка",
+    "En": "Subscription",
+    "Hy": "Բաժանորդագրություն"
+  },
+  {
+    "Id": "L039",
+    "Ru": "Вставь ссылку — серверы появятся в общем списке.",
+    "En": "Paste a link to add servers to the list.",
+    "Hy": "Տեղադրիր հղումը՝ սերվերները ցանկում ավելացնելու համար։"
+  },
+  {
+    "Id": "L040",
+    "Ru": "Ссылка на подписку",
+    "En": "Subscription link",
+    "Hy": "Բաժանորդագրության հղում"
+  },
+  {
+    "Id": "L041",
+    "Ru": "Импортировать",
+    "En": "Import",
+    "Hy": "Ներմուծել"
+  },
+  {
+    "Id": "L042",
+    "Ru": "Серверы появятся после импорта",
+    "En": "Servers will appear after import",
+    "Hy": "Սերվերները կհայտնվեն ներմուծումից հետո"
+  },
+  {
+    "Id": "L043",
+    "Ru": "Файл конфигурации",
+    "En": "Configuration file",
+    "Hy": "Կարգավորման ֆայլ"
+  },
+  {
+    "Id": "L044",
+    "Ru": "Поддерживаются WireGuard .conf и конфигурации Xray .json / .txt.",
+    "En": "Supports WireGuard .conf and Xray .json / .txt configurations.",
+    "Hy": "Աջակցում է WireGuard .conf և Xray .json / .txt կարգավորումներին։"
+  },
+  {
+    "Id": "L045",
+    "Ru": "Выбрать файл",
+    "En": "Choose file",
+    "Hy": "Ընտրել ֆայլ"
+  },
+  {
+    "Id": "L046",
+    "Ru": "Добавленные подписки и конфигурации",
+    "En": "Added subscriptions and configurations",
+    "Hy": "Ավելացված բաժանորդագրություններ և կարգավորումներ"
+  },
+  {
+    "Id": "L047",
+    "Ru": "Обновить",
+    "En": "Refresh",
+    "Hy": "Թարմացնել"
+  },
+  {
+    "Id": "L048",
+    "Ru": "Удалить",
+    "En": "Delete",
+    "Hy": "Ջնջել"
+  },
+  {
+    "Id": "L049",
+    "Ru": "Пока ничего не добавлено",
+    "En": "Nothing added yet",
+    "Hy": "Դեռ ոչինչ ավելացված չէ"
+  },
+  {
+    "Id": "L050",
+    "Ru": "К списку серверов →",
+    "En": "Go to servers →",
+    "Hy": "Դեպի սերվերների ցանկը →"
+  },
+  {
+    "Id": "L051",
+    "Ru": "Основные",
+    "En": "General",
+    "Hy": "Ընդհանուր"
+  },
+  {
+    "Id": "L052",
+    "Ru": "Соединение",
+    "En": "Connection",
+    "Hy": "Միացում"
+  },
+  {
+    "Id": "L053",
+    "Ru": "Маршрутизация",
+    "En": "Routing",
+    "Hy": "Երթուղավորում"
+  },
+  {
+    "Id": "L054",
+    "Ru": "Интерфейс",
+    "En": "Interface",
+    "Hy": "Միջերես"
+  },
+  {
+    "Id": "L055",
+    "Ru": "Запуск и поведение",
+    "En": "Startup and behavior",
+    "Hy": "Գործարկում և վարքագիծ"
+  },
+  {
+    "Id": "L056",
+    "Ru": "Запускать вместе с Windows",
+    "En": "Start with Windows",
+    "Hy": "Գործարկել Windows-ի հետ"
+  },
+  {
+    "Id": "L057",
+    "Ru": "Запускать свёрнутым",
+    "En": "Start minimized",
+    "Hy": "Գործարկել փոքրացված"
+  },
+  {
+    "Id": "L058",
+    "Ru": "Подключаться к последнему серверу при запуске",
+    "En": "Connect to the last server on startup",
+    "Hy": "Գործարկման ժամանակ միանալ վերջին սերվերին"
+  },
+  {
+    "Id": "L059",
+    "Ru": "Показывать уведомления о подключении",
+    "En": "Show connection notifications",
+    "Hy": "Ցուցադրել միացման ծանուցումները"
+  },
+  {
+    "Id": "L060",
+    "Ru": "Скрывать в трей",
+    "En": "Hide to tray",
+    "Hy": "Թաքցնել համակարգային դարակում"
+  },
+  {
+    "Id": "L061",
+    "Ru": "При сворачивании",
+    "En": "When minimizing",
+    "Hy": "Փոքրացնելիս"
+  },
+  {
+    "Id": "L062",
+    "Ru": "При закрытии",
+    "En": "When closing",
+    "Hy": "Փակելիս"
+  },
+  {
+    "Id": "L063",
+    "Ru": "Приложение продолжит работу. Полностью закрыть его можно через «Выход» в меню значка в трее.",
+    "En": "The app will keep running. To quit completely, choose Exit in the tray icon menu.",
+    "Hy": "Հավելվածը կշարունակի աշխատել։ Լրիվ փակելու համար դարակի պատկերակի ընտրացանկում ընտրիր «Ելք»։"
+  },
+  {
+    "Id": "L064",
+    "Ru": "Язык приложения",
+    "En": "Application language",
+    "Hy": "Հավելվածի լեզու"
+  },
+  {
+    "Id": "L065",
+    "Ru": "Русский",
+    "En": "Русский",
+    "Hy": "Русский"
+  },
+  {
+    "Id": "L066",
+    "Ru": "Обновления",
+    "En": "Updates",
+    "Hy": "Թարմացումներ"
+  },
+  {
+    "Id": "L067",
+    "Ru": "Проверять новые версии автоматически",
+    "En": "Check for updates automatically",
+    "Hy": "Ավտոմատ ստուգել թարմացումները"
+  },
+  {
+    "Id": "L068",
+    "Ru": "Проверить обновления",
+    "En": "Check for updates",
+    "Hy": "Ստուգել թարմացումները"
+  },
+  {
+    "Id": "L069",
+    "Ru": "Подключение TUN",
+    "En": "TUN connection",
+    "Hy": "TUN միացում"
+  },
+  {
+    "Id": "L070",
+    "Ru": "Параметры соединения применятся после переподключения. Для импортированных WireGuard .conf используются параметры самого файла.",
+    "En": "Connection settings apply on reconnect. Imported WireGuard .conf files use their own settings.",
+    "Hy": "Միացման կարգավորումները կկիրառվեն վերամիացումից հետո։ Ներմուծված WireGuard .conf ֆայլերն օգտագործում են իրենց կարգավորումները։"
+  },
+  {
+    "Id": "L071",
+    "Ru": "Локальная сеть напрямую, без VPN",
+    "En": "Access local network directly, without VPN",
+    "Hy": "Տեղային ցանցին դիմել անմիջապես՝ առանց VPN-ի"
+  },
+  {
+    "Id": "L072",
+    "Ru": "DNS-серверы",
+    "En": "DNS servers",
+    "Hy": "DNS սերվերներ"
+  },
+  {
+    "Id": "L073",
+    "Ru": "От одного до четырёх IP-адресов, каждый с новой строки.",
+    "En": "One to four IP addresses, one per line.",
+    "Hy": "Մեկից չորս IP հասցե՝ յուրաքանչյուրն առանձին տողում։"
+  },
+  {
+    "Id": "L074",
+    "Ru": "Например: 1.1.1.1",
+    "En": "Example: 1.1.1.1",
+    "Hy": "Օրինակ՝ 1.1.1.1"
+  },
+  {
+    "Id": "L075",
+    "Ru": "Раздельное туннелирование",
+    "En": "Split tunneling",
+    "Hy": "Բաժանված թունելավորում"
+  },
+  {
+    "Id": "L076",
+    "Ru": "Приложения, сайты и подсети можно направить отдельно. Правила применятся после переподключения и работают с профилями Xray; для WireGuard редактируй AllowedIPs в .conf.",
+    "En": "Route apps, sites and subnets separately. Rules apply on reconnect and work with Xray profiles. For WireGuard, edit AllowedIPs in the .conf file.",
+    "Hy": "Հավելվածները, կայքերը և ենթացանցերը երթուղավորիր առանձին։ Կանոնները կկիրառվեն վերամիացումից հետո և աշխատում են Xray պրոֆիլների հետ։ WireGuard-ի համար խմբագրիր .conf ֆայլի AllowedIPs-ը։"
+  },
+  {
+    "Id": "L077",
+    "Ru": "Включить раздельное туннелирование",
+    "En": "Enable split tunneling",
+    "Hy": "Միացնել բաժանված թունելավորումը"
+  },
+  {
+    "Id": "L078",
+    "Ru": "Выбранное без VPN",
+    "En": "Selected traffic bypasses VPN",
+    "Hy": "Ընտրվածը՝ առանց VPN-ի"
+  },
+  {
+    "Id": "L079",
+    "Ru": "Только выбранное через VPN",
+    "En": "Only selected traffic uses VPN",
+    "Hy": "Միայն ընտրվածը՝ VPN-ով"
+  },
+  {
+    "Id": "L080",
+    "Ru": "Приложения",
+    "En": "Applications",
+    "Hy": "Հավելվածներ"
+  },
+  {
+    "Id": "L081",
+    "Ru": "Выбрать .exe",
+    "En": "Choose .exe",
+    "Hy": "Ընտրել .exe"
+  },
+  {
+    "Id": "L082",
+    "Ru": "Из запущенных процессов",
+    "En": "From running processes",
+    "Hy": "Գործարկված գործընթացներից"
+  },
+  {
+    "Id": "L083",
+    "Ru": "Имя процесса (chrome.exe) или полный путь, с учётом регистра. Каждое правило — с новой строки.",
+    "En": "Process name (chrome.exe) or full path, case-sensitive. One rule per line.",
+    "Hy": "Գործընթացի անունը (chrome.exe) կամ ամբողջական ուղին՝ հաշվի առնելով տառաչափը։ Յուրաքանչյուր կանոնը՝ նոր տողում։"
+  },
+  {
+    "Id": "L084",
+    "Ru": "Приложения для маршрутизации",
+    "En": "Applications for routing",
+    "Hy": "Երթուղավորվող հավելվածներ"
+  },
+  {
+    "Id": "L085",
+    "Ru": "Например: chrome.exe",
+    "En": "Example: chrome.exe",
+    "Hy": "Օրինակ՝ chrome.exe"
+  },
+  {
+    "Id": "L086",
+    "Ru": "Домены",
+    "En": "Domains",
+    "Hy": "Դոմեններ"
+  },
+  {
+    "Id": "L087",
+    "Ru": "Например example.org — вместе с поддоменами. По одному на строку. Зашифрованное имя сайта (ECH) может не распознаваться; тогда используй правило приложения или IP.",
+    "En": "Example: example.org includes subdomains. One per line. Encrypted names (ECH) may not be detected; use an app or IP rule instead.",
+    "Hy": "Օրինակ՝ example.org-ը ներառում է ենթադոմենները։ Յուրաքանչյուրը՝ նոր տողում։ Գաղտնագրված անունները (ECH) կարող են չճանաչվել․ այդ դեպքում օգտագործիր հավելվածի կամ IP-ի կանոն։"
+  },
+  {
+    "Id": "L088",
+    "Ru": "Домены для маршрутизации",
+    "En": "Domains for routing",
+    "Hy": "Երթուղավորվող դոմեններ"
+  },
+  {
+    "Id": "L089",
+    "Ru": "Например: example.org",
+    "En": "Example: example.org",
+    "Hy": "Օրինակ՝ example.org"
+  },
+  {
+    "Id": "L090",
+    "Ru": "IP-адреса и подсети",
+    "En": "IP addresses and subnets",
+    "Hy": "IP հասցեներ և ենթացանցեր"
+  },
+  {
+    "Id": "L091",
+    "Ru": "По одному правилу на строку: 192.0.2.15 — один IP; 192.0.2.0/24 — подсеть от 192.0.2.0 до 192.0.2.255. Для IPv6: 2001:db8::/32. Это примеры — замени их нужными адресами.",
+    "En": "One rule per line: 192.0.2.15 for one IP; 192.0.2.0/24 for the 192.0.2.0–192.0.2.255 subnet. IPv6 example: 2001:db8::/32. Replace these examples with your addresses.",
+    "Hy": "Յուրաքանչյուր կանոնը՝ նոր տողում․ 192.0.2.15՝ մեկ IP, 192.0.2.0/24՝ 192.0.2.0–192.0.2.255 ենթացանցը։ IPv6-ի օրինակ՝ 2001:db8::/32։ Օրինակները փոխարինիր քո հասցեներով։"
+  },
+  {
+    "Id": "L092",
+    "Ru": "IP и подсети для маршрутизации",
+    "En": "IP addresses and subnets for routing",
+    "Hy": "Երթուղավորվող IP հասցեներ և ենթացանցեր"
+  },
+  {
+    "Id": "L093",
+    "Ru": "Например: 192.0.2.15 или 192.0.2.0/24",
+    "En": "Example: 192.0.2.15 or 192.0.2.0/24",
+    "Hy": "Օրինակ՝ 192.0.2.15 կամ 192.0.2.0/24"
+  },
+  {
+    "Id": "L094",
+    "Ru": "Скорость и проверка серверов",
+    "En": "Speed and server checks",
+    "Hy": "Արագություն և սերվերների ստուգում"
+  },
+  {
+    "Id": "L095",
+    "Ru": "Единицы скорости",
+    "En": "Speed units",
+    "Hy": "Արագության միավորներ"
+  },
+  {
+    "Id": "L096",
+    "Ru": "Мбит/с (Mbps)",
+    "En": "Mbps",
+    "Hy": "Մբիթ/վ (Mbps)"
+  },
+  {
+    "Id": "L097",
+    "Ru": "МБ/с (MB/s)",
+    "En": "MB/s",
+    "Hy": "ՄԲ/վ (MB/s)"
+  },
+  {
+    "Id": "L098",
+    "Ru": "Показания обновляются каждую секунду. Учитывается трафик выбранного VPN-сервера; прямые исключения в него не входят.",
+    "En": "Updates every second. Only the selected VPN server's traffic is counted; direct bypass traffic is excluded.",
+    "Hy": "Թարմացվում է ամեն վայրկյան։ Հաշվվում է միայն ընտրված VPN սերվերի տրաֆիկը․ ուղղակի բացառումները չեն ներառվում։"
+  },
+  {
+    "Id": "L099",
+    "Ru": "Автоматически проверять TCP-пинг",
+    "En": "Check TCP latency automatically",
+    "Hy": "Ավտոմատ ստուգել TCP ուշացումը"
+  },
+  {
+    "Id": "L100",
+    "Ru": "Интервал проверки",
+    "En": "Check interval",
+    "Hy": "Ստուգման պարբերականություն"
+  },
+  {
+    "Id": "L101",
+    "Ru": "Каждая проверка длится 7 секунд. Показывается среднее по успешным TCP-ответам; отдельные тайм-ауты не обнуляют результат.",
+    "En": "Each check takes 7 seconds. Displays the average of successful TCP responses; individual timeouts do not reset the result.",
+    "Hy": "Յուրաքանչյուր ստուգումը տևում է 7 վայրկյան։ Ցուցադրվում է հաջող TCP պատասխանների միջինը․ առանձին ժամանակի սպառումները չեն զրոյացնում արդյունքը։"
+  },
+  {
+    "Id": "L102",
+    "Ru": "30 секунд",
+    "En": "30 seconds",
+    "Hy": "30 վայրկյան"
+  },
+  {
+    "Id": "L103",
+    "Ru": "1 минута",
+    "En": "1 minute",
+    "Hy": "1 րոպե"
+  },
+  {
+    "Id": "L104",
+    "Ru": "2 минуты",
+    "En": "2 minutes",
+    "Hy": "2 րոպե"
+  },
+  {
+    "Id": "L105",
+    "Ru": "TCP-пинг доступен и при включённом VPN. В этом случае задержка может быть неточной из-за маршрутизации VPN.",
+    "En": "TCP latency can be tested with VPN enabled, but VPN routing may affect accuracy.",
+    "Hy": "TCP ուշացումը կարելի է ստուգել նաև միացված VPN-ով, սակայն VPN-ի երթուղավորումը կարող է ազդել ճշգրտության վրա։"
+  },
+  {
+    "Id": "L106",
+    "Ru": "Изменения сохраняются автоматически",
+    "En": "Changes are saved automatically",
+    "Hy": "Փոփոխությունները պահպանվում են ավտոմատ"
+  },
+  {
+    "Id": "L107",
+    "Ru": "Сбросить все данные VPN4ik",
+    "En": "Reset all VPN4ik data",
+    "Hy": "Զրոյացնել VPN4ik-ի բոլոր տվյալները"
+  },
+  {
+    "Id": "L108",
+    "Ru": "Очистить журнал",
+    "En": "Clear log",
+    "Hy": "Մաքրել մատյանը"
+  },
+  {
+    "Id": "L109",
+    "Ru": "События приложения и VPN-движка",
+    "En": "Application and VPN engine events",
+    "Hy": "Հավելվածի և VPN շարժիչի իրադարձություններ"
+  },
+  {
+    "Id": "L110",
+    "Ru": "Папка zapret не выбрана",
+    "En": "No zapret folder selected",
+    "Hy": "zapret-ի պանակը ընտրված չէ"
+  },
+  {
+    "Id": "L111",
+    "Ru": "Подключи установленную сборку Flowseal",
+    "En": "Select an installed Flowseal build",
+    "Hy": "Ընտրիր տեղադրված Flowseal հավաքածուն"
+  },
+  {
+    "Id": "L112",
+    "Ru": "BAT-файл для запуска",
+    "En": "BAT file to run",
+    "Hy": "Գործարկվող BAT ֆայլ"
+  },
+  {
+    "Id": "L113",
+    "Ru": "BAT-файл zapret для запуска",
+    "En": "zapret BAT file to run",
+    "Hy": "Գործարկվող zapret BAT ֆայլ"
+  },
+  {
+    "Id": "L114",
+    "Ru": "Запустить",
+    "En": "Start",
+    "Hy": "Գործարկել"
+  },
+  {
+    "Id": "L115",
+    "Ru": "Остановить",
+    "En": "Stop",
+    "Hy": "Կանգնեցնել"
+  },
+  {
+    "Id": "L116",
+    "Ru": "Перезапустить",
+    "En": "Restart",
+    "Hy": "Վերագործարկել"
+  },
+  {
+    "Id": "L117",
+    "Ru": "Установка и service.bat",
+    "En": "Installation and service.bat",
+    "Hy": "Տեղադրում և service.bat"
+  },
+  {
+    "Id": "L118",
+    "Ru": "Открыть service.bat",
+    "En": "Open service.bat",
+    "Hy": "Բացել service.bat"
+  },
+  {
+    "Id": "L119",
+    "Ru": "Штатное меню zapret откроется в отдельном окне",
+    "En": "The original zapret menu opens in a separate window",
+    "Hy": "zapret-ի հիմնական ընտրացանկը կբացվի առանձին պատուհանում"
+  },
+  {
+    "Id": "L120",
+    "Ru": "Установить службу",
+    "En": "Install service",
+    "Hy": "Տեղադրել ծառայությունը"
+  },
+  {
+    "Id": "L121",
+    "Ru": "Запустить выбранный BAT и включить его автозапуск вместе с Windows",
+    "En": "Run the selected BAT and enable startup with Windows",
+    "Hy": "Գործարկել ընտրված BAT-ը և միացնել գործարկումը Windows-ի հետ"
+  },
+  {
+    "Id": "L122",
+    "Ru": "Удалить службу",
+    "En": "Remove service",
+    "Hy": "Հեռացնել ծառայությունը"
+  },
+  {
+    "Id": "L123",
+    "Ru": "Остановить и удалить службу выбранной папки zapret; файлы останутся на месте",
+    "En": "Stop and remove this zapret folder's service; files will be kept",
+    "Hy": "Կանգնեցնել և հեռացնել ընտրված zapret պանակի ծառայությունը․ ֆայլերը կմնան"
+  },
+  {
+    "Id": "L124",
+    "Ru": "Совместная работа с VPN",
+    "En": "Working with VPN",
+    "Hy": "Համատեղ աշխատանք VPN-ի հետ"
+  },
+  {
+    "Id": "L125",
+    "Ru": "Выключать zapret при подключении VPN",
+    "En": "Stop zapret when connecting VPN",
+    "Hy": "Կանգնեցնել zapret-ը VPN-ին միանալիս"
+  },
+  {
+    "Id": "L126",
+    "Ru": "Помогает избежать конфликтов. Если выключено, при подключении VPN появится предупреждение.",
+    "En": "Helps avoid conflicts. When off, a warning is shown before connecting VPN.",
+    "Hy": "Օգնում է խուսափել հակասություններից։ Անջատված լինելու դեպքում VPN-ին միանալիս կցուցադրվի զգուշացում։"
+  },
+  {
+    "Id": "L127",
+    "Ru": "Включать zapret обратно после VPN",
+    "En": "Restore zapret after VPN",
+    "Hy": "VPN-ից հետո վերագործարկել zapret-ը"
+  },
+  {
+    "Id": "L128",
+    "Ru": "Включается только тот zapret, который работал до подключения и был остановлен приложением.",
+    "En": "Only restores zapret if it was running before VPN and was stopped by this app.",
+    "Hy": "Վերագործարկվում է միայն այն zapret-ը, որն աշխատում էր մինչև VPN-ը և կանգնեցվել էր այս հավելվածով։"
+  },
+  {
+    "Id": "L129",
+    "Ru": "Расположение zapret",
+    "En": "zapret location",
+    "Hy": "zapret-ի տեղադրություն"
+  },
+  {
+    "Id": "L130",
+    "Ru": "Папка zapret",
+    "En": "zapret folder",
+    "Hy": "zapret-ի պանակ"
+  },
+  {
+    "Id": "L131",
+    "Ru": "Выбери папку с service.bat и bin/winws.exe",
+    "En": "Choose the folder containing service.bat and bin/winws.exe",
+    "Hy": "Ընտրիր service.bat և bin/winws.exe պարունակող պանակը"
+  },
+  {
+    "Id": "L132",
+    "Ru": "Повторить поиск",
+    "En": "Search again",
+    "Hy": "Կրկին որոնել"
+  },
+  {
+    "Id": "L133",
+    "Ru": "Указать папку вручную",
+    "En": "Choose folder manually",
+    "Hy": "Ընտրել պանակը ձեռքով"
+  },
+  {
+    "Id": "L134",
+    "Ru": "Открыть папку",
+    "En": "Open folder",
+    "Hy": "Բացել պանակը"
+  },
+  {
+    "Id": "L135",
+    "Ru": "Обновить статус",
+    "En": "Refresh status",
+    "Hy": "Թարմացնել վիճակը"
+  },
+  {
+    "Id": "L136",
+    "Ru": "Найденные папки zapret",
+    "En": "Detected zapret folders",
+    "Hy": "Գտնված zapret պանակներ"
+  },
+  {
+    "Id": "L137",
+    "Ru": "Игры и фильтрация трафика",
+    "En": "Games and traffic filtering",
+    "Hy": "Խաղեր և տրաֆիկի զտում"
+  },
+  {
+    "Id": "L138",
+    "Ru": "Игровой фильтр добавляет обработку выбранных портов TCP/UDP. IPSet ограничивает обработку списком IP-адресов. Если всё работает, эти параметры можно оставить как есть.",
+    "En": "Game Filter processes selected TCP/UDP ports. IPSet restricts processing to listed IPs. If everything works, leave these settings as they are.",
+    "Hy": "Խաղային զտիչը մշակում է ընտրված TCP/UDP պորտերը։ IPSet-ը մշակումն սահմանափակում է IP ցանկով։ Եթե ամեն ինչ աշխատում է, այս կարգավորումները կարելի է չփոխել։"
+  },
+  {
+    "Id": "L139",
+    "Ru": "Игровой фильтр",
+    "En": "Game Filter",
+    "Hy": "Խաղային զտիչ"
+  },
+  {
+    "Id": "L140",
+    "Ru": "Выключен",
+    "En": "Disabled",
+    "Hy": "Անջատված"
+  },
+  {
+    "Id": "L141",
+    "Ru": "TCP и UDP",
+    "En": "TCP and UDP",
+    "Hy": "TCP և UDP"
+  },
+  {
+    "Id": "L142",
+    "Ru": "Только TCP",
+    "En": "TCP only",
+    "Hy": "Միայն TCP"
+  },
+  {
+    "Id": "L143",
+    "Ru": "Только UDP",
+    "En": "UDP only",
+    "Hy": "Միայն UDP"
+  },
+  {
+    "Id": "L144",
+    "Ru": "По загруженному списку",
+    "En": "From downloaded list",
+    "Hy": "Ըստ ներբեռնված ցանկի"
+  },
+  {
+    "Id": "L145",
+    "Ru": "Любые адреса",
+    "En": "All addresses",
+    "Hy": "Բոլոր հասցեները"
+  },
+  {
+    "Id": "L146",
+    "Ru": "Порты Game Filter",
+    "En": "Game Filter ports",
+    "Hy": "Խաղային զտիչի պորտեր"
+  },
+  {
+    "Id": "L147",
+    "Ru": "Отдельные порты и диапазоны через запятую: 443,1024-1934,1936-65535. Сохраняются при выходе из поля; применяются после перезапуска zapret.",
+    "En": "Comma-separated ports and ranges: 443,1024-1934,1936-65535. Saved when leaving the field; applied after restarting zapret.",
+    "Hy": "Ստորակետով բաժանված պորտեր և միջակայքներ՝ 443,1024-1934,1936-65535։ Պահպանվում են դաշտից դուրս գալուց և կիրառվում zapret-ի վերագործարկումից հետո։"
+  },
+  {
+    "Id": "L148",
+    "Ru": "Порты TCP Game Filter",
+    "En": "Game Filter TCP ports",
+    "Hy": "Խաղային զտիչի TCP պորտեր"
+  },
+  {
+    "Id": "L149",
+    "Ru": "Порты UDP Game Filter",
+    "En": "Game Filter UDP ports",
+    "Hy": "Խաղային զտիչի UDP պորտեր"
+  },
+  {
+    "Id": "L150",
+    "Ru": "Подмена пакетов · Discord и игры",
+    "En": "Packet substitution · Discord and games",
+    "Hy": "Փաթեթների փոխարինում · Discord և խաղեր"
+  },
+  {
+    "Id": "L151",
+    "Ru": "Файлы берутся из bin выбранной установки. Предыдущие ACTIVE-файлы сохраняются в резервную копию. После замены перезапусти zapret.",
+    "En": "Files come from this installation's bin folder. Previous ACTIVE files are backed up. Restart zapret after replacing them.",
+    "Hy": "Ֆայլերը վերցվում են ընտրված տեղադրման bin պանակից։ Նախորդ ACTIVE ֆայլերը պահվում են պահուստային պատճենում։ Փոխարինումից հետո վերագործարկիր zapret-ը։"
+  },
+  {
+    "Id": "L152",
+    "Ru": "Fake для Discord",
+    "En": "Discord fake",
+    "Hy": "Discord-ի կեղծ փաթեթ"
+  },
+  {
+    "Id": "L153",
+    "Ru": "Заменить Discord fake",
+    "En": "Replace Discord fake",
+    "Hy": "Փոխարինել Discord-ի կեղծ փաթեթը"
+  },
+  {
+    "Id": "L154",
+    "Ru": "Fake для Game Filter",
+    "En": "Game Filter fake",
+    "Hy": "Խաղային զտիչի կեղծ փաթեթ"
+  },
+  {
+    "Id": "L155",
+    "Ru": "Заменить Game Filter fake",
+    "En": "Replace Game Filter fake",
+    "Hy": "Փոխարինել խաղային զտիչի կեղծ փաթեթը"
+  },
+  {
+    "Id": "L156",
+    "Ru": "Обновления и проверка работы",
+    "En": "Updates and diagnostics",
+    "Hy": "Թարմացումներ և աշխատանքի ստուգում"
+  },
+  {
+    "Id": "L157",
+    "Ru": "Автоматически проверять обновления zapret",
+    "En": "Check for zapret updates automatically",
+    "Hy": "Ավտոմատ ստուգել zapret-ի թարմացումները"
+  },
+  {
+    "Id": "L158",
+    "Ru": "Использует тот же переключатель, что и service.bat. Проверяет версию при запуске VPN4ik; новая сборка zapret скачивается со страницы разработчика.",
+    "En": "Uses the same switch as service.bat. Checks the version on VPN4ik startup; new zapret builds are downloaded from the developer's page.",
+    "Hy": "Օգտագործում է service.bat-ի նույն անջատիչը։ Ստուգում է տարբերակը VPN4ik-ի գործարկման ժամանակ․ նոր zapret հավաքածուն ներբեռնվում է մշակողի էջից։"
+  },
+  {
+    "Id": "L159",
+    "Ru": "Обновить IPSet",
+    "En": "Update IPSet",
+    "Hy": "Թարմացնել IPSet-ը"
+  },
+  {
+    "Id": "L160",
+    "Ru": "Обновление hosts",
+    "En": "Update hosts",
+    "Hy": "Թարմացնել hosts-ը"
+  },
+  {
+    "Id": "L161",
+    "Ru": "Проверить обновления zapret",
+    "En": "Check zapret updates",
+    "Hy": "Ստուգել zapret-ի թարմացումները"
+  },
+  {
+    "Id": "L162",
+    "Ru": "Открыть новый релиз zapret",
+    "En": "Open new zapret release",
+    "Hy": "Բացել zapret-ի նոր թողարկումը"
+  },
+  {
+    "Id": "L163",
+    "Ru": "Диагностика показывает конфликты и состояние Windows. Тест стратегий временно переключает zapret и проверяет HTTPS YouTube/Discord около 1–2 минут; VPN должен быть выключен.",
+    "En": "Diagnostics show conflicts and Windows status. Strategy tests temporarily switch zapret profiles and check YouTube/Discord HTTPS for about 1–2 minutes. VPN must be off.",
+    "Hy": "Ախտորոշումը ցույց է տալիս հակասությունները և Windows-ի վիճակը։ Ռազմավարությունների ստուգումը ժամանակավորապես փոխում է zapret-ի պրոֆիլները և մոտ 1–2 րոպե ստուգում YouTube/Discord HTTPS-ը։ VPN-ը պետք է անջատված լինի։"
+  },
+  {
+    "Id": "L164",
+    "Ru": "Диагностика",
+    "En": "Diagnostics",
+    "Hy": "Ախտորոշում"
+  },
+  {
+    "Id": "L165",
+    "Ru": "Тест стратегий",
+    "En": "Test strategies",
+    "Hy": "Ստուգել ռազմավարությունները"
+  },
+  {
+    "Id": "L166",
+    "Ru": "Включить TCP timestamps",
+    "En": "Enable TCP timestamps",
+    "Hy": "Միացնել TCP timestamps-ը"
+  },
+  {
+    "Id": "L167",
+    "Ru": "Как в service.bat: скачанный hosts показан для ручного переноса. Системный hosts автоматически не заменяется; добавь нужные строки, сохранив свои записи.",
+    "En": "As in service.bat, the downloaded hosts is shown for manual copying. System hosts is not replaced automatically; add the required lines while preserving your entries.",
+    "Hy": "Ինչպես service.bat-ում, ներբեռնված hosts-ը ցուցադրվում է ձեռքով պատճենելու համար։ Համակարգային hosts-ը ավտոմատ չի փոխարինվում․ ավելացրու անհրաժեշտ տողերը՝ պահպանելով քո գրառումները։"
+  },
+  {
+    "Id": "L168",
+    "Ru": "Содержимое hosts от разработчика zapret",
+    "En": "Hosts content from the zapret developer",
+    "Hy": "hosts-ի բովանդակությունը zapret-ի մշակողից"
+  },
+  {
+    "Id": "L169",
+    "Ru": "Копировать hosts",
+    "En": "Copy hosts",
+    "Hy": "Պատճենել hosts-ը"
+  },
+  {
+    "Id": "L170",
+    "Ru": "Открыть системный hosts",
+    "En": "Open system hosts",
+    "Hy": "Բացել համակարգային hosts-ը"
+  },
+  {
+    "Id": "L171",
+    "Ru": "Пользовательские списки",
+    "En": "Custom lists",
+    "Hy": "Օգտատիրոջ ցանկեր"
+  },
+  {
+    "Id": "L172",
+    "Ru": "Изменения сохраняются автоматически. Для применения к работающему zapret нажми «Перезапустить».",
+    "En": "Changes are saved automatically. Click Restart to apply them to running zapret.",
+    "Hy": "Փոփոխությունները պահպանվում են ավտոմատ։ Աշխատող zapret-ին կիրառելու համար սեղմիր «Վերագործարկել»։"
+  },
+  {
+    "Id": "L173",
+    "Ru": "Домены для zapret",
+    "En": "Domains for zapret",
+    "Hy": "Դոմեններ zapret-ի համար"
+  },
+  {
+    "Id": "L174",
+    "Ru": "Домены по одному на строку",
+    "En": "One domain per line",
+    "Hy": "Յուրաքանչյուր դոմենը՝ նոր տողում"
+  },
+  {
+    "Id": "L175",
+    "Ru": "Домены-исключения",
+    "En": "Excluded domains",
+    "Hy": "Բացառված դոմեններ"
+  },
+  {
+    "Id": "L176",
+    "Ru": "Домены, которые zapret пропускает",
+    "En": "Domains bypassed by zapret",
+    "Hy": "Դոմեններ, որոնք zapret-ը բաց է թողնում"
+  },
+  {
+    "Id": "L177",
+    "Ru": "IP/CIDR-исключения",
+    "En": "Excluded IPs / CIDRs",
+    "Hy": "Բացառված IP / CIDR"
+  },
+  {
+    "Id": "L178",
+    "Ru": "IP-адреса и подсети по одному на строку",
+    "En": "One IP address or subnet per line",
+    "Hy": "Յուրաքանչյուր IP հասցեն կամ ենթացանցը՝ նոր տողում"
+  },
+  {
+    "Id": "L179",
+    "Ru": "Применить с правами администратора",
+    "En": "Apply as administrator",
+    "Hy": "Կիրառել ադմինիստրատորի իրավունքներով"
+  },
+  {
+    "Id": "L180",
+    "Ru": "Последние действия",
+    "En": "Recent actions",
+    "Hy": "Վերջին գործողություններ"
+  },
+  {
+    "Id": "L181",
+    "Ru": "События zapret появятся здесь и в общем журнале.",
+    "En": "zapret events appear here and in the main log.",
+    "Hy": "zapret-ի իրադարձությունները կհայտնվեն այստեղ և ընդհանուր մատյանում։"
+  },
+  {
+    "Id": "L182",
+    "Ru": "Очистить историю",
+    "En": "Clear history",
+    "Hy": "Մաքրել պատմությունը"
+  },
+  {
+    "Id": "L183",
+    "Ru": "Реальные попытки и сеансы подключения",
+    "En": "Actual connection attempts and sessions",
+    "Hy": "Միացման իրական փորձեր և աշխատաշրջաններ"
+  },
+  {
+    "Id": "L184",
+    "Ru": "Здесь появится история подключений",
+    "En": "Connection history will appear here",
+    "Hy": "Միացումների պատմությունը կհայտնվի այստեղ"
+  },
+  {
+    "Id": "L185",
+    "Ru": "Развернуть названия разделов",
+    "En": "Expand section names",
+    "Hy": "Բացել բաժինների անունները"
+  },
+  {
+    "Id": "L186",
+    "Ru": "Разделы",
+    "En": "Sections",
+    "Hy": "Բաժիններ"
+  },
+  {
+    "Id": "L187",
+    "Ru": "Список серверов",
+    "En": "Server list",
+    "Hy": "Սերվերների ցանկ"
+  },
+  {
+    "Id": "L188",
+    "Ru": "Добавить конфигурацию",
+    "En": "Add configuration",
+    "Hy": "Ավելացնել կարգավորում"
+  },
+  {
+    "Id": "L189",
+    "Ru": "Добавить",
+    "En": "Add",
+    "Hy": "Ավելացնել"
+  },
+  {
+    "Id": "L190",
+    "Ru": "Настройки",
+    "En": "Settings",
+    "Hy": "Կարգավորումներ"
+  },
+  {
+    "Id": "L191",
+    "Ru": "Логи",
+    "En": "Logs",
+    "Hy": "Մատյաններ"
+  },
+  {
+    "Id": "L192",
+    "Ru": "История подключений",
+    "En": "Connection history",
+    "Hy": "Միացումների պատմություն"
+  },
+  {
+    "Id": "L193",
+    "Ru": "История",
+    "En": "History",
+    "Hy": "Պատմություն"
+  },
+  {
+    "Id": "L194",
+    "Ru": "Управление zapret",
+    "En": "zapret control",
+    "Hy": "zapret-ի կառավարում"
+  },
+  {
+    "Id": "L195",
+    "Ru": "Репозиторий VPN4ik на GitHub",
+    "En": "VPN4ik repository on GitHub",
+    "Hy": "VPN4ik-ի պահոցը GitHub-ում"
+  },
+  {
+    "Id": "L196",
+    "Ru": "Открыть репозиторий VPN4ik на GitHub",
+    "En": "Open VPN4ik repository on GitHub",
+    "Hy": "Բացել VPN4ik-ի պահոցը GitHub-ում"
+  },
+  {
+    "Id": "L197",
+    "Ru": "Доступно обновление",
+    "En": "Update available",
+    "Hy": "Հասանելի է թարմացում"
+  },
+  {
+    "Id": "L198",
+    "Ru": "Позже",
+    "En": "Later",
+    "Hy": "Ավելի ուշ"
+  },
+  {
+    "Id": "L199",
+    "Ru": "Скрыть уведомление об обновлении",
+    "En": "Dismiss update notification",
+    "Hy": "Փակել թարմացման ծանուցումը"
+  },
+  {
+    "Id": "L200",
+    "Ru": "Действие",
+    "En": "Action",
+    "Hy": "Գործողություն"
+  },
+  {
+    "Id": "L201",
+    "Ru": "Конфигурация сервера",
+    "En": "Server configuration",
+    "Hy": "Սերվերի կարգավորում"
+  },
+  {
+    "Id": "L202",
+    "Ru": "Поиск по имени или пути",
+    "En": "Search by name or path",
+    "Hy": "Որոնել ըստ անվան կամ ուղու"
+  },
+  {
+    "Id": "L203",
+    "Ru": "Отмена",
+    "En": "Cancel",
+    "Hy": "Չեղարկել"
+  },
+  {
+    "Id": "L204",
+    "Ru": "Продолжить",
+    "En": "Continue",
+    "Hy": "Շարունակել"
+  },
+  {
+    "Id": "L205",
+    "Ru": "Ошибка",
+    "En": "Error",
+    "Hy": "Սխալ"
+  },
+  {
+    "Id": "L206",
+    "Ru": "Подключение",
+    "En": "Connecting",
+    "Hy": "Միացում"
+  },
+  {
+    "Id": "L207",
+    "Ru": "Подключено",
+    "En": "Connected",
+    "Hy": "Միացված է"
+  },
+  {
+    "Id": "L208",
+    "Ru": "Сеанс активен",
+    "En": "Session active",
+    "Hy": "Աշխատաշրջանն ակտիվ է"
+  },
+  {
+    "Id": "L209",
+    "Ru": "Завершение неизвестно",
+    "En": "Session end unknown",
+    "Hy": "Ավարտի պահը անհայտ է"
+  },
+  {
+    "Id": "L210",
+    "Ru": "Прервано",
+    "En": "Interrupted",
+    "Hy": "Ընդհատված է"
+  },
+  {
+    "Id": "L211",
+    "Ru": "Не удалось прочитать предыдущий журнал.",
+    "En": "Could not read the previous log.",
+    "Hy": "Չհաջողվեց կարդալ նախորդ մատյանը։"
+  },
+  {
+    "Id": "L212",
+    "Ru": "[скрыто]",
+    "En": "[hidden]",
+    "Hy": "[թաքցված է]"
+  },
+  {
+    "Id": "L213",
+    "Ru": "[ссылка скрыта]",
+    "En": "[link hidden]",
+    "Hy": "[հղումը թաքցված է]"
+  },
+  {
+    "Id": "L214",
+    "Ru": "[ключ скрыт]",
+    "En": "[key hidden]",
+    "Hy": "[բանալին թաքցված է]"
+  },
+  {
+    "Id": "L215",
+    "Ru": "Не удалось определить версию приложения.",
+    "En": "Could not determine the application version.",
+    "Hy": "Չհաջողվեց որոշել հավելվածի տարբերակը։"
+  },
+  {
+    "Id": "L216",
+    "Ru": "Некорректный ответ GitHub.",
+    "En": "Invalid GitHub response.",
+    "Hy": "GitHub-ի անվավեր պատասխան։"
+  },
+  {
+    "Id": "L217",
+    "Ru": "Для этого выпуска доступна загрузка через GitHub.",
+    "En": "This release can be downloaded from GitHub.",
+    "Hy": "Այս թողարկումը կարելի է ներբեռնել GitHub-ից։"
+  },
+  {
+    "Id": "L218",
+    "Ru": "Скачиваю обновление…",
+    "En": "Downloading update…",
+    "Hy": "Թարմացումը ներբեռնվում է…"
+  },
+  {
+    "Id": "L219",
+    "Ru": "Размер архива обновления не совпадает.",
+    "En": "Update archive size mismatch.",
+    "Hy": "Թարմացման արխիվի չափը չի համընկնում։"
+  },
+  {
+    "Id": "L220",
+    "Ru": "Скачиваю обновление… {0}%",
+    "En": "Downloading update… {0}%",
+    "Hy": "Թարմացումը ներբեռնվում է… {0}%"
+  },
+  {
+    "Id": "L221",
+    "Ru": "Обновление скачано не полностью.",
+    "En": "The update download is incomplete.",
+    "Hy": "Թարմացումն ամբողջությամբ չի ներբեռնվել։"
+  },
+  {
+    "Id": "L222",
+    "Ru": "Проверяю архив…",
+    "En": "Checking archive…",
+    "Hy": "Արխիվը ստուգվում է…"
+  },
+  {
+    "Id": "L223",
+    "Ru": "Версия программы в архиве не совпадает с выпуском.",
+    "En": "The archived app version does not match the release.",
+    "Hy": "Արխիվի հավելվածի տարբերակը չի համապատասխանում թողարկմանը։"
+  },
+  {
+    "Id": "L224",
+    "Ru": "Неизвестный адрес загрузки обновления.",
+    "En": "Unknown update download address.",
+    "Hy": "Թարմացման ներբեռնման անհայտ հասցե։"
+  },
+  {
+    "Id": "L225",
+    "Ru": "Некорректное перенаправление GitHub.",
+    "En": "Invalid GitHub redirect.",
+    "Hy": "GitHub-ի անվավեր վերահղում։"
+  },
+  {
+    "Id": "L226",
+    "Ru": "Не удалось скачать обновление.",
+    "En": "Could not download the update.",
+    "Hy": "Չհաջողվեց ներբեռնել թարմացումը։"
+  },
+  {
+    "Id": "L227",
+    "Ru": "Слишком много перенаправлений GitHub.",
+    "En": "Too many GitHub redirects.",
+    "Hy": "GitHub-ի չափազանց շատ վերահղումներ։"
+  },
+  {
+    "Id": "L228",
+    "Ru": "Превышен размер ответа обновления.",
+    "En": "Update response size limit exceeded.",
+    "Hy": "Թարմացման պատասխանի չափի սահմանը գերազանցված է։"
+  },
+  {
+    "Id": "L229",
+    "Ru": "Контрольная сумма обновления не совпадает.",
+    "En": "Update checksum mismatch.",
+    "Hy": "Թարմացման ստուգիչ գումարը չի համընկնում։"
+  },
+  {
+    "Id": "L230",
+    "Ru": "Папка подготовки уже существует.",
+    "En": "The staging folder already exists.",
+    "Hy": "Նախապատրաստման պանակն արդեն գոյություն ունի։"
+  },
+  {
+    "Id": "L231",
+    "Ru": "Слишком много файлов обновления.",
+    "En": "Too many update files.",
+    "Hy": "Թարմացման ֆայլերը չափազանց շատ են։"
+  },
+  {
+    "Id": "L232",
+    "Ru": "Недопустимый путь в обновлении.",
+    "En": "Invalid path in the update.",
+    "Hy": "Թարմացման մեջ անվավեր ուղի կա։"
+  },
+  {
+    "Id": "L233",
+    "Ru": "Неизвестный или повторяющийся файл в обновлении.",
+    "En": "Unknown or duplicate file in the update.",
+    "Hy": "Թարմացման մեջ անհայտ կամ կրկնվող ֆայլ կա։"
+  },
+  {
+    "Id": "L234",
+    "Ru": "Архив обновления слишком большой.",
+    "En": "The update archive is too large.",
+    "Hy": "Թարմացման արխիվը չափազանց մեծ է։"
+  },
+  {
+    "Id": "L235",
+    "Ru": "Некорректный размер файла обновления.",
+    "En": "Invalid update file size.",
+    "Hy": "Թարմացման ֆայլի անվավեր չափ։"
+  },
+  {
+    "Id": "L236",
+    "Ru": "В обновлении отсутствуют файлы приложения.",
+    "En": "Application files are missing from the update.",
+    "Hy": "Թարմացման մեջ հավելվածի ֆայլերը բացակայում են։"
+  },
+  {
+    "Id": "L237",
+    "Ru": "Данные сборки обновления не совпадают.",
+    "En": "Update build information mismatch.",
+    "Hy": "Թարմացման հավաքածուի տվյալները չեն համընկնում։"
+  },
+  {
+    "Id": "L238",
+    "Ru": "Несколько независимых HTTPS-проверок не подтвердили доступ через VPN.",
+    "En": "Multiple independent HTTPS checks did not confirm VPN access.",
+    "Hy": "Մի քանի անկախ HTTPS ստուգումներ չհաստատեցին VPN-ով հասանելիությունը։"
+  },
+  {
+    "Id": "L239",
+    "Ru": "В сборке отсутствует VPN-движок. Запусти полную сборку приложения.",
+    "En": "The VPN engine is missing. Run the complete application build.",
+    "Hy": "VPN շարժիչը բացակայում է։ Գործարկիր հավելվածի ամբողջական հավաքածուն։"
+  },
+  {
+    "Id": "L240",
+    "Ru": "Файлы VPN-движка изменены. Нужна исходная сборка приложения.",
+    "En": "VPN engine files have changed. Use the original application build.",
+    "Hy": "VPN շարժիչի ֆայլերը փոխված են։ Օգտագործիր հավելվածի սկզբնական հավաքածուն։"
+  },
+  {
+    "Id": "L241",
+    "Ru": "Не подтверждён процесс приложения: канал управления.",
+    "En": "Application process not verified: control channel.",
+    "Hy": "Հավելվածի գործընթացը հաստատված չէ․ կառավարման ալիք։"
+  },
+  {
+    "Id": "L242",
+    "Ru": "Не подтверждён процесс приложения: путь программы.",
+    "En": "Application process not verified: executable path.",
+    "Hy": "Հավելվածի գործընթացը հաստատված չէ․ ծրագրի ուղի։"
+  },
+  {
+    "Id": "L243",
+    "Ru": "Не получен профиль подключения.",
+    "En": "No connection profile received.",
+    "Hy": "Միացման պրոֆիլ չի ստացվել։"
+  },
+  {
+    "Id": "L244",
+    "Ru": "VPN4ik уже подключён в другом окне. Сначала отключи прежнее подключение.",
+    "En": "VPN4ik is already connected in another window. Disconnect it first.",
+    "Hy": "VPN4ik-ն արդեն միացված է մեկ այլ պատուհանում։ Նախ անջատիր նախորդ միացումը։"
+  },
+  {
+    "Id": "L245",
+    "Ru": "Не удалось запустить Xray.",
+    "En": "Could not start Xray.",
+    "Hy": "Չհաջողվեց գործարկել Xray-ը։"
+  },
+  {
+    "Id": "L246",
+    "Ru": "VPN-движок не смог запуститься: {0}, код {1}.",
+    "En": "VPN engine failed to start: {0}, code {1}.",
+    "Hy": "VPN շարժիչը չգործարկվեց՝ {0}, կոդ՝ {1}։"
+  },
+  {
+    "Id": "L247",
+    "Ru": "Выбери хотя бы одно приложение.",
+    "En": "Select at least one application.",
+    "Hy": "Ընտրիր առնվազն մեկ հավելված։"
+  },
+  {
+    "Id": "L248",
+    "Ru": "Не удалось сохранить конфигурацию. Прежняя версия сохранена, если отключение не подтверждено.",
+    "En": "Could not save the configuration. The previous version is kept if disconnection is unconfirmed.",
+    "Hy": "Չհաջողվեց պահպանել կարգավորումը։ Նախորդ տարբերակը պահպանվում է, եթե անջատումը հաստատված չէ։"
+  },
+  {
+    "Id": "L249",
+    "Ru": "Запущенные приложения",
+    "En": "Running applications",
+    "Hy": "Գործարկված հավելվածներ"
+  },
+  {
+    "Id": "L250",
+    "Ru": "Выбери программы для правила раздельного туннелирования. Если Windows скрывает путь, добавится имя .exe.",
+    "En": "Select apps for a split tunneling rule. If Windows hides a path, the .exe name is added.",
+    "Hy": "Ընտրիր ծրագրեր բաժանված թունելավորման կանոնի համար։ Եթե Windows-ը թաքցնում է ուղին, կավելացվի .exe-ի անունը։"
+  },
+  {
+    "Id": "L251",
+    "Ru": "Добавить выбранные",
+    "En": "Add selected",
+    "Hy": "Ավելացնել ընտրվածները"
+  },
+  {
+    "Id": "L252",
+    "Ru": "Загружаю процессы…",
+    "En": "Loading processes…",
+    "Hy": "Գործընթացները բեռնվում են…"
+  },
+  {
+    "Id": "L253",
+    "Ru": "Процессы не найдены. Можно выбрать .exe через файл.",
+    "En": "No processes found. You can choose an .exe file.",
+    "Hy": "Գործընթացներ չեն գտնվել։ Կարող ես ընտրել .exe ֆայլը։"
+  },
+  {
+    "Id": "L254",
+    "Ru": "Не удалось прочитать процессы. Используй выбор .exe.",
+    "En": "Could not read processes. Choose an .exe file instead.",
+    "Hy": "Չհաջողվեց կարդալ գործընթացները։ Ընտրիր .exe ֆայլը։"
+  },
+  {
+    "Id": "L255",
+    "Ru": "Отключиться",
+    "En": "Disconnect",
+    "Hy": "Անջատել"
+  },
+  {
+    "Id": "L256",
+    "Ru": "Переключиться на сервер",
+    "En": "Switch to server",
+    "Hy": "Փոխել սերվերը"
+  },
+  {
+    "Id": "L257",
+    "Ru": "Копировать конфигурацию",
+    "En": "Copy configuration",
+    "Hy": "Պատճենել կարգավորումը"
+  },
+  {
+    "Id": "L258",
+    "Ru": "Конфигурация скопирована.",
+    "En": "Configuration copied.",
+    "Hy": "Կարգավորումը պատճենված է։"
+  },
+  {
+    "Id": "L259",
+    "Ru": "Не удалось скопировать конфигурацию.",
+    "En": "Could not copy the configuration.",
+    "Hy": "Չհաջողվեց պատճենել կարգավորումը։"
+  },
+  {
+    "Id": "L260",
+    "Ru": "Здесь находятся данные доступа. После изменения активного сервера приложение переподключится.",
+    "En": "This contains access credentials. Changing the active server will reconnect the VPN.",
+    "Hy": "Այստեղ մուտքի տվյալներ կան։ Ակտիվ սերվերի փոփոխությունից հետո հավելվածը կվերամիանա։"
+  },
+  {
+    "Id": "L261",
+    "Ru": "Применить и переподключить",
+    "En": "Apply and reconnect",
+    "Hy": "Կիրառել և վերամիանալ"
+  },
+  {
+    "Id": "L262",
+    "Ru": "Сохранить",
+    "En": "Save",
+    "Hy": "Պահպանել"
+  },
+  {
+    "Id": "L263",
+    "Ru": "Не удалось прочитать конфигурацию.",
+    "En": "Could not read the configuration.",
+    "Hy": "Չհաջողվեց կարդալ կարգավորումը։"
+  },
+  {
+    "Id": "L264",
+    "Ru": "Удалить сервер?",
+    "En": "Delete server?",
+    "Hy": "Ջնջե՞լ սերվերը։"
+  },
+  {
+    "Id": "L265",
+    "Ru": "Остальная подписка сохранится. Если этот сервер подключён, VPN будет отключён.",
+    "En": "The rest of the subscription will be kept. If this server is connected, VPN will disconnect.",
+    "Hy": "Բաժանորդագրության մնացած մասը կպահպանվի։ Եթե սերվերը միացված է, VPN-ը կանջատվի։"
+  },
+  {
+    "Id": "L266",
+    "Ru": "Сервер использует UDP; TCP-пинг к нему неприменим.",
+    "En": "This server uses UDP; TCP latency is not applicable.",
+    "Hy": "Այս սերվերն օգտագործում է UDP․ TCP ուշացումն այստեղ կիրառելի չէ։"
+  },
+  {
+    "Id": "L267",
+    "Ru": "Замер не завершён. Подключение к серверу можно попробовать отдельно.",
+    "En": "Measurement incomplete. You can try connecting to the server separately.",
+    "Hy": "Չափումը չի ավարտվել։ Կարող ես առանձին փորձել միանալ սերվերին։"
+  },
+  {
+    "Id": "L268",
+    "Ru": "Проверка отменена или не завершена.",
+    "En": "Check canceled or incomplete.",
+    "Hy": "Ստուգումը չեղարկված է կամ չի ավարտվել։"
+  },
+  {
+    "Id": "L269",
+    "Ru": "Дождись завершения текущей операции.",
+    "En": "Wait for the current operation to finish.",
+    "Hy": "Սպասիր ընթացիկ գործողության ավարտին։"
+  },
+  {
+    "Id": "L270",
+    "Ru": "Для редактирования одного сервера нужна одна конфигурация.",
+    "En": "A single configuration is required to edit one server.",
+    "Hy": "Մեկ սերվեր խմբագրելու համար անհրաժեշտ է մեկ կարգավորում։"
+  },
+  {
+    "Id": "L271",
+    "Ru": "Изменение конфигурации",
+    "En": "Configuration change",
+    "Hy": "Կարգավորման փոփոխություն"
+  },
+  {
+    "Id": "L272",
+    "Ru": "Отключение не подтверждено.",
+    "En": "Disconnection not confirmed.",
+    "Hy": "Անջատումը հաստատված չէ։"
+  },
+  {
+    "Id": "L273",
+    "Ru": "Файл не принадлежит хранилищу приложения.",
+    "En": "This file does not belong to the application store.",
+    "Hy": "Ֆայլը չի պատկանում հավելվածի պահոցին։"
+  },
+  {
+    "Id": "L274",
+    "Ru": "Полностью сбросить VPN4ik?",
+    "En": "Reset VPN4ik completely?",
+    "Hy": "Ամբողջությամբ զրոյացնե՞լ VPN4ik-ը։"
+  },
+  {
+    "Id": "L275",
+    "Ru": "Будут удалены все подписки, импортированные конфигурации, логи и история. Настройки вернутся к исходным, автозапуск отключится. Текущее VPN-подключение будет остановлено. Это действие нельзя отменить.",
+    "En": "All subscriptions, imported configurations, logs and history will be deleted. Settings will reset, startup will be disabled, and the current VPN will disconnect. This cannot be undone.",
+    "Hy": "Կջնջվեն բոլոր բաժանորդագրությունները, ներմուծված կարգավորումները, մատյաններն ու պատմությունը։ Կարգավորումները կզրոյացվեն, ավտոմեկնարկը կանջատվի, ընթացիկ VPN-ը կկանգնեցվի։ Գործողությունն անդառնալի է։"
+  },
+  {
+    "Id": "L276",
+    "Ru": "Сбросить всё",
+    "En": "Reset everything",
+    "Hy": "Զրոյացնել ամեն ինչ"
+  },
+  {
+    "Id": "L277",
+    "Ru": "Данные удалены. VPN4ik сброшен к исходным настройкам.",
+    "En": "Data deleted. VPN4ik restored to defaults.",
+    "Hy": "Տվյալները ջնջված են։ VPN4ik-ի սկզբնական կարգավորումները վերականգնված են։"
+  },
+  {
+    "Id": "L278",
+    "Ru": "Сброс завершён не полностью. Проверь доступ к файлам и повтори его.",
+    "En": "Reset incomplete. Check file access and try again.",
+    "Hy": "Զրոյացումն ամբողջությամբ չի ավարտվել։ Ստուգիր ֆայլերի հասանելիությունը և կրկնիր։"
+  },
+  {
+    "Id": "L279",
+    "Ru": "Дождись завершения операции.",
+    "En": "Wait for the operation to finish.",
+    "Hy": "Սպասիր գործողության ավարտին։"
+  },
+  {
+    "Id": "L280",
+    "Ru": "Сброс данных",
+    "En": "Data reset",
+    "Hy": "Տվյալների զրոյացում"
+  },
+  {
+    "Id": "L281",
+    "Ru": "Туннель не остановлен.",
+    "En": "The tunnel has not stopped.",
+    "Hy": "Թունելը կանգնեցված չէ։"
+  },
+  {
+    "Id": "L282",
+    "Ru": "Сначала восстанови zapret или отключи возврат его состояния.",
+    "En": "Restore zapret first or disable state restoration.",
+    "Hy": "Նախ վերականգնիր zapret-ը կամ անջատիր վիճակի վերականգնումը։"
+  },
+  {
+    "Id": "L283",
+    "Ru": "Добавь подписку или конфигурацию.",
+    "En": "Add a subscription or configuration.",
+    "Hy": "Ավելացրու բաժանորդագրություն կամ կարգավորում։"
+  },
+  {
+    "Id": "L284",
+    "Ru": "Не найден путь приложения.",
+    "En": "Application path not found.",
+    "Hy": "Հավելվածի ուղին չի գտնվել։"
+  },
+  {
+    "Id": "L285",
+    "Ru": "Подключение доступно при обычном запуске приложения",
+    "En": "Connecting is available during normal application startup",
+    "Hy": "Միացումը հասանելի է հավելվածի սովորական գործարկման ժամանակ"
+  },
+  {
+    "Id": "L286",
+    "Ru": "Информация",
+    "En": "Information",
+    "Hy": "Տեղեկություն"
+  },
+  {
+    "Id": "L287",
+    "Ru": "Подключение: {0} · {1}.",
+    "En": "Connection: {0} · {1}.",
+    "Hy": "Միացում՝ {0} · {1}։"
+  },
+  {
+    "Id": "L288",
+    "Ru": "Подключение этого протокола пока не поддерживается.",
+    "En": "Connecting with this protocol is not supported yet.",
+    "Hy": "Այս արձանագրությամբ միացումը դեռ չի աջակցվում։"
+  },
+  {
+    "Id": "L289",
+    "Ru": "WireGuard работает в режиме TUN. Выбери TUN перед подключением.",
+    "En": "WireGuard uses TUN mode. Select TUN before connecting.",
+    "Hy": "WireGuard-ն աշխատում է TUN ռեժիմով։ Միանալուց առաջ ընտրիր TUN-ը։"
+  },
+  {
+    "Id": "L290",
+    "Ru": "Не найдены WireGuard или конфигурация.",
+    "En": "WireGuard or configuration not found.",
+    "Hy": "WireGuard-ը կամ կարգավորումը չի գտնվել։"
+  },
+  {
+    "Id": "L291",
+    "Ru": "Туннель запущен",
+    "En": "Tunnel started",
+    "Hy": "Թունելը գործարկված է"
+  },
+  {
+    "Id": "L292",
+    "Ru": "Туннель WireGuard запущен",
+    "En": "WireGuard tunnel started",
+    "Hy": "WireGuard թունելը գործարկված է"
+  },
+  {
+    "Id": "L293",
+    "Ru": "Служба работает; доступ через сервер ещё не подтверждён",
+    "En": "Service is running; access through the server is not confirmed yet",
+    "Hy": "Ծառայությունն աշխատում է․ սերվերով հասանելիությունը դեռ հաստատված չէ"
+  },
+  {
+    "Id": "L294",
+    "Ru": "Служба WireGuard запущена. Handshake не проверен.",
+    "En": "WireGuard service started. Handshake not verified.",
+    "Hy": "WireGuard ծառայությունը գործարկված է։ Handshake-ը ստուգված չէ։"
+  },
+  {
+    "Id": "L295",
+    "Ru": "Профиль не найден. Обнови подписку.",
+    "En": "Profile not found. Refresh the subscription.",
+    "Hy": "Պրոֆիլը չի գտնվել։ Թարմացրու բաժանորդագրությունը։"
+  },
+  {
+    "Id": "L296",
+    "Ru": "Движок",
+    "En": "Engine",
+    "Hy": "Շարժիչ"
+  },
+  {
+    "Id": "L297",
+    "Ru": "TUN и доступ через VPN подтверждены HTTPS-проверкой.",
+    "En": "TUN and VPN access confirmed by an HTTPS check.",
+    "Hy": "TUN-ը և VPN-ով հասանելիությունը հաստատված են HTTPS ստուգմամբ։"
+  },
+  {
+    "Id": "L298",
+    "Ru": "Системный прокси и доступ через сервер подтверждены HTTPS-проверкой.",
+    "En": "System proxy and server access confirmed by an HTTPS check.",
+    "Hy": "Համակարգային պրոքսին և սերվերով հասանելիությունը հաստատված են HTTPS ստուգմամբ։"
+  },
+  {
+    "Id": "L299",
+    "Ru": "Отменено",
+    "En": "Canceled",
+    "Hy": "Չեղարկված է"
+  },
+  {
+    "Id": "L300",
+    "Ru": "Подключение отменено",
+    "En": "Connection canceled",
+    "Hy": "Միացումը չեղարկված է"
+  },
+  {
+    "Id": "L301",
+    "Ru": "Не удалось подтвердить соединение. Попробуй другой сервер.",
+    "En": "Could not confirm the connection. Try another server.",
+    "Hy": "Չհաջողվեց հաստատել կապը։ Փորձիր այլ սերվեր։"
+  },
+  {
+    "Id": "L302",
+    "Ru": "Не удалось определить адрес VPN-сервера. Проверь интернет и подписку.",
+    "En": "Could not resolve the VPN server address. Check your internet and subscription.",
+    "Hy": "Չհաջողվեց որոշել VPN սերվերի հասցեն։ Ստուգիր ինտերնետը և բաժանորդագրությունը։"
+  },
+  {
+    "Id": "L303",
+    "Ru": "Не удалось подтвердить подключение. Подробности в журнале.",
+    "En": "Could not confirm the connection. See the log for details.",
+    "Hy": "Չհաջողվեց հաստատել միացումը։ Մանրամասները՝ մատյանում։"
+  },
+  {
+    "Id": "L304",
+    "Ru": "Отключение не подтверждено. Нажми на орнамент ещё раз.",
+    "En": "Disconnection unconfirmed. Click the ornament again.",
+    "Hy": "Անջատումը հաստատված չէ։ Կրկին սեղմիր զարդանախշը։"
+  },
+  {
+    "Id": "L305",
+    "Ru": "Не удалось подтвердить остановку VPN после ошибки подключения.",
+    "En": "Could not confirm VPN shutdown after a connection error.",
+    "Hy": "Միացման սխալից հետո չհաջողվեց հաստատել VPN-ի կանգնեցումը։"
+  },
+  {
+    "Id": "L306",
+    "Ru": "Разрыв",
+    "En": "Connection lost",
+    "Hy": "Կապը խզվել է"
+  },
+  {
+    "Id": "L307",
+    "Ru": "VPN-соединение прервано: движок остановился.",
+    "En": "VPN connection lost: the engine stopped.",
+    "Hy": "VPN կապը խզվել է․ շարժիչը կանգնել է։"
+  },
+  {
+    "Id": "L308",
+    "Ru": "VPN отключён: ",
+    "En": "VPN disconnected: ",
+    "Hy": "VPN-ն անջատված է՝ "
+  },
+  {
+    "Id": "L309",
+    "Ru": "Соединение прервано",
+    "En": "Connection interrupted",
+    "Hy": "Միացումն ընդհատվել է"
+  },
+  {
+    "Id": "L310",
+    "Ru": "Отключение не подтверждено",
+    "En": "Disconnection unconfirmed",
+    "Hy": "Անջատումը հաստատված չէ"
+  },
+  {
+    "Id": "L311",
+    "Ru": "VPN-служба ещё не завершила отключение. Повтори отключение.",
+    "En": "VPN service has not finished disconnecting. Try again.",
+    "Hy": "VPN ծառայությունը դեռ չի ավարտել անջատումը։ Փորձիր կրկին։"
+  },
+  {
+    "Id": "L312",
+    "Ru": "Нет данных",
+    "En": "No data",
+    "Hy": "Տվյալներ չկան"
+  },
+  {
+    "Id": "L313",
+    "Ru": "Адаптер не найден.",
+    "En": "Adapter not found.",
+    "Hy": "Ցանցային հարմարիչը չի գտնվել։"
+  },
+  {
+    "Id": "L314",
+    "Ru": "Доступ через VPN подтверждён",
+    "En": "VPN access confirmed",
+    "Hy": "VPN-ով հասանելիությունը հաստատված է"
+  },
+  {
+    "Id": "L315",
+    "Ru": "Внешний IP: {0}",
+    "En": "External IP: {0}",
+    "Hy": "Արտաքին IP՝ {0}"
+  },
+  {
+    "Id": "L316",
+    "Ru": "Доступ через VPN повторно подтверждён.",
+    "En": "VPN access confirmed again.",
+    "Hy": "VPN-ով հասանելիությունը կրկին հաստատված է։"
+  },
+  {
+    "Id": "L317",
+    "Ru": "Перепроверяю доступ через VPN…",
+    "En": "Rechecking VPN access…",
+    "Hy": "VPN-ով հասանելիությունը վերստուգվում է…"
+  },
+  {
+    "Id": "L318",
+    "Ru": "HTTPS-проверка не прошла. Повторная проверка будет выполнена без отключения туннеля.",
+    "En": "HTTPS check failed. Will check again without disconnecting the tunnel.",
+    "Hy": "HTTPS ստուգումը ձախողվել է։ Կրկին կստուգվի՝ առանց թունելն անջատելու։"
+  },
+  {
+    "Id": "L319",
+    "Ru": "Нет подтверждённого доступа через VPN",
+    "En": "VPN access not confirmed",
+    "Hy": "VPN-ով հասանելիությունը հաստատված չէ"
+  },
+  {
+    "Id": "L320",
+    "Ru": "Периодическая проверка соединения не прошла.",
+    "En": "Periodic connection check failed.",
+    "Hy": "Միացման պարբերական ստուգումը ձախողվել է։"
+  },
+  {
+    "Id": "L321",
+    "Ru": "Импорт конфигурации",
+    "En": "Import configuration",
+    "Hy": "Ներմուծել կարգավորում"
+  },
+  {
+    "Id": "L322",
+    "Ru": "Журнал событий",
+    "En": "Event log",
+    "Hy": "Իրադարձությունների մատյան"
+  },
+  {
+    "Id": "L323",
+    "Ru": "История подключения",
+    "En": "Connection history",
+    "Hy": "Միացումների պատմություն"
+  },
+  {
+    "Id": "L324",
+    "Ru": "MTU должен быть от 1280 до 1500. Последнее корректное значение сохранено.",
+    "En": "MTU must be between 1280 and 1500. The last valid value is kept.",
+    "Hy": "MTU-ն պետք է լինի 1280–1500։ Վերջին վավեր արժեքը պահպանված է։"
+  },
+  {
+    "Id": "L325",
+    "Ru": "Сохранено. Параметры соединения применятся после переподключения.",
+    "En": "Saved. Connection settings apply on reconnect.",
+    "Hy": "Պահպանված է։ Միացման կարգավորումները կկիրառվեն վերամիացումից հետո։"
+  },
+  {
+    "Id": "L326",
+    "Ru": "Настройки сохранены. Для MTU введи число от 1280 до 1500.",
+    "En": "Settings saved. Enter an MTU between 1280 and 1500.",
+    "Hy": "Կարգավորումները պահպանված են։ Մուտքագրիր 1280–1500 MTU։"
+  },
+  {
+    "Id": "L327",
+    "Ru": "Сохранено. Для подключения добавь хотя бы одно правило маршрутизации.",
+    "En": "Saved. Add at least one routing rule to connect.",
+    "Hy": "Պահպանված է։ Միանալու համար ավելացրու առնվազն մեկ երթուղավորման կանոն։"
+  },
+  {
+    "Id": "L328",
+    "Ru": "Не удалось сохранить настройки или автозапуск Windows.",
+    "En": "Could not save settings or Windows startup.",
+    "Hy": "Չհաջողվեց պահպանել կարգավորումները կամ Windows-ի ավտոմեկնարկը։"
+  },
+  {
+    "Id": "L329",
+    "Ru": "Не удалось сохранить режим подключения.",
+    "En": "Could not save connection mode.",
+    "Hy": "Չհաջողվեց պահպանել միացման ռեժիմը։"
+  },
+  {
+    "Id": "L330",
+    "Ru": "DNS сохранён. Применится после переподключения.",
+    "En": "DNS saved. Applies on reconnect.",
+    "Hy": "DNS-ը պահպանված է։ Կկիրառվի վերամիացումից հետո։"
+  },
+  {
+    "Id": "L331",
+    "Ru": "Не удалось сохранить настройку DNS.",
+    "En": "Could not save DNS settings.",
+    "Hy": "Չհաջողվեց պահպանել DNS կարգավորումը։"
+  },
+  {
+    "Id": "L332",
+    "Ru": "Файл Xray",
+    "En": "Xray file",
+    "Hy": "Xray ֆայլ"
+  },
+  {
+    "Id": "L333",
+    "Ru": " · {0} серверов",
+    "En": " · {0} servers",
+    "Hy": " · {0} սերվեր"
+  },
+  {
+    "Id": "L334",
+    "Ru": " · маршрутизация VPN4ik",
+    "En": " · VPN4ik routing",
+    "Hy": " · VPN4ik երթուղավորում"
+  },
+  {
+    "Id": "L335",
+    "Ru": "Файл WireGuard",
+    "En": "WireGuard file",
+    "Hy": "WireGuard ֆայլ"
+  },
+  {
+    "Id": "L336",
+    "Ru": "Переключение сервера…",
+    "En": "Switching server…",
+    "Hy": "Սերվերը փոխվում է…"
+  },
+  {
+    "Id": "L337",
+    "Ru": "Переключение сервера",
+    "En": "Server switch",
+    "Hy": "Սերվերի փոփոխություն"
+  },
+  {
+    "Id": "L338",
+    "Ru": "Удаление источника",
+    "En": "Source removal",
+    "Hy": "Աղբյուրի հեռացում"
+  },
+  {
+    "Id": "L339",
+    "Ru": "Отключение не подтверждено — источник не удалён.",
+    "En": "Disconnection unconfirmed — source was not removed.",
+    "Hy": "Անջատումը հաստատված չէ․ աղբյուրը չի հեռացվել։"
+  },
+  {
+    "Id": "L340",
+    "Ru": "Удалён источник конфигурации.",
+    "En": "Configuration source removed.",
+    "Hy": "Կարգավորման աղբյուրը հեռացված է։"
+  },
+  {
+    "Id": "L341",
+    "Ru": "Источник и его серверы удалены.",
+    "En": "Source and its servers removed.",
+    "Hy": "Աղբյուրը և նրա սերվերները հեռացված են։"
+  },
+  {
+    "Id": "L342",
+    "Ru": "Удаление сервера",
+    "En": "Server removal",
+    "Hy": "Սերվերի հեռացում"
+  },
+  {
+    "Id": "L343",
+    "Ru": "Отключение не подтверждено — сервер не удалён.",
+    "En": "Disconnection unconfirmed — server was not removed.",
+    "Hy": "Անջատումը հաստատված չէ․ սերվերը չի հեռացվել։"
+  },
+  {
+    "Id": "L344",
+    "Ru": "Сервер удалён. Остальная подписка сохранена.",
+    "En": "Server removed. The rest of the subscription is kept.",
+    "Hy": "Սերվերը հեռացված է։ Բաժանորդագրության մնացած մասը պահպանված է։"
+  },
+  {
+    "Id": "L345",
+    "Ru": "Сервер удалён из списка.",
+    "En": "Server removed from the list.",
+    "Hy": "Սերվերը հեռացված է ցանկից։"
+  },
+  {
+    "Id": "L346",
+    "Ru": "Файл не принадлежит хранилищу VPN4ik.",
+    "En": "This file does not belong to the VPN4ik store.",
+    "Hy": "Ֆայլը չի պատկանում VPN4ik-ի պահոցին։"
+  },
+  {
+    "Id": "L347",
+    "Ru": "Удалить источник?",
+    "En": "Remove source?",
+    "Hy": "Հեռացնե՞լ աղբյուրը։"
+  },
+  {
+    "Id": "L348",
+    "Ru": "Его серверы исчезнут из приложения. Активное подключение этого источника будет остановлено.",
+    "En": "Its servers will disappear from the app. Any active connection using this source will stop.",
+    "Hy": "Նրա սերվերները կհեռացվեն հավելվածից։ Այս աղբյուրի ակտիվ կապը կկանգնեցվի։"
+  },
+  {
+    "Id": "L349",
+    "Ru": "Сортировка: ",
+    "En": "Sort: ",
+    "Hy": "Դասավորել՝ "
+  },
+  {
+    "Id": "L350",
+    "Ru": "по имени",
+    "En": "by name",
+    "Hy": "ըստ անվան"
+  },
+  {
+    "Id": "L351",
+    "Ru": "по стране",
+    "En": "by country",
+    "Hy": "ըստ երկրի"
+  },
+  {
+    "Id": "L352",
+    "Ru": "по пингу",
+    "En": "by latency",
+    "Hy": "ըստ ուշացման"
+  },
+  {
+    "Id": "L353",
+    "Ru": "по протоколу",
+    "En": "by protocol",
+    "Hy": "ըստ արձանագրության"
+  },
+  {
+    "Id": "L354",
+    "Ru": "порядок подписки",
+    "En": "subscription order",
+    "Hy": "բաժանորդագրության հերթականությամբ"
+  },
+  {
+    "Id": "L355",
+    "Ru": "Операция не завершена. Проверь доступ к хранилищу приложения.",
+    "En": "Operation incomplete. Check access to the application store.",
+    "Hy": "Գործողությունը չի ավարտվել։ Ստուգիր հավելվածի պահոցի հասանելիությունը։"
+  },
+  {
+    "Id": "L356",
+    "Ru": "Только совпавшие приложения, домены и IP идут через VPN. Остальное — напрямую. Для приложения с несколькими процессами добавь каждый нужный .exe.",
+    "En": "Only matching apps, domains and IPs use VPN. Everything else connects directly. For multi-process apps, add every required .exe.",
+    "Hy": "Միայն համապատասխան հավելվածները, դոմեններն ու IP-ներն են անցնում VPN-ով։ Մնացածը՝ անմիջապես։ Մի քանի գործընթաց ունեցող հավելվածի համար ավելացրու բոլոր անհրաժեշտ .exe-ները։"
+  },
+  {
+    "Id": "L357",
+    "Ru": "Совпавшие приложения, домены и IP идут напрямую. Остальной трафик — через VPN.",
+    "En": "Matching apps, domains and IPs connect directly. Other traffic uses VPN.",
+    "Hy": "Համապատասխան հավելվածները, դոմեններն ու IP-ները միանում են անմիջապես։ Մնացած տրաֆիկը՝ VPN-ով։"
+  },
+  {
+    "Id": "L358",
+    "Ru": " Последние корректные правила сохранены.",
+    "En": " The last valid rules are kept.",
+    "Hy": " Վերջին վավեր կանոնները պահպանված են։"
+  },
+  {
+    "Id": "L359",
+    "Ru": "Выбери приложение",
+    "En": "Choose application",
+    "Hy": "Ընտրել հավելված"
+  },
+  {
+    "Id": "L360",
+    "Ru": "Приложения Windows (*.exe)|*.exe",
+    "En": "Windows applications (*.exe)|*.exe",
+    "Hy": "Windows հավելվածներ (*.exe)|*.exe"
+  },
+  {
+    "Id": "L361",
+    "Ru": "VPN4ik обновлён до ",
+    "En": "VPN4ik updated to ",
+    "Hy": "VPN4ik-ը թարմացված է մինչև "
+  },
+  {
+    "Id": "L362",
+    "Ru": "Проверяю GitHub…",
+    "En": "Checking GitHub…",
+    "Hy": "GitHub-ը ստուգվում է…"
+  },
+  {
+    "Id": "L363",
+    "Ru": "Установлена актуальная версия.",
+    "En": "You have the latest version.",
+    "Hy": "Տեղադրված է վերջին տարբերակը։"
+  },
+  {
+    "Id": "L364",
+    "Ru": "Доступна версия ",
+    "En": "Available version: ",
+    "Hy": "Հասանելի տարբերակ՝ "
+  },
+  {
+    "Id": "L365",
+    "Ru": "GitHub не ответил. Попробуй позже.",
+    "En": "GitHub did not respond. Try later.",
+    "Hy": "GitHub-ը չի պատասխանել։ Փորձիր ավելի ուշ։"
+  },
+  {
+    "Id": "L366",
+    "Ru": "Не удалось проверить GitHub. Интернет и VPN можно продолжать использовать.",
+    "En": "Could not check GitHub. You can continue using the internet and VPN.",
+    "Hy": "Չհաջողվեց ստուգել GitHub-ը։ Կարող ես շարունակել օգտվել ինտերնետից և VPN-ից։"
+  },
+  {
+    "Id": "L367",
+    "Ru": "Доступно обновление · ",
+    "En": "Update available · ",
+    "Hy": "Հասանելի է թարմացում · "
+  },
+  {
+    "Id": "L368",
+    "Ru": "Скачать, установить и перезапустить VPN4ik.",
+    "En": "Download, install and restart VPN4ik.",
+    "Hy": "Ներբեռնել, տեղադրել և վերագործարկել VPN4ik-ը։"
+  },
+  {
+    "Id": "L369",
+    "Ru": "Новый выпуск доступен на GitHub.",
+    "En": "A new release is available on GitHub.",
+    "Hy": "GitHub-ում հասանելի է նոր թողարկում։"
+  },
+  {
+    "Id": "L370",
+    "Ru": "Открыть релиз",
+    "En": "Open release",
+    "Hy": "Բացել թողարկումը"
+  },
+  {
+    "Id": "L371",
+    "Ru": "Не удалось открыть браузер. Релизы: github.com/keltazik/VPN4ik/releases",
+    "En": "Could not open browser. Releases: github.com/keltazik/VPN4ik/releases",
+    "Hy": "Չհաջողվեց բացել դիտարկիչը։ Թողարկումներ՝ github.com/keltazik/VPN4ik/releases"
+  },
+  {
+    "Id": "L372",
+    "Ru": "Обновить VPN4ik?",
+    "En": "Update VPN4ik?",
+    "Hy": "Թարմացնե՞լ VPN4ik-ը։"
+  },
+  {
+    "Id": "L373",
+    "Ru": "После загрузки и проверки приложение отключит свой VPN и перезапустится. Подписки и настройки сохранятся.",
+    "En": "After downloading and verifying, the app will stop its VPN and restart. Subscriptions and settings will be kept.",
+    "Hy": "Ներբեռնումից և ստուգումից հետո հավելվածը կկանգնեցնի իր VPN-ը և կվերագործարկվի։ Բաժանորդագրություններն ու կարգավորումները կպահպանվեն։"
+  },
+  {
+    "Id": "L374",
+    "Ru": "Обновление этой сборки доступно через GitHub.",
+    "En": "This build can be updated via GitHub.",
+    "Hy": "Այս հավաքածուն կարելի է թարմացնել GitHub-ից։"
+  },
+  {
+    "Id": "L375",
+    "Ru": "Обновление приложения",
+    "En": "Application update",
+    "Hy": "Հավելվածի թարմացում"
+  },
+  {
+    "Id": "L376",
+    "Ru": "Не удалось подтвердить отключение VPN.",
+    "En": "Could not confirm VPN disconnection.",
+    "Hy": "Չհաջողվեց հաստատել VPN-ի անջատումը։"
+  },
+  {
+    "Id": "L377",
+    "Ru": "Перезапускаю VPN4ik…",
+    "En": "Restarting VPN4ik…",
+    "Hy": "VPN4ik-ը վերագործարկվում է…"
+  },
+  {
+    "Id": "L378",
+    "Ru": "Автоустановка недоступна. Скачай новую версию со страницы релиза.",
+    "En": "Automatic installation unavailable. Download the new version from the release page.",
+    "Hy": "Ավտոմատ տեղադրումը հասանելի չէ։ Ներբեռնիր նոր տարբերակը թողարկման էջից։"
+  },
+  {
+    "Id": "L379",
+    "Ru": "Страна не указана в названии сервера",
+    "En": "Country is not specified in the server name",
+    "Hy": "Սերվերի անվան մեջ երկիրը նշված չէ"
+  },
+  {
+    "Id": "L380",
+    "Ru": " · по названию сервера",
+    "En": " · based on server name",
+    "Hy": " · ըստ սերվերի անվան"
+  },
+  {
+    "Id": "L381",
+    "Ru": "TCP-пинг ещё не измерен.",
+    "En": "TCP latency not measured yet.",
+    "Hy": "TCP ուշացումը դեռ չի չափվել։"
+  },
+  {
+    "Id": "L382",
+    "Ru": "Нет замера",
+    "En": "Not measured",
+    "Hy": "Չափված չէ"
+  },
+  {
+    "Id": "L383",
+    "Ru": "Проверяю TCP-пинг до порта сервера.",
+    "En": "Measuring TCP latency to the server port.",
+    "Hy": "Չափվում է սերվերի պորտի TCP ուշացումը։"
+  },
+  {
+    "Id": "L384",
+    "Ru": "Приложение запущено.",
+    "En": "Application started.",
+    "Hy": "Հավելվածը գործարկված է։"
+  },
+  {
+    "Id": "L385",
+    "Ru": "Не удалось прочитать подписки. Импортируй ссылку повторно.",
+    "En": "Could not read subscriptions. Import the link again.",
+    "Hy": "Չհաջողվեց կարդալ բաժանորդագրությունները։ Կրկին ներմուծիր հղումը։"
+  },
+  {
+    "Id": "L386",
+    "Ru": "Добавь подписку или конфигурацию сервера",
+    "En": "Add a subscription or server configuration",
+    "Hy": "Ավելացրու բաժանորդագրություն կամ սերվերի կարգավորում"
+  },
+  {
+    "Id": "L387",
+    "Ru": "В конфигурации нужен Endpoint с адресом и портом сервера.",
+    "En": "The configuration needs an Endpoint with the server address and port.",
+    "Hy": "Կարգավորման մեջ անհրաժեշտ է սերվերի հասցեով և պորտով Endpoint։"
+  },
+  {
+    "Id": "L388",
+    "Ru": "Имя файла: 1–32 латинские буквы, цифры или символы _ = + . -",
+    "En": "File name: 1–32 Latin letters, digits or _ = + . -",
+    "Hy": "Ֆայլի անունը՝ 1–32 լատինատառ, թվանշան կամ _ = + . -"
+  },
+  {
+    "Id": "L389",
+    "Ru": "Конфигурации VPN (*.conf;*.json;*.txt)|*.conf;*.json;*.txt",
+    "En": "VPN configurations (*.conf;*.json;*.txt)|*.conf;*.json;*.txt",
+    "Hy": "VPN կարգավորումներ (*.conf;*.json;*.txt)|*.conf;*.json;*.txt"
+  },
+  {
+    "Id": "L390",
+    "Ru": "Файл слишком большой (максимум 4 МБ).",
+    "En": "File too large (maximum 4 MB).",
+    "Hy": "Ֆայլը չափազանց մեծ է (առավելագույնը՝ 4 ՄԲ)։"
+  },
+  {
+    "Id": "L391",
+    "Ru": "Конфигурация WireGuard импортирована.",
+    "En": "WireGuard configuration imported.",
+    "Hy": "WireGuard-ի կարգավորումը ներմուծված է։"
+  },
+  {
+    "Id": "L392",
+    "Ru": "Конфигурация импортирована из файла.",
+    "En": "Configuration imported from file.",
+    "Hy": "Կարգավորումը ներմուծված է ֆայլից։"
+  },
+  {
+    "Id": "L393",
+    "Ru": "Не удалось импортировать файл. Проверь формат и имя файла.",
+    "En": "Could not import file. Check its format and name.",
+    "Hy": "Չհաջողվեց ներմուծել ֆայլը։ Ստուգիր ձևաչափն ու անունը։"
+  },
+  {
+    "Id": "L394",
+    "Ru": "Hysteria2 использует UDP; TCP-пинг для него неприменим.",
+    "En": "Hysteria2 uses UDP; TCP latency is not applicable.",
+    "Hy": "Hysteria2-ն օգտագործում է UDP․ TCP ուշացումը կիրառելի չէ։"
+  },
+  {
+    "Id": "L395",
+    "Ru": "Добавь подписку или файл WireGuard .conf",
+    "En": "Add a subscription or WireGuard .conf file",
+    "Hy": "Ավելացրու բաժանորդագրություն կամ WireGuard .conf ֆայլ"
+  },
+  {
+    "Id": "L396",
+    "Ru": "Серверы не найдены",
+    "En": "No servers found",
+    "Hy": "Սերվերներ չեն գտնվել"
+  },
+  {
+    "Id": "L397",
+    "Ru": "Загружаю подписку…",
+    "En": "Loading subscription…",
+    "Hy": "Բաժանորդագրությունը բեռնվում է…"
+  },
+  {
+    "Id": "L398",
+    "Ru": "Подписка обновлена: {0} серверов.",
+    "En": "Subscription updated: {0} servers.",
+    "Hy": "Բաժանորդագրությունը թարմացված է՝ {0} սերվեր։"
+  },
+  {
+    "Id": "L399",
+    "Ru": "Время ожидания истекло. Прежние серверы сохранены.",
+    "En": "Request timed out. Previous servers are kept.",
+    "Hy": "Սպասման ժամանակը սպառվել է։ Նախորդ սերվերները պահպանված են։"
+  },
+  {
+    "Id": "L400",
+    "Ru": "Не удалось загрузить подписку. Проверь интернет и ссылку.",
+    "En": "Could not load subscription. Check your internet and link.",
+    "Hy": "Չհաջողվեց բեռնել բաժանորդագրությունը։ Ստուգիր ինտերնետն ու հղումը։"
+  },
+  {
+    "Id": "L401",
+    "Ru": "Не удалось сохранить подписку. Прежние серверы сохранены.",
+    "En": "Could not save subscription. Previous servers are kept.",
+    "Hy": "Չհաջողվեց պահպանել բաժանորդագրությունը։ Նախորդ սերվերները պահպանված են։"
+  },
+  {
+    "Id": "L402",
+    "Ru": "Серверов в подписке: {0} · обновлено {1:HH:mm}",
+    "En": "Servers in subscription: {0} · updated {1:HH:mm}",
+    "Hy": "Բաժանորդագրության սերվերներ՝ {0} · թարմացված է {1:HH:mm}"
+  },
+  {
+    "Id": "L403",
+    "Ru": "Серверы добавлены. Служебная маршрутизация провайдера пропущена; используются настройки VPN4ik.",
+    "En": "Servers added. Provider routing metadata skipped; VPN4ik routing is used.",
+    "Hy": "Սերվերներն ավելացված են։ Մատակարարի ծառայողական երթուղավորումը բաց է թողնված․ օգտագործվում են VPN4ik-ի կանոնները։"
+  },
+  {
+    "Id": "L404",
+    "Ru": "TCP-пинг · {0} из {1}",
+    "En": "TCP latency · {0} of {1}",
+    "Hy": "TCP ուշացում · {0} / {1}"
+  },
+  {
+    "Id": "L405",
+    "Ru": " · при VPN возможна погрешность",
+    "En": " · VPN may affect accuracy",
+    "Hy": " · VPN-ը կարող է ազդել ճշգրտության վրա"
+  },
+  {
+    "Id": "L406",
+    "Ru": "Проверяю TCP-пинг…",
+    "En": "Measuring TCP latency…",
+    "Hy": "TCP ուշացումը չափվում է…"
+  },
+  {
+    "Id": "L407",
+    "Ru": " Возможна погрешность при VPN.",
+    "En": " VPN may affect accuracy.",
+    "Hy": " VPN-ը կարող է ազդել ճշգրտության վրա։"
+  },
+  {
+    "Id": "L408",
+    "Ru": "Замер не завершён. Подключение можно попробовать независимо от результата проверки.",
+    "En": "Measurement incomplete. You can try connecting regardless of the test result.",
+    "Hy": "Չափումը չի ավարտվել։ Կարող ես փորձել միանալ՝ անկախ ստուգման արդյունքից։"
+  },
+  {
+    "Id": "L409",
+    "Ru": "Не удалось открыть GitHub в браузере. Репозиторий: github.com/keltazik/VPN4ik",
+    "En": "Could not open GitHub in browser. Repository: github.com/keltazik/VPN4ik",
+    "Hy": "Չհաջողվեց բացել GitHub-ը դիտարկիչում։ Պահոց՝ github.com/keltazik/VPN4ik"
+  },
+  {
+    "Id": "L410",
+    "Ru": "{0} · протокол пока не поддерживается",
+    "En": "{0} · protocol not supported yet",
+    "Hy": "{0} · արձանագրությունը դեռ չի աջակցվում"
+  },
+  {
+    "Id": "L411",
+    "Ru": "Свернуть названия разделов",
+    "En": "Collapse section names",
+    "Hy": "Փակել բաժինների անունները"
+  },
+  {
+    "Id": "L412",
+    "Ru": "Кнопка работает!",
+    "En": "The button works!",
+    "Hy": "Կոճակն աշխատում է։"
+  },
+  {
+    "Id": "L413",
+    "Ru": "Папка zapret: service.bat и bin/winws.exe",
+    "En": "zapret folder: service.bat and bin/winws.exe",
+    "Hy": "zapret-ի պանակ՝ service.bat և bin/winws.exe"
+  },
+  {
+    "Id": "L414",
+    "Ru": "Flowseal · версия {0} · стратегий: {1}",
+    "En": "Flowseal · version {0} · strategies: {1}",
+    "Hy": "Flowseal · տարբերակ՝ {0} · ռազմավարություններ՝ {1}"
+  },
+  {
+    "Id": "L415",
+    "Ru": "Выбран файл: ",
+    "En": "Selected file: ",
+    "Hy": "Ընտրված ֆայլ՝ "
+  },
+  {
+    "Id": "L416",
+    "Ru": "Сохранено. Правило действует со следующего подключения VPN.",
+    "En": "Saved. Applies to the next VPN connection.",
+    "Hy": "Պահպանված է։ Կկիրառվի VPN-ի հաջորդ միացման ժամանակ։"
+  },
+  {
+    "Id": "L417",
+    "Ru": "Статус не определён",
+    "En": "Status unknown",
+    "Hy": "Վիճակը անհայտ է"
+  },
+  {
+    "Id": "L418",
+    "Ru": "Не все процессы доступны для проверки",
+    "En": "Some processes cannot be inspected",
+    "Hy": "Որոշ գործընթացներ հասանելի չեն ստուգման համար"
+  },
+  {
+    "Id": "L419",
+    "Ru": "Служба zapret запускается или останавливается",
+    "En": "zapret service is starting or stopping",
+    "Hy": "zapret-ի ծառայությունը գործարկվում կամ կանգնեցվում է"
+  },
+  {
+    "Id": "L420",
+    "Ru": "zapret работает как служба",
+    "En": "zapret is running as a service",
+    "Hy": "zapret-ն աշխատում է որպես ծառայություն"
+  },
+  {
+    "Id": "L421",
+    "Ru": "zapret работает · процессов: {0}",
+    "En": "zapret is running · processes: {0}",
+    "Hy": "zapret-ն աշխատում է · գործընթացներ՝ {0}"
+  },
+  {
+    "Id": "L422",
+    "Ru": "zapret работает из другой папки",
+    "En": "zapret is running from another folder",
+    "Hy": "zapret-ն աշխատում է այլ պանակից"
+  },
+  {
+    "Id": "L423",
+    "Ru": "zapret выключен на время VPN",
+    "En": "zapret is paused for VPN",
+    "Hy": "zapret-ը կանգնեցված է VPN-ի ընթացքում"
+  },
+  {
+    "Id": "L424",
+    "Ru": "zapret выключен",
+    "En": "zapret is stopped",
+    "Hy": "zapret-ը կանգնեցված է"
+  },
+  {
+    "Id": "L425",
+    "Ru": "Служба zapret не установлена.",
+    "En": "zapret service is not installed.",
+    "Hy": "zapret-ի ծառայությունը տեղադրված չէ։"
+  },
+  {
+    "Id": "L426",
+    "Ru": "Установлен: ",
+    "En": "Installed: ",
+    "Hy": "Տեղադրված է՝ "
+  },
+  {
+    "Id": "L427",
+    "Ru": "BAT-файл не определён",
+    "En": "BAT file unknown",
+    "Hy": "BAT ֆայլը որոշված չէ"
+  },
+  {
+    "Id": "L428",
+    "Ru": " · по данным службы",
+    "En": " · from service information",
+    "Hy": " · ըստ ծառայության տվյալների"
+  },
+  {
+    "Id": "L429",
+    "Ru": " · работает",
+    "En": " · running",
+    "Hy": " · աշխատում է"
+  },
+  {
+    "Id": "L430",
+    "Ru": " · остановлен",
+    "En": " · stopped",
+    "Hy": " · կանգնեցված է"
+  },
+  {
+    "Id": "L431",
+    "Ru": " · меняет состояние",
+    "En": " · changing state",
+    "Hy": " · վիճակը փոխվում է"
+  },
+  {
+    "Id": "L432",
+    "Ru": "Запрос Windows отменён. zapret не изменён.",
+    "En": "Windows prompt canceled. zapret was not changed.",
+    "Hy": "Windows-ի հարցումը չեղարկված է։ zapret-ը չի փոխվել։"
+  },
+  {
+    "Id": "L433",
+    "Ru": "Не удалось выполнить действие. Проверь папку и права доступа к zapret.",
+    "En": "Could not complete the action. Check the zapret folder and permissions.",
+    "Hy": "Չհաջողվեց կատարել գործողությունը։ Ստուգիր zapret-ի պանակը և հասանելիության իրավունքները։"
+  },
+  {
+    "Id": "L434",
+    "Ru": "Сначала исправь или примени изменения пользовательских списков.",
+    "En": "Fix or apply custom list changes first.",
+    "Hy": "Նախ ուղղիր կամ կիրառիր օգտատիրոջ ցանկերի փոփոխությունները։"
+  },
+  {
+    "Id": "L435",
+    "Ru": "Выполняю действие zapret…",
+    "En": "Running zapret action…",
+    "Hy": "zapret-ի գործողությունը կատարվում է…"
+  },
+  {
+    "Id": "L436",
+    "Ru": "zapret выключен.",
+    "En": "zapret stopped.",
+    "Hy": "zapret-ը կանգնեցված է։"
+  },
+  {
+    "Id": "L437",
+    "Ru": "zapret запущен. Доступность ресурсов зависит от выбранной стратегии.",
+    "En": "zapret started. Resource availability depends on the selected strategy.",
+    "Hy": "zapret-ը գործարկված է։ Ռեսուրսների հասանելիությունը կախված է ընտրված ռազմավարությունից։"
+  },
+  {
+    "Id": "L438",
+    "Ru": "zapret выключен вручную.",
+    "En": "zapret stopped manually.",
+    "Hy": "zapret-ը կանգնեցված է ձեռքով։"
+  },
+  {
+    "Id": "L439",
+    "Ru": "Запущена стратегия: ",
+    "En": "Strategy started: ",
+    "Hy": "Գործարկված ռազմավարություն՝ "
+  },
+  {
+    "Id": "L440",
+    "Ru": "zapret включён вместе с VPN. При проблемах отключи zapret или включи автоотключение в его вкладке.",
+    "En": "zapret and VPN are both on. If issues occur, stop zapret or enable automatic stopping in its tab.",
+    "Hy": "zapret-ը և VPN-ը միացված են միասին։ Խնդիրների դեպքում կանգնեցրու zapret-ը կամ նրա բաժնում միացրու ավտոմատ կանգնեցումը։"
+  },
+  {
+    "Id": "L441",
+    "Ru": "Действие отменено.",
+    "En": "Action canceled.",
+    "Hy": "Գործողությունը չեղարկված է։"
+  },
+  {
+    "Id": "L442",
+    "Ru": "Фильтры сохранены. Для применения к работающему zapret нажми «Перезапустить».",
+    "En": "Filters saved. Click Restart to apply to running zapret.",
+    "Hy": "Զտիչները պահպանված են։ Աշխատող zapret-ին կիրառելու համար սեղմիր «Վերագործարկել»։"
+  },
+  {
+    "Id": "L443",
+    "Ru": "Изменены фильтры zapret.",
+    "En": "zapret filters changed.",
+    "Hy": "zapret-ի զտիչները փոխված են։"
+  },
+  {
+    "Id": "L444",
+    "Ru": "Списки сохранены. Для применения к работающему zapret нажми «Перезапустить».",
+    "En": "Lists saved. Click Restart to apply to running zapret.",
+    "Hy": "Ցանկերը պահպանված են։ Աշխատող zapret-ին կիրառելու համար սեղմիր «Վերագործարկել»։"
+  },
+  {
+    "Id": "L445",
+    "Ru": "Для изменения этих списков нужны права администратора. Нажми кнопку под списками.",
+    "En": "Administrator rights are required to edit these lists. Click the button below them.",
+    "Hy": "Այս ցանկերը փոխելու համար անհրաժեշտ են ադմինիստրատորի իրավունքներ։ Սեղմիր ցանկերի տակ գտնվող կոճակը։"
+  },
+  {
+    "Id": "L446",
+    "Ru": "Если zapret включён, он может конфликтовать с VPN. Лучше выключить его. Автоотключение можно включить во вкладке zapret.",
+    "En": "Running zapret may conflict with VPN. It is better to stop it. Automatic stopping can be enabled in the zapret tab.",
+    "Hy": "Աշխատող zapret-ը կարող է խանգարել VPN-ին։ Ավելի լավ է այն կանգնեցնել։ Ավտոմատ կանգնեցումը կարող ես միացնել zapret-ի բաժնում։"
+  },
+  {
+    "Id": "L447",
+    "Ru": "Возможен конфликт с zapret",
+    "En": "Possible conflict with zapret",
+    "Hy": "Հնարավոր հակասություն zapret-ի հետ"
+  },
+  {
+    "Id": "L448",
+    "Ru": "Для автоотключения укажи папку во вкладке zapret или выключи эту настройку.",
+    "En": "Choose a folder in the zapret tab for automatic stopping, or disable this setting.",
+    "Hy": "Ավտոմատ կանգնեցման համար zapret-ի բաժնում ընտրիր պանակը կամ անջատիր այս կարգավորումը։"
+  },
+  {
+    "Id": "L449",
+    "Ru": "Для автоотключения выбери папку работающего zapret. Другой экземпляр не был остановлен.",
+    "En": "Choose the running zapret folder for automatic stopping. The other instance was not stopped.",
+    "Hy": "Ավտոմատ կանգնեցման համար ընտրիր աշխատող zapret-ի պանակը։ Մյուս օրինակը չի կանգնեցվել։"
+  },
+  {
+    "Id": "L450",
+    "Ru": "Не подтверждено отключение zapret. VPN не запущен.",
+    "En": "zapret shutdown not confirmed. VPN was not started.",
+    "Hy": "zapret-ի կանգնեցումը հաստատված չէ։ VPN-ը չի գործարկվել։"
+  },
+  {
+    "Id": "L451",
+    "Ru": "zapret выключен перед подключением VPN.",
+    "En": "zapret stopped before connecting VPN.",
+    "Hy": "zapret-ը կանգնեցված է VPN-ի միացումից առաջ։"
+  },
+  {
+    "Id": "L452",
+    "Ru": "Готово.",
+    "En": "Done.",
+    "Hy": "Պատրաստ է։"
+  },
+  {
+    "Id": "L453",
+    "Ru": "Возвращено прежнее состояние zapret после VPN.",
+    "En": "Previous zapret state restored after VPN.",
+    "Hy": "VPN-ից հետո zapret-ի նախկին վիճակը վերականգնված է։"
+  },
+  {
+    "Id": "L454",
+    "Ru": "Не удалось вернуть zapret после VPN. Открой его вкладку и включи вручную.",
+    "En": "Could not restore zapret after VPN. Open its tab and start it manually.",
+    "Hy": "Չհաջողվեց վերականգնել zapret-ը VPN-ից հետո։ Բացիր նրա բաժինը և գործարկիր ձեռքով։"
+  },
+  {
+    "Id": "L455",
+    "Ru": "Автоматически ищу zapret на компьютере…",
+    "En": "Searching this computer for zapret automatically…",
+    "Hy": "Համակարգչում ավտոմատ որոնվում է zapret-ը…"
+  },
+  {
+    "Id": "L456",
+    "Ru": "Ищу установленный zapret…",
+    "En": "Searching for installed zapret…",
+    "Hy": "Որոնվում է տեղադրված zapret-ը…"
+  },
+  {
+    "Id": "L457",
+    "Ru": "Не удалось найти zapret",
+    "En": "Could not find zapret",
+    "Hy": "Չհաջողվեց գտնել zapret-ը"
+  },
+  {
+    "Id": "L458",
+    "Ru": "Автопоиск не завершён. Можно указать папку вручную ниже.",
+    "En": "Automatic search incomplete. You can choose a folder manually below.",
+    "Hy": "Ավտոմատ որոնումը չի ավարտվել։ Ստորև կարող ես ձեռքով ընտրել պանակը։"
+  },
+  {
+    "Id": "L459",
+    "Ru": "zapret не найден",
+    "En": "zapret not found",
+    "Hy": "zapret-ը չի գտնվել"
+  },
+  {
+    "Id": "L460",
+    "Ru": "zapret не найден в обычных местах. Нажми «Указать папку вручную» и выбери распакованную папку с service.bat.",
+    "En": "zapret not found in common locations. Click Choose folder manually and select the extracted folder with service.bat.",
+    "Hy": "zapret-ը սովորական վայրերում չի գտնվել։ Սեղմիր «Ընտրել պանակը ձեռքով» և ընտրիր service.bat պարունակող ապասեղմված պանակը։"
+  },
+  {
+    "Id": "L461",
+    "Ru": "Найдено установок: {0}. Выбери нужную из списка.",
+    "En": "Installations found: {0}. Select one from the list.",
+    "Hy": "Գտնված տեղադրումներ՝ {0}։ Ընտրիր ցանկից։"
+  },
+  {
+    "Id": "L462",
+    "Ru": "Discord UDP · сейчас: ",
+    "En": "Discord UDP · current: ",
+    "Hy": "Discord UDP · ընթացիկ՝ "
+  },
+  {
+    "Id": "L463",
+    "Ru": "Game Filter UDP · сейчас: ",
+    "En": "Game Filter UDP · current: ",
+    "Hy": "Խաղային զտիչ UDP · ընթացիկ՝ "
+  },
+  {
+    "Id": "L464",
+    "Ru": "Автопроверка обновлений zapret включена.",
+    "En": "Automatic zapret update checks enabled.",
+    "Hy": "zapret-ի թարմացումների ավտոմատ ստուգումը միացված է։"
+  },
+  {
+    "Id": "L465",
+    "Ru": "Автопроверка обновлений zapret выключена.",
+    "En": "Automatic zapret update checks disabled.",
+    "Hy": "zapret-ի թարմացումների ավտոմատ ստուգումն անջատված է։"
+  },
+  {
+    "Id": "L466",
+    "Ru": "В папке bin нет доступных fake-файлов.",
+    "En": "No available fake files in the bin folder.",
+    "Hy": "bin պանակում հասանելի կեղծ փաթեթների ֆայլեր չկան։"
+  },
+  {
+    "Id": "L467",
+    "Ru": "Active fake заменён. Для применения перезапусти zapret.",
+    "En": "Active fake replaced. Restart zapret to apply.",
+    "Hy": "Ակտիվ կեղծ փաթեթը փոխարինված է։ Կիրառելու համար վերագործարկիր zapret-ը։"
+  },
+  {
+    "Id": "L468",
+    "Ru": "service.bat открыт в отдельном окне.",
+    "En": "service.bat opened in a separate window.",
+    "Hy": "service.bat-ը բացված է առանձին պատուհանում։"
+  },
+  {
+    "Id": "L469",
+    "Ru": "Открыто штатное меню service.bat.",
+    "En": "Original service.bat menu opened.",
+    "Hy": "service.bat-ի հիմնական ընտրացանկը բացված է։"
+  },
+  {
+    "Id": "L470",
+    "Ru": "Сначала отключи VPN, чтобы вернуть приостановленный zapret.",
+    "En": "Disconnect VPN first to restore paused zapret.",
+    "Hy": "Դադարեցված zapret-ը վերականգնելու համար նախ անջատիր VPN-ը։"
+  },
+  {
+    "Id": "L471",
+    "Ru": "Выключи VPN перед тестом стратегий zapret.",
+    "En": "Turn VPN off before testing zapret strategies.",
+    "Hy": "zapret-ի ռազմավարությունները ստուգելուց առաջ անջատիր VPN-ը։"
+  },
+  {
+    "Id": "L472",
+    "Ru": "Проверяю стратегии. Прежнее состояние zapret будет возвращено после теста…",
+    "En": "Testing strategies. The previous zapret state will be restored after the test…",
+    "Hy": "Ռազմավարությունները ստուգվում են։ Ստուգումից հետո zapret-ի նախկին վիճակը կվերականգնվի…"
+  },
+  {
+    "Id": "L473",
+    "Ru": "Выполняю…",
+    "En": "Working…",
+    "Hy": "Կատարվում է…"
+  },
+  {
+    "Id": "L474",
+    "Ru": "Hosts скачан для просмотра. Системный файл не изменён.",
+    "En": "Hosts downloaded for review. System file unchanged.",
+    "Hy": "Hosts-ը ներբեռնված է դիտելու համար։ Համակարգային ֆայլը չի փոխվել։"
+  },
+  {
+    "Id": "L475",
+    "Ru": "Служба установлена и запущена. Автозапуск Windows включён.",
+    "En": "Service installed and started. Windows startup enabled.",
+    "Hy": "Ծառայությունը տեղադրված և գործարկված է։ Windows-ի ավտոմեկնարկը միացված է։"
+  },
+  {
+    "Id": "L476",
+    "Ru": "Службы выбранной папки удалены.",
+    "En": "Services belonging to the selected folder removed.",
+    "Hy": "Ընտրված պանակի ծառայությունները հեռացված են։"
+  },
+  {
+    "Id": "L477",
+    "Ru": "TCP timestamps включены в Windows.",
+    "En": "TCP timestamps enabled in Windows.",
+    "Hy": "Windows-ում TCP timestamps-ը միացված է։"
+  },
+  {
+    "Id": "L478",
+    "Ru": "IPSet обновлён. Текущий режим фильтра сохранён; перезапусти zapret для применения.",
+    "En": "IPSet updated. Current filter mode kept; restart zapret to apply.",
+    "Hy": "IPSet-ը թարմացված է։ Զտիչի ընթացիկ ռեժիմը պահպանված է․ կիրառելու համար վերագործարկիր zapret-ը։"
+  },
+  {
+    "Id": "L479",
+    "Ru": "Инструмент zapret: ",
+    "En": "zapret tool: ",
+    "Hy": "zapret-ի գործիք՝ "
+  },
+  {
+    "Id": "L480",
+    "Ru": "тест стратегий завершён",
+    "En": "strategy test completed",
+    "Hy": "ռազմավարությունների ստուգումն ավարտված է"
+  },
+  {
+    "Id": "L481",
+    "Ru": "диагностика завершена",
+    "En": "diagnostics completed",
+    "Hy": "ախտորոշումն ավարտված է"
+  },
+  {
+    "Id": "L482",
+    "Ru": "загружен hosts для просмотра",
+    "En": "hosts downloaded for review",
+    "Hy": "hosts-ը ներբեռնված է դիտելու համար"
+  },
+  {
+    "Id": "L483",
+    "Ru": "IPSet обновлён",
+    "En": "IPSet updated",
+    "Hy": "IPSet-ը թարմացված է"
+  },
+  {
+    "Id": "L484",
+    "Ru": "TCP timestamps включены",
+    "En": "TCP timestamps enabled",
+    "Hy": "TCP timestamps-ը միացված է"
+  },
+  {
+    "Id": "L485",
+    "Ru": "служба установлена",
+    "En": "service installed",
+    "Hy": "ծառայությունը տեղադրված է"
+  },
+  {
+    "Id": "L486",
+    "Ru": "служба удалена",
+    "En": "service removed",
+    "Hy": "ծառայությունը հեռացված է"
+  },
+  {
+    "Id": "L487",
+    "Ru": "Операция отменена или превышено время ожидания.",
+    "En": "Operation canceled or timed out.",
+    "Hy": "Գործողությունը չեղարկված է կամ ժամանակը սպառվել է։"
+  },
+  {
+    "Id": "L488",
+    "Ru": "Доступно обновление zapret {0}; установлено {1}.",
+    "En": "zapret update {0} available; installed: {1}.",
+    "Hy": "Հասանելի է zapret-ի {0} թարմացումը․ տեղադրված է {1}։"
+  },
+  {
+    "Id": "L489",
+    "Ru": "Установлена актуальная версия zapret: {0}.",
+    "En": "Latest zapret version installed: {0}.",
+    "Hy": "Տեղադրված է zapret-ի վերջին տարբերակը՝ {0}։"
+  },
+  {
+    "Id": "L490",
+    "Ru": "Доступно обновление zapret {0}. Ссылка — в «Обновления и инструменты service.bat».",
+    "En": "zapret update {0} available. See Updates and service.bat tools for the link.",
+    "Hy": "Հասանելի է zapret-ի {0} թարմացումը։ Հղումը՝ «Թարմացումներ և service.bat գործիքներ» բաժնում։"
+  },
+  {
+    "Id": "L491",
+    "Ru": "Проверка обновлений zapret не завершена: время ожидания истекло.",
+    "En": "zapret update check timed out.",
+    "Hy": "zapret-ի թարմացումների ստուգման ժամանակը սպառվել է։"
+  },
+  {
+    "Id": "L492",
+    "Ru": "Не удалось проверить обновления zapret. Работа текущей версии не затронута.",
+    "En": "Could not check zapret updates. The current version is unaffected.",
+    "Hy": "Չհաջողվեց ստուգել zapret-ի թարմացումները։ Ընթացիկ տարբերակի աշխատանքը չի փոխվել։"
+  },
+  {
+    "Id": "L493",
+    "Ru": "Hosts скопирован.",
+    "En": "Hosts copied.",
+    "Hy": "Hosts-ը պատճենված է։"
+  },
+  {
+    "Id": "L494",
+    "Ru": "Папка не выбрана. Нажми «Найти автоматически» или укажи путь вручную.",
+    "En": "No folder selected. Search automatically or choose a path manually.",
+    "Hy": "Պանակը ընտրված չէ։ Որոնիր ավտոմատ կամ նշիր ուղին ձեռքով։"
+  },
+  {
+    "Id": "L495",
+    "Ru": "Путь недоступен — будет добавлено имя процесса",
+    "En": "Path unavailable — process name will be added",
+    "Hy": "Ուղին հասանելի չէ․ կավելացվի գործընթացի անունը"
+  },
+  {
+    "Id": "L496",
+    "Ru": "В одном списке можно задать до 256 правил.",
+    "En": "A list can contain up to 256 rules.",
+    "Hy": "Մեկ ցանկում կարելի է նշել առավելագույնը 256 կանոն։"
+  },
+  {
+    "Id": "L497",
+    "Ru": "Слишком длинное или некорректное правило.",
+    "En": "Rule too long or invalid.",
+    "Hy": "Կանոնը չափազանց երկար է կամ անվավեր։"
+  },
+  {
+    "Id": "L498",
+    "Ru": "Укажи имя приложения.",
+    "En": "Enter an application name.",
+    "Hy": "Նշիր հավելվածի անունը։"
+  },
+  {
+    "Id": "L499",
+    "Ru": "Для приложения укажи имя .exe или полный путь к нему.",
+    "En": "Specify an .exe name or its full path.",
+    "Hy": "Նշիր .exe-ի անունը կամ ամբողջական ուղին։"
+  },
+  {
+    "Id": "L500",
+    "Ru": "Некорректное имя приложения.",
+    "En": "Invalid application name.",
+    "Hy": "Հավելվածի անվավեր անուն։"
+  },
+  {
+    "Id": "L501",
+    "Ru": "Укажи домен без https:// и пути, например example.org.",
+    "En": "Enter a domain without https:// or a path, e.g. example.org.",
+    "Hy": "Նշիր դոմենն առանց https://-ի և ուղու, օրինակ՝ example.org։"
+  },
+  {
+    "Id": "L502",
+    "Ru": "Укажи IP или подсеть CIDR, например 192.168.0.0/16.",
+    "En": "Enter an IP or CIDR subnet, e.g. 192.168.0.0/16.",
+    "Hy": "Նշիր IP կամ CIDR ենթացանց, օրինակ՝ 192.168.0.0/16։"
+  },
+  {
+    "Id": "L503",
+    "Ru": "Некорректная длина маски подсети.",
+    "En": "Invalid subnet mask length.",
+    "Hy": "Ենթացանցի դիմակի անվավեր երկարություն։"
+  },
+  {
+    "Id": "L504",
+    "Ru": "DNS: укажи от одного до четырёх IP-адресов, каждый с новой строки.",
+    "En": "DNS: enter one to four IP addresses, one per line.",
+    "Hy": "DNS․ նշիր մեկից չորս IP հասցե՝ յուրաքանչյուրն առանձին տողում։"
+  },
+  {
+    "Id": "L505",
+    "Ru": "Неизвестный режим подключения.",
+    "En": "Unknown connection mode.",
+    "Hy": "Միացման անհայտ ռեժիմ։"
+  },
+  {
+    "Id": "L506",
+    "Ru": "Для правил по приложениям выбери TUN. Системный прокси поддерживают только программы с настройкой прокси.",
+    "En": "Select TUN for per-app rules. System proxy works only with proxy-aware applications.",
+    "Hy": "Ըստ հավելվածի կանոնների համար ընտրիր TUN-ը։ Համակարգային պրոքսին աշխատում է միայն այն աջակցող ծրագրերի հետ։"
+  },
+  {
+    "Id": "L507",
+    "Ru": "Неизвестный режим маршрутизации.",
+    "En": "Unknown routing mode.",
+    "Hy": "Երթուղավորման անհայտ ռեժիմ։"
+  },
+  {
+    "Id": "L508",
+    "Ru": "Для режима «Только выбранное через VPN» добавь хотя бы одно правило.",
+    "En": "Add at least one rule for Only selected traffic uses VPN mode.",
+    "Hy": "«Միայն ընտրվածը՝ VPN-ով» ռեժիմի համար ավելացրու առնվազն մեկ կանոն։"
+  },
+  {
+    "Id": "L509",
+    "Ru": "При включённом VPN задержка может быть неточной из-за маршрутизации. TCP-проверка всё равно выполняется.",
+    "En": "VPN routing may affect latency accuracy. The TCP check still runs.",
+    "Hy": "VPN-ի երթուղավորումը կարող է ազդել ուշացման ճշգրտության վրա։ TCP ստուգումը միևնույն է կատարվում է։"
+  },
+  {
+    "Id": "L510",
+    "Ru": "Протокол использует UDP; TCP-пинг к нему неприменим.",
+    "En": "This protocol uses UDP; TCP latency is not applicable.",
+    "Hy": "Այս արձանագրությունն օգտագործում է UDP․ TCP ուշացումը կիրառելի չէ։"
+  },
+  {
+    "Id": "L511",
+    "Ru": "TCP-пинг: нет ответа. Это не означает, что VPN-сервер не работает.",
+    "En": "TCP check: no response. This does not mean the VPN server is unavailable.",
+    "Hy": "TCP ստուգում․ պատասխան չկա։ Սա չի նշանակում, որ VPN սերվերը չի աշխատում։"
+  },
+  {
+    "Id": "L512",
+    "Ru": "За 7 секунд сервер не ответил на TCP-проверку. Это не означает, что VPN-сервер не работает.",
+    "En": "No TCP response within 7 seconds. This does not mean the VPN server is unavailable.",
+    "Hy": "7 վայրկյանի ընթացքում TCP պատասխան չի ստացվել։ Սա չի նշանակում, որ VPN սերվերը չի աշխատում։"
+  },
+  {
+    "Id": "L513",
+    "Ru": "Средний TCP-пинг за 7 секунд · ответов {0} из {1}. Подключение VPN проверяется отдельно.",
+    "En": "Average TCP latency over 7 seconds · {0} of {1} responses. VPN connectivity is checked separately.",
+    "Hy": "Միջին TCP ուշացումը՝ 7 վայրկյանում · պատասխաններ՝ {0} / {1}։ VPN կապը ստուգվում է առանձին։"
+  },
+  {
+    "Id": "L514",
+    "Ru": "Не указан порт сервера.",
+    "En": "Server port not specified.",
+    "Hy": "Սերվերի պորտը նշված չէ։"
+  },
+  {
+    "Id": "L515",
+    "Ru": "TCP-пинг до порта сервера. Успешное VPN-подключение проверяется отдельно при подключении.",
+    "En": "TCP latency to the server port. VPN connectivity is verified separately when connecting.",
+    "Hy": "TCP ուշացումը մինչև սերվերի պորտը։ VPN կապը ստուգվում է առանձին՝ միանալիս։"
+  },
+  {
+    "Id": "L516",
+    "Ru": "Вставь HTTPS-ссылку на подписку.",
+    "En": "Paste an HTTPS subscription link.",
+    "Hy": "Տեղադրիր բաժանորդագրության HTTPS հղումը։"
+  },
+  {
+    "Id": "L517",
+    "Ru": "Подписка слишком большая (максимум 4 МБ).",
+    "En": "Subscription too large (maximum 4 MB).",
+    "Hy": "Բաժանորդագրությունը չափազանց մեծ է (առավելագույնը՝ 4 ՄԲ)։"
+  },
+  {
+    "Id": "L518",
+    "Ru": "Сервер вернул пустую подписку.",
+    "En": "Server returned an empty subscription.",
+    "Hy": "Սերվերը վերադարձրել է դատարկ բաժանորդագրություն։"
+  },
+  {
+    "Id": "L519",
+    "Ru": "Не удалось распознать формат подписки.",
+    "En": "Could not recognize the subscription format.",
+    "Hy": "Չհաջողվեց ճանաչել բաժանորդագրության ձևաչափը։"
+  },
+  {
+    "Id": "L520",
+    "Ru": "В подписке некорректный JSON.",
+    "En": "Invalid JSON in subscription.",
+    "Hy": "Բաժանորդագրության JSON-ն անվավեր է։"
+  },
+  {
+    "Id": "L521",
+    "Ru": "В подписке некорректная конфигурация сервера.",
+    "En": "Invalid server configuration in subscription.",
+    "Hy": "Բաժանորդագրության մեջ սերվերի անվավեր կարգավորում կա։"
+  },
+  {
+    "Id": "L522",
+    "Ru": "В подписке есть только служебные настройки маршрутизации. Ссылок на VPN-серверы нет; прежние серверы сохранены.",
+    "En": "The subscription contains only routing metadata, with no VPN server links. Previous servers are kept.",
+    "Hy": "Բաժանորդագրությունը պարունակում է միայն երթուղավորման ծառայողական տվյալներ։ VPN սերվերների հղումներ չկան․ նախորդ սերվերները պահպանված են։"
+  },
+  {
+    "Id": "L523",
+    "Ru": "В подписке нет поддерживаемых прокси-серверов. Если провайдер вернул служебный профиль, проверь срок подписки и ссылку для Xray/V2Ray.",
+    "En": "No supported proxy servers in the subscription. If this is a service profile, check subscription validity and the Xray/V2Ray link.",
+    "Hy": "Բաժանորդագրության մեջ աջակցվող պրոքսի սերվերներ չկան։ Եթե սա ծառայողական պրոֆիլ է, ստուգիր բաժանորդագրության ժամկետը և Xray/V2Ray հղումը։"
+  },
+  {
+    "Id": "L524",
+    "Ru": "В подписке больше 1000 серверов.",
+    "En": "More than 1000 servers in the subscription.",
+    "Hy": "Բաժանորդագրության մեջ 1000-ից ավելի սերվեր կա։"
+  },
+  {
+    "Id": "L525",
+    "Ru": "Ожидается конфигурация Xray с массивом outbounds.",
+    "En": "Expected an Xray configuration with an outbounds array.",
+    "Hy": "Սպասվում է outbounds զանգվածով Xray կարգավորում։"
+  },
+  {
+    "Id": "L526",
+    "Ru": "В конфигурации нет поддерживаемого прокси-сервера.",
+    "En": "No supported proxy server in the configuration.",
+    "Hy": "Կարգավորման մեջ աջակցվող պրոքսի սերվեր չկա։"
+  },
+  {
+    "Id": "L527",
+    "Ru": "Поддерживается Hysteria версии 2.",
+    "En": "Hysteria version 2 is supported.",
+    "Hy": "Աջակցվում է Hysteria-ի 2-րդ տարբերակը։"
+  },
+  {
+    "Id": "L528",
+    "Ru": "В конфигурации не указан адрес сервера.",
+    "En": "Server address missing from configuration.",
+    "Hy": "Կարգավորման մեջ սերվերի հասցեն նշված չէ։"
+  },
+  {
+    "Id": "L529",
+    "Ru": "Ожидается список ссылок на серверы или JSON Xray.",
+    "En": "Expected a list of server links or Xray JSON.",
+    "Hy": "Սպասվում է սերվերների հղումների ցանկ կամ Xray JSON։"
+  },
+  {
+    "Id": "L530",
+    "Ru": "Этот формат подписки пока не поддерживается. Нужен JSON Xray или список ссылок VLESS, VMess, Trojan, Shadowsocks, SOCKS, Hysteria2.",
+    "En": "Subscription format not supported yet. Use Xray JSON or VLESS, VMess, Trojan, Shadowsocks, SOCKS or Hysteria2 links.",
+    "Hy": "Բաժանորդագրության այս ձևաչափը դեռ չի աջակցվում։ Անհրաժեշտ է Xray JSON կամ VLESS, VMess, Trojan, Shadowsocks, SOCKS, Hysteria2 հղումների ցանկ։"
+  },
+  {
+    "Id": "L531",
+    "Ru": "Некорректная ссылка на сервер.",
+    "En": "Invalid server link.",
+    "Hy": "Սերվերի անվավեր հղում։"
+  },
+  {
+    "Id": "L532",
+    "Ru": "Некорректный адрес или порт сервера.",
+    "En": "Invalid server address or port.",
+    "Hy": "Սերվերի անվավեր հասցե կամ պորտ։"
+  },
+  {
+    "Id": "L533",
+    "Ru": "Это ссылка приложения HitVPN со встроенной конфигурацией, а не обычная подписка. Этот формат пока не поддерживается. Запроси у провайдера обычную подписку VLESS/Xray или файл WireGuard .conf.",
+    "En": "This is a HitVPN app link with an embedded configuration, not a standard subscription. This format is not supported yet. Ask the provider for a VLESS/Xray subscription or WireGuard .conf file.",
+    "Hy": "Սա HitVPN հավելվածի ներդրված կարգավորմամբ հղում է, ոչ սովորական բաժանորդագրություն։ Այս ձևաչափը դեռ չի աջակցվում։ Մատակարարից խնդրիր սովորական VLESS/Xray բաժանորդագրություն կամ WireGuard .conf ֆայլ։"
+  },
+  {
+    "Id": "L534",
+    "Ru": "Слишком много перенаправлений подписки.",
+    "En": "Too many subscription redirects.",
+    "Hy": "Բաժանորդագրության չափազանց շատ վերահղումներ։"
+  },
+  {
+    "Id": "L535",
+    "Ru": "Ссылка перенаправляет в формат HitVPN. Нужна обычная ссылка VLESS или файл WireGuard .conf.",
+    "En": "The link redirects to the HitVPN format. Use a standard VLESS link or WireGuard .conf file.",
+    "Hy": "Հղումը վերահղում է HitVPN ձևաչափին։ Անհրաժեշտ է սովորական VLESS հղում կամ WireGuard .conf ֆայլ։"
+  },
+  {
+    "Id": "L536",
+    "Ru": "Сервер подписки ответил HTTP {0}. Проверь ссылку и срок подписки.",
+    "En": "Subscription server returned HTTP {0}. Check the link and subscription validity.",
+    "Hy": "Բաժանորդագրության սերվերը պատասխանել է HTTP {0}։ Ստուգիր հղումն ու բաժանորդագրության ժամկետը։"
+  },
+  {
+    "Id": "L537",
+    "Ru": "Не удалось загрузить подписку.",
+    "En": "Could not download subscription.",
+    "Hy": "Չհաջողվեց ներբեռնել բաժանորդագրությունը։"
+  },
+  {
+    "Id": "L538",
+    "Ru": "Другой сеанс VPN4ik уже управляет системным прокси.",
+    "En": "Another VPN4ik session is already managing the system proxy.",
+    "Hy": "Մեկ այլ VPN4ik աշխատաշրջան արդեն կառավարում է համակարգային պրոքսին։"
+  },
+  {
+    "Id": "L539",
+    "Ru": "Некорректный порт прокси.",
+    "En": "Invalid proxy port.",
+    "Hy": "Պրոքսիի անվավեր պորտ։"
+  },
+  {
+    "Id": "L540",
+    "Ru": "Не удалось восстановить прежний системный прокси.",
+    "En": "Could not restore the previous system proxy.",
+    "Hy": "Չհաջողվեց վերականգնել նախորդ համակարգային պրոքսին։"
+  },
+  {
+    "Id": "L541",
+    "Ru": "Windows не применила настройки системного прокси.",
+    "En": "Windows did not apply the system proxy settings.",
+    "Hy": "Windows-ը չի կիրառել համակարգային պրոքսիի կարգավորումները։"
+  },
+  {
+    "Id": "L542",
+    "Ru": "Открыть приложение",
+    "En": "Open application",
+    "Hy": "Բացել հավելվածը"
+  },
+  {
+    "Id": "L543",
+    "Ru": "Выход",
+    "En": "Exit",
+    "Hy": "Ելք"
+  },
+  {
+    "Id": "L544",
+    "Ru": "WireGuard завершился с кодом {0}.",
+    "En": "WireGuard exited with code {0}.",
+    "Hy": "WireGuard-ն ավարտվել է {0} կոդով։"
+  },
+  {
+    "Id": "L545",
+    "Ru": "Не удалось запустить WireGuard.",
+    "En": "Could not start WireGuard.",
+    "Hy": "Չհաջողվեց գործարկել WireGuard-ը։"
+  },
+  {
+    "Id": "L546",
+    "Ru": "Не удалось подтвердить состояние службы WireGuard.",
+    "En": "Could not confirm WireGuard service status.",
+    "Hy": "Չհաջողվեց հաստատել WireGuard ծառայության վիճակը։"
+  },
+  {
+    "Id": "L547",
+    "Ru": "Не удалось проверить запуск обновления.",
+    "En": "Could not verify update startup.",
+    "Hy": "Չհաջողվեց ստուգել թարմացման գործարկումը։"
+  },
+  {
+    "Id": "L548",
+    "Ru": "Новая версия не прошла проверку запуска.",
+    "En": "The new version failed the startup check.",
+    "Hy": "Նոր տարբերակը չի անցել գործարկման ստուգումը։"
+  },
+  {
+    "Id": "L549",
+    "Ru": "Новая версия не содержит встроенную среду .NET.",
+    "En": "The new version does not include the .NET runtime.",
+    "Hy": "Նոր տարբերակում ներկառուցված .NET միջավայր չկա։"
+  },
+  {
+    "Id": "L550",
+    "Ru": "Некорректный файл обновления.",
+    "En": "Invalid update file.",
+    "Hy": "Թարմացման անվավեր ֆայլ։"
+  },
+  {
+    "Id": "L551",
+    "Ru": "Не удалось запустить установку обновления.",
+    "En": "Could not start update installation.",
+    "Hy": "Չհաջողվեց սկսել թարմացման տեղադրումը։"
+  },
+  {
+    "Id": "L552",
+    "Ru": "Некорректное задание обновления.",
+    "En": "Invalid update job.",
+    "Hy": "Թարմացման անվավեր առաջադրանք։"
+  },
+  {
+    "Id": "L553",
+    "Ru": "Приложение уже заменено другим процессом.",
+    "En": "The application has already been replaced by another process.",
+    "Hy": "Հավելվածն արդեն փոխարինված է մեկ այլ գործընթացով։"
+  },
+  {
+    "Id": "L554",
+    "Ru": "Не удалось перезапустить приложение.",
+    "En": "Could not restart application.",
+    "Hy": "Չհաջողվեց վերագործարկել հավելվածը։"
+  },
+  {
+    "Id": "L555",
+    "Ru": "Не удалось завершить обновление VPN4ik. Запусти приложение вручную или скачай выпуск через GitHub. Если установка начиналась, резервная копия находится во временной папке VPN4ik-updates.",
+    "En": "Could not finish updating VPN4ik. Start the app manually or download the release from GitHub. If installation started, a backup is in the temporary VPN4ik-updates folder.",
+    "Hy": "Չհաջողվեց ավարտել VPN4ik-ի թարմացումը։ Գործարկիր հավելվածը ձեռքով կամ ներբեռնիր թողարկումը GitHub-ից։ Եթե տեղադրումն սկսվել էր, պահուստային պատճենը VPN4ik-updates ժամանակավոր պանակում է։"
+  },
+  {
+    "Id": "L556",
+    "Ru": "Обновление VPN4ik",
+    "En": "VPN4ik update",
+    "Hy": "VPN4ik-ի թարմացում"
+  },
+  {
+    "Id": "L557",
+    "Ru": "Процесс приложения изменился.",
+    "En": "Application process changed.",
+    "Hy": "Հավելվածի գործընթացը փոխվել է։"
+  },
+  {
+    "Id": "L558",
+    "Ru": "Недопустимый путь обновления.",
+    "En": "Invalid update path.",
+    "Hy": "Թարմացման անվավեր ուղի։"
+  },
+  {
+    "Id": "L559",
+    "Ru": "Файлы подготовки изменились.",
+    "En": "Staged files have changed.",
+    "Hy": "Նախապատրաստված ֆայլերը փոխվել են։"
+  },
+  {
+    "Id": "L560",
+    "Ru": "Копия файла обновления повреждена.",
+    "En": "Update file copy is damaged.",
+    "Hy": "Թարմացման ֆայլի պատճենը վնասված է։"
+  },
+  {
+    "Id": "L561",
+    "Ru": "Не все прежние файлы восстановлены. Резервная копия сохранена.",
+    "En": "Not all previous files were restored. Backup is preserved.",
+    "Hy": "Նախորդ ոչ բոլոր ֆայլերն են վերականգնված։ Պահուստային պատճենը պահպանված է։"
+  },
+  {
+    "Id": "L562",
+    "Ru": "Путь вне папки приложения.",
+    "En": "Path is outside the application folder.",
+    "Hy": "Ուղին հավելվածի պանակից դուրս է։"
+  },
+  {
+    "Id": "L563",
+    "Ru": "Обновление через ссылку каталога недоступно.",
+    "En": "Updating through a directory link is unavailable.",
+    "Hy": "Պանակի հղումով թարմացումը հասանելի չէ։"
+  },
+  {
+    "Id": "L564",
+    "Ru": "Некорректные параметры VPN-движка.",
+    "En": "Invalid VPN engine settings.",
+    "Hy": "VPN շարժիչի անվավեր պարամետրեր։"
+  },
+  {
+    "Id": "L565",
+    "Ru": "Некорректные параметры системного прокси.",
+    "En": "Invalid system proxy settings.",
+    "Hy": "Համակարգային պրոքսիի անվավեր պարամետրեր։"
+  },
+  {
+    "Id": "L566",
+    "Ru": "В профиле нет конфигурации подключения. Обнови подписку.",
+    "En": "No connection configuration in profile. Refresh the subscription.",
+    "Hy": "Պրոֆիլում միացման կարգավորում չկա։ Թարմացրու բաժանորդագրությունը։"
+  },
+  {
+    "Id": "L567",
+    "Ru": "Не разрешён адрес сервера.",
+    "En": "Server address not resolved.",
+    "Hy": "Սերվերի հասցեն որոշված չէ։"
+  },
+  {
+    "Id": "L568",
+    "Ru": "Некорректная проверка задержки.",
+    "En": "Invalid latency check.",
+    "Hy": "Ուշացման անվավեր ստուգում։"
+  },
+  {
+    "Id": "L569",
+    "Ru": "Некорректный JSON профиля.",
+    "En": "Invalid profile JSON.",
+    "Hy": "Պրոֆիլի անվավեր JSON։"
+  },
+  {
+    "Id": "L570",
+    "Ru": "В профиле не найден прокси-сервер.",
+    "En": "No proxy server found in profile.",
+    "Hy": "Պրոֆիլում պրոքսի սերվեր չի գտնվել։"
+  },
+  {
+    "Id": "L571",
+    "Ru": "Неизвестный протокол подключения.",
+    "En": "Unknown connection protocol.",
+    "Hy": "Միացման անհայտ արձանագրություն։"
+  },
+  {
+    "Id": "L572",
+    "Ru": "В профиле нет параметров сервера.",
+    "En": "Server parameters missing from profile.",
+    "Hy": "Պրոֆիլում սերվերի պարամետրերը բացակայում են։"
+  },
+  {
+    "Id": "L573",
+    "Ru": "В профиле не задан сервер.",
+    "En": "No server specified in profile.",
+    "Hy": "Պրոֆիլում սերվերը նշված չէ։"
+  },
+  {
+    "Id": "L574",
+    "Ru": "Некорректный адрес сервера.",
+    "En": "Invalid server address.",
+    "Hy": "Սերվերի անվավեր հասցե։"
+  },
+  {
+    "Id": "L575",
+    "Ru": "В профиле нет ключа пользователя.",
+    "En": "User key missing from profile.",
+    "Hy": "Պրոֆիլում օգտատիրոջ բանալին բացակայում է։"
+  },
+  {
+    "Id": "L576",
+    "Ru": "Этот транспорт подключения пока не поддерживается.",
+    "En": "This connection transport is not supported yet.",
+    "Hy": "Միացման այս տրանսպորտը դեռ չի աջակցվում։"
+  },
+  {
+    "Id": "L577",
+    "Ru": "Неизвестный режим шифрования профиля.",
+    "En": "Unknown profile encryption mode.",
+    "Hy": "Պրոֆիլի գաղտնագրման անհայտ ռեժիմ։"
+  },
+  {
+    "Id": "L578",
+    "Ru": "Профиль отключает проверку сертификата TLS. Нужна безопасная конфигурация сервера.",
+    "En": "Profile disables TLS certificate validation. A secure server configuration is required.",
+    "Hy": "Պրոֆիլն անջատում է TLS վկայագրի ստուգումը։ Անհրաժեշտ է սերվերի անվտանգ կարգավորում։"
+  },
+  {
+    "Id": "L579",
+    "Ru": "Для Hysteria2 требуются транспорт Hysteria и TLS.",
+    "En": "Hysteria2 requires Hysteria transport and TLS.",
+    "Hy": "Hysteria2-ի համար անհրաժեշտ են Hysteria տրանսպորտ և TLS։"
+  },
+  {
+    "Id": "L580",
+    "Ru": "В профиле Hysteria2 нет параметров авторизации.",
+    "En": "Hysteria2 profile has no authentication parameters.",
+    "Hy": "Hysteria2 պրոֆիլում նույնականացման պարամետրեր չկան։"
+  },
+  {
+    "Id": "L581",
+    "Ru": "Этот вариант маскировки Hysteria2 пока не поддерживается.",
+    "En": "This Hysteria2 obfuscation method is not supported yet.",
+    "Hy": "Hysteria2-ի քողարկման այս տարբերակը դեռ չի աջակցվում։"
+  },
+  {
+    "Id": "L582",
+    "Ru": "Некорректные параметры поддержания TCP-соединения.",
+    "En": "Invalid TCP keepalive parameters.",
+    "Hy": "TCP կապի պահպանման անվավեր պարամետրեր։"
+  },
+  {
+    "Id": "L583",
+    "Ru": "Расширенные параметры XHTTP пока не поддерживаются.",
+    "En": "Extended XHTTP settings are not supported yet.",
+    "Hy": "XHTTP-ի ընդլայնված պարամետրերը դեռ չեն աջակցվում։"
+  },
+  {
+    "Id": "L584",
+    "Ru": "Некорректный порт VMess.",
+    "En": "Invalid VMess port.",
+    "Hy": "VMess-ի անվավեր պորտ։"
+  },
+  {
+    "Id": "L585",
+    "Ru": "Некорректная ссылка профиля.",
+    "En": "Invalid profile link.",
+    "Hy": "Պրոֆիլի անվավեր հղում։"
+  },
+  {
+    "Id": "L586",
+    "Ru": "Профиль отключает проверку сертификата TLS.",
+    "En": "Profile disables TLS certificate validation.",
+    "Hy": "Պրոֆիլն անջատում է TLS վկայագրի ստուգումը։"
+  },
+  {
+    "Id": "L587",
+    "Ru": "Некорректный ключ Shadowsocks.",
+    "En": "Invalid Shadowsocks key.",
+    "Hy": "Shadowsocks-ի անվավեր բանալի։"
+  },
+  {
+    "Id": "L588",
+    "Ru": "Запуск",
+    "En": "Starting",
+    "Hy": "Գործարկում"
+  },
+  {
+    "Id": "L589",
+    "Ru": "Разрешение адреса сервера",
+    "En": "Resolving server address",
+    "Hy": "Սերվերի հասցեի որոշում"
+  },
+  {
+    "Id": "L590",
+    "Ru": "Не найден сетевой адрес сервера.",
+    "En": "No network address found for server.",
+    "Hy": "Սերվերի ցանցային հասցեն չի գտնվել։"
+  },
+  {
+    "Id": "L591",
+    "Ru": "VPN-движок остановился до проверки соединения.",
+    "En": "VPN engine stopped before connection verification.",
+    "Hy": "VPN շարժիչը կանգնել է մինչև կապի ստուգումը։"
+  },
+  {
+    "Id": "L592",
+    "Ru": "Ожидание маршрута TUN",
+    "En": "Waiting for TUN route",
+    "Hy": "Սպասում TUN երթուղուն"
+  },
+  {
+    "Id": "L593",
+    "Ru": "Проверка выбранного сервера",
+    "En": "Checking selected server",
+    "Hy": "Ընտրված սերվերի ստուգում"
+  },
+  {
+    "Id": "L594",
+    "Ru": "Проверка сервера и системного маршрута",
+    "En": "Checking server and system route",
+    "Hy": "Սերվերի և համակարգային երթուղու ստուգում"
+  },
+  {
+    "Id": "L595",
+    "Ru": "Проверка системного маршрута",
+    "En": "Checking system route",
+    "Hy": "Համակարգային երթուղու ստուգում"
+  },
+  {
+    "Id": "L596",
+    "Ru": "Маршрут VPN не подтверждён.",
+    "En": "VPN route not confirmed.",
+    "Hy": "VPN երթուղին հաստատված չէ։"
+  },
+  {
+    "Id": "L597",
+    "Ru": "VPN-движок остановился.",
+    "En": "VPN engine stopped.",
+    "Hy": "VPN շարժիչը կանգնել է։"
+  },
+  {
+    "Id": "L598",
+    "Ru": "Проверка соединения: ",
+    "En": "Connection check: ",
+    "Hy": "Կապի ստուգում՝ "
+  },
+  {
+    "Id": "L599",
+    "Ru": "Не удалось подтвердить доступ через VPN. Проверь сервер или выбери другой.",
+    "En": "Could not confirm VPN access. Check the server or select another.",
+    "Hy": "Չհաջողվեց հաստատել VPN-ով հասանելիությունը։ Ստուգիր սերվերը կամ ընտրիր մեկ ուրիշը։"
+  },
+  {
+    "Id": "L600",
+    "Ru": "Не определён пользователь Windows.",
+    "En": "Windows user not identified.",
+    "Hy": "Windows-ի օգտատերը որոշված չէ։"
+  },
+  {
+    "Id": "L601",
+    "Ru": "Не найдено приложение.",
+    "En": "Application not found.",
+    "Hy": "Հավելվածը չի գտնվել։"
+  },
+  {
+    "Id": "L602",
+    "Ru": "Не удалось запустить VPN-службу.",
+    "En": "Could not start VPN service.",
+    "Hy": "Չհաջողվեց գործարկել VPN ծառայությունը։"
+  },
+  {
+    "Id": "L603",
+    "Ru": "Не удалось подтвердить VPN-службу.",
+    "En": "Could not verify VPN service.",
+    "Hy": "Չհաջողվեց հաստատել VPN ծառայությունը։"
+  },
+  {
+    "Id": "L604",
+    "Ru": "VPN-служба закрыла канал управления.",
+    "En": "VPN service closed the control channel.",
+    "Hy": "VPN ծառայությունը փակել է կառավարման ալիքը։"
+  },
+  {
+    "Id": "L605",
+    "Ru": "VPN-служба закрыла соединение.",
+    "En": "VPN service closed the connection.",
+    "Hy": "VPN ծառայությունը փակել է կապը։"
+  },
+  {
+    "Id": "L606",
+    "Ru": "Маршрут TUN изменился во время проверки.",
+    "En": "TUN route changed during verification.",
+    "Hy": "Ստուգման ընթացքում TUN երթուղին փոխվել է։"
+  },
+  {
+    "Id": "L607",
+    "Ru": "Не подтверждён системный маршрут через VPN4ik-TUN.",
+    "En": "System route through VPN4ik-TUN not confirmed.",
+    "Hy": "VPN4ik-TUN-ով համակարգային երթուղին հաստատված չէ։"
+  },
+  {
+    "Id": "L608",
+    "Ru": "VPN-движок остановлен.",
+    "En": "VPN engine shut down.",
+    "Hy": "VPN շարժիչը կանգնեցված է։"
+  },
+  {
+    "Id": "L609",
+    "Ru": "VPN-служба ещё не завершила отключение. Попробуй отключить повторно.",
+    "En": "VPN service has not finished disconnecting. Try disconnecting again.",
+    "Hy": "VPN ծառայությունը դեռ չի ավարտել անջատումը։ Փորձիր կրկին անջատել։"
+  },
+  {
+    "Id": "L610",
+    "Ru": "Не удалось запустить управление zapret.",
+    "En": "Could not start zapret management.",
+    "Hy": "Չհաջողվեց գործարկել zapret-ի կառավարումը։"
+  },
+  {
+    "Id": "L611",
+    "Ru": "Не подтверждён процесс управления zapret.",
+    "En": "zapret control process not verified.",
+    "Hy": "zapret-ի կառավարման գործընթացը հաստատված չէ։"
+  },
+  {
+    "Id": "L612",
+    "Ru": "Не подтверждён канал управления zapret.",
+    "En": "zapret control channel not verified.",
+    "Hy": "zapret-ի կառավարման ալիքը հաստատված չէ։"
+  },
+  {
+    "Id": "L613",
+    "Ru": "Слишком большой запрос zapret.",
+    "En": "zapret request too large.",
+    "Hy": "zapret-ի հարցումը չափազանց մեծ է։"
+  },
+  {
+    "Id": "L614",
+    "Ru": "Нет подтверждения операции zapret.",
+    "En": "No confirmation of zapret operation.",
+    "Hy": "zapret-ի գործողության հաստատում չկա։"
+  },
+  {
+    "Id": "L615",
+    "Ru": "Некорректный ответ управления zapret.",
+    "En": "Invalid zapret control response.",
+    "Hy": "zapret-ի կառավարման անվավեր պատասխան։"
+  },
+  {
+    "Id": "L616",
+    "Ru": "Управление zapret доступно при обычном запуске приложения.",
+    "En": "zapret management is available during normal application startup.",
+    "Hy": "zapret-ի կառավարումը հասանելի է հավելվածի սովորական գործարկման ժամանակ։"
+  },
+  {
+    "Id": "L617",
+    "Ru": "выбранная папка",
+    "En": "selected folder",
+    "Hy": "ընտրված պանակ"
+  },
+  {
+    "Id": "L618",
+    "Ru": "запущенный zapret",
+    "En": "running zapret",
+    "Hy": "աշխատող zapret"
+  },
+  {
+    "Id": "L619",
+    "Ru": "служба Windows",
+    "En": "Windows service",
+    "Hy": "Windows ծառայություն"
+  },
+  {
+    "Id": "L620",
+    "Ru": "найдено на компьютере",
+    "En": "detected on this computer",
+    "Hy": "գտնված է համակարգչում"
+  },
+  {
+    "Id": "L621",
+    "Ru": "Неизвестный файл обновления zapret.",
+    "En": "Unknown zapret update file.",
+    "Hy": "zapret-ի թարմացման անհայտ ֆայլ։"
+  },
+  {
+    "Id": "L622",
+    "Ru": "Файл обновления zapret слишком большой.",
+    "En": "zapret update file too large.",
+    "Hy": "zapret-ի թարմացման ֆայլը չափազանց մեծ է։"
+  },
+  {
+    "Id": "L623",
+    "Ru": "Сервер вернул некорректную версию zapret.",
+    "En": "Server returned an invalid zapret version.",
+    "Hy": "Սերվերը վերադարձրել է zapret-ի անվավեր տարբերակ։"
+  },
+  {
+    "Id": "L624",
+    "Ru": "Сервер вернул некорректный hosts. Системный файл не изменён.",
+    "En": "Server returned invalid hosts. System file unchanged.",
+    "Hy": "Սերվերը վերադարձրել է անվավեր hosts։ Համակարգային ֆայլը չի փոխվել։"
+  },
+  {
+    "Id": "L625",
+    "Ru": "Процессы этой папки: {0}; службы: {1}; другие экземпляры: {2}; недоступны: {3}.",
+    "En": "Processes in this folder: {0}; services: {1}; other instances: {2}; inaccessible: {3}.",
+    "Hy": "Այս պանակի գործընթացներ՝ {0}․ ծառայություններ՝ {1}․ այլ օրինակներ՝ {2}․ անհասանելի՝ {3}։"
+  },
+  {
+    "Id": "L626",
+    "Ru": "Драйвер WinDivert: файл найден.",
+    "En": "WinDivert driver: file found.",
+    "Hy": "WinDivert դրայվեր․ ֆայլը գտնված է։"
+  },
+  {
+    "Id": "L627",
+    "Ru": "Драйвер WinDivert: .sys не найден в bin.",
+    "En": "WinDivert driver: .sys not found in bin.",
+    "Hy": "WinDivert դրայվեր․ .sys-ը bin-ում չի գտնվել։"
+  },
+  {
+    "Id": "L628",
+    "Ru": "Системный прокси включён: возможен конфликт.",
+    "En": "System proxy is on: possible conflict.",
+    "Hy": "Համակարգային պրոքսին միացված է․ հնարավոր է հակասություն։"
+  },
+  {
+    "Id": "L629",
+    "Ru": "Системный прокси выключен.",
+    "En": "System proxy is off.",
+    "Hy": "Համակարգային պրոքսին անջատված է։"
+  },
+  {
+    "Id": "L630",
+    "Ru": "Возможный конфликт: служба ",
+    "En": "Possible conflict: service ",
+    "Hy": "Հնարավոր հակասություն․ ծառայություն՝ "
+  },
+  {
+    "Id": "L631",
+    "Ru": "AdGuard запущен: возможен конфликт.",
+    "En": "AdGuard is running: possible conflict.",
+    "Hy": "AdGuard-ն աշխատում է․ հնարավոր է հակասություն։"
+  },
+  {
+    "Id": "L632",
+    "Ru": "Параметры стратегий: {0}/{1} корректны.",
+    "En": "Strategy parameters: {0}/{1} valid.",
+    "Hy": "Ռազմավարության պարամետրեր՝ {0}/{1} վավեր։"
+  },
+  {
+    "Id": "L633",
+    "Ru": "Не удалось прочитать TCP-параметры за 5 секунд.",
+    "En": "Could not read TCP parameters within 5 seconds.",
+    "Hy": "Չհաջողվեց կարդալ TCP պարամետրերը 5 վայրկյանում։"
+  },
+  {
+    "Id": "L634",
+    "Ru": "Диагностика завершена. Службы, драйверы, Discord и системные настройки не изменялись.",
+    "En": "Diagnostics complete. Services, drivers, Discord and system settings were not changed.",
+    "Hy": "Ախտորոշումն ավարտված է։ Ծառայությունները, դրայվերները, Discord-ը և համակարգային կարգավորումները չեն փոխվել։"
+  },
+  {
+    "Id": "L635",
+    "Ru": "Некорректные списки zapret.",
+    "En": "Invalid zapret lists.",
+    "Hy": "zapret-ի անվավեր ցանկեր։"
+  },
+  {
+    "Id": "L636",
+    "Ru": "Не удалось определить все процессы zapret. Отключение не подтверждено.",
+    "En": "Could not identify all zapret processes. Shutdown unconfirmed.",
+    "Hy": "Չհաջողվեց որոշել zapret-ի բոլոր գործընթացները։ Կանգնեցումը հաստատված չէ։"
+  },
+  {
+    "Id": "L637",
+    "Ru": "Слишком много экземпляров zapret в выбранной папке.",
+    "En": "Too many zapret instances in the selected folder.",
+    "Hy": "Ընտրված պանակում zapret-ի չափազանց շատ օրինակներ կան։"
+  },
+  {
+    "Id": "L638",
+    "Ru": "Не удалось сохранить параметры службы zapret.",
+    "En": "Could not save zapret service parameters.",
+    "Hy": "Չհաջողվեց պահպանել zapret ծառայության պարամետրերը։"
+  },
+  {
+    "Id": "L639",
+    "Ru": "Процесс zapret изменился; операция отменена.",
+    "En": "zapret process changed; operation canceled.",
+    "Hy": "zapret-ի գործընթացը փոխվել է․ գործողությունը չեղարկված է։"
+  },
+  {
+    "Id": "L640",
+    "Ru": "Процесс zapret ещё не остановлен.",
+    "En": "zapret process has not stopped yet.",
+    "Hy": "zapret-ի գործընթացը դեռ կանգնեցված չէ։"
+  },
+  {
+    "Id": "L641",
+    "Ru": "zapret ещё работает. Подключение VPN не запущено.",
+    "En": "zapret is still running. VPN was not started.",
+    "Hy": "zapret-ը դեռ աշխատում է։ VPN-ը չի գործարկվել։"
+  },
+  {
+    "Id": "L642",
+    "Ru": "Некорректное состояние восстановления zapret.",
+    "En": "Invalid zapret restoration state.",
+    "Hy": "zapret-ի վերականգնման անվավեր վիճակ։"
+  },
+  {
+    "Id": "L643",
+    "Ru": "Обнаружен другой экземпляр zapret. Автоматический возврат отменён; выбери нужную папку.",
+    "En": "Another zapret instance detected. Automatic restore canceled; select the required folder.",
+    "Hy": "Հայտնաբերվել է zapret-ի մեկ այլ օրինակ։ Ավտոմատ վերականգնումը չեղարկված է․ ընտրիր անհրաժեշտ պանակը։"
+  },
+  {
+    "Id": "L644",
+    "Ru": "zapret уже запущен. Его текущий запуск сохранён.",
+    "En": "zapret is already running. Its current session is preserved.",
+    "Hy": "zapret-ն արդեն աշխատում է։ Նրա ընթացիկ գործարկումը պահպանված է։"
+  },
+  {
+    "Id": "L645",
+    "Ru": "Служба zapret больше не относится к выбранной папке.",
+    "En": "zapret service no longer belongs to the selected folder.",
+    "Hy": "zapret-ի ծառայությունն այլևս չի պատկանում ընտրված պանակին։"
+  },
+  {
+    "Id": "L646",
+    "Ru": "Неизвестная операция zapret.",
+    "En": "Unknown zapret operation.",
+    "Hy": "zapret-ի անհայտ գործողություն։"
+  },
+  {
+    "Id": "L647",
+    "Ru": "Windows не выполнила действие zapret (код {0}).",
+    "En": "Windows did not perform the zapret action (code {0}).",
+    "Hy": "Windows-ը չի կատարել zapret-ի գործողությունը (կոդ՝ {0})։"
+  },
+  {
+    "Id": "L648",
+    "Ru": "Операция zapret не завершена. Прежние параметры сохранены, если замена не была завершена.",
+    "En": "zapret operation incomplete. Previous settings are kept if replacement did not finish.",
+    "Hy": "zapret-ի գործողությունը չի ավարտվել։ Նախորդ պարամետրերը պահպանվում են, եթե փոխարինումը չի ավարտվել։"
+  },
+  {
+    "Id": "L649",
+    "Ru": "zapret уже работает. Для смены стратегии нажми «Перезапустить».",
+    "En": "zapret is already running. Click Restart to change strategy.",
+    "Hy": "zapret-ն արդեն աշխատում է։ Ռազմավարությունը փոխելու համար սեղմիր «Վերագործարկել»։"
+  },
+  {
+    "Id": "L650",
+    "Ru": "zapret уже работает из другой папки. Выбери эту папку или выключи другой экземпляр вручную.",
+    "En": "zapret is running from another folder. Select it or stop the other instance manually.",
+    "Hy": "zapret-ն աշխատում է այլ պանակից։ Ընտրիր այդ պանակը կամ ձեռքով կանգնեցրու մյուս օրինակը։"
+  },
+  {
+    "Id": "L651",
+    "Ru": "Не удалось проверить работающие процессы zapret.",
+    "En": "Could not inspect running zapret processes.",
+    "Hy": "Չհաջողվեց ստուգել zapret-ի աշխատող գործընթացները։"
+  },
+  {
+    "Id": "L652",
+    "Ru": "В выбранной папке несколько служб zapret. Запусти нужную службу через её менеджер.",
+    "En": "Several zapret services in the selected folder. Start the required service using its manager.",
+    "Hy": "Ընտրված պանակում մի քանի zapret ծառայություն կա։ Անհրաժեշտ ծառայությունը գործարկիր ծառայությունների կառավարչից։"
+  },
+  {
+    "Id": "L653",
+    "Ru": "Не найдены параметры службы zapret.",
+    "En": "zapret service parameters not found.",
+    "Hy": "zapret ծառայության պարամետրերը չեն գտնվել։"
+  },
+  {
+    "Id": "L654",
+    "Ru": "Не удалось запустить zapret.",
+    "En": "Could not start zapret.",
+    "Hy": "Չհաջողվեց գործարկել zapret-ը։"
+  },
+  {
+    "Id": "L655",
+    "Ru": "zapret завершился сразу после запуска (код {0}). Проверь файлы сборки или выбери другую стратегию.",
+    "En": "zapret exited immediately (code {0}). Check the build files or select another strategy.",
+    "Hy": "zapret-ն ավարտվել է գործարկումից անմիջապես հետո (կոդ՝ {0})։ Ստուգիր հավաքածուի ֆայլերը կամ ընտրիր այլ ռազմավարություն։"
+  },
+  {
+    "Id": "L656",
+    "Ru": "Не удалось прочитать параметры работающего zapret.",
+    "En": "Could not read running zapret parameters.",
+    "Hy": "Չհաջողվեց կարդալ աշխատող zapret-ի պարամետրերը։"
+  },
+  {
+    "Id": "L657",
+    "Ru": "Не удалось прочитать параметры zapret.",
+    "En": "Could not read zapret parameters.",
+    "Hy": "Չհաջողվեց կարդալ zapret-ի պարամետրերը։"
+  },
+  {
+    "Id": "L658",
+    "Ru": "Служба zapret ещё не завершила переход.",
+    "En": "zapret service is still changing state.",
+    "Hy": "zapret-ի ծառայությունը դեռ փոխում է վիճակը։"
+  },
+  {
+    "Id": "L659",
+    "Ru": "Для запуска service.bat выбери папку без знаков % и кавычек в пути.",
+    "En": "To run service.bat, choose a folder without % or quotation marks in the path.",
+    "Hy": "service.bat-ը գործարկելու համար ընտրիր պանակ՝ առանց % նշանի և չակերտների։"
+  },
+  {
+    "Id": "L660",
+    "Ru": "Выбери распакованную папку zapret.",
+    "En": "Select the extracted zapret folder.",
+    "Hy": "Ընտրիր zapret-ի ապասեղմված պանակը։"
+  },
+  {
+    "Id": "L661",
+    "Ru": "Нужна папка сборки Flowseal: service.bat, bin/winws.exe и списки.",
+    "En": "Select a Flowseal folder with service.bat, bin/winws.exe and lists.",
+    "Hy": "Անհրաժեշտ է service.bat, bin/winws.exe և ցանկեր պարունակող Flowseal պանակ։"
+  },
+  {
+    "Id": "L662",
+    "Ru": "В папке zapret отсутствуют списки.",
+    "En": "Lists are missing from the zapret folder.",
+    "Hy": "zapret-ի պանակում ցանկերը բացակայում են։"
+  },
+  {
+    "Id": "L663",
+    "Ru": "Путь вне папки zapret.",
+    "En": "Path is outside the zapret folder.",
+    "Hy": "Ուղին zapret-ի պանակից դուրս է։"
+  },
+  {
+    "Id": "L664",
+    "Ru": "Ссылки на другие папки в установке zapret не поддерживаются.",
+    "En": "Links to other folders in the zapret installation are not supported.",
+    "Hy": "zapret-ի տեղադրման մեջ այլ պանակների հղումները չեն աջակցվում։"
+  },
+  {
+    "Id": "L665",
+    "Ru": "В папке нет стратегий zapret (*.bat).",
+    "En": "No zapret strategies (*.bat) in the folder.",
+    "Hy": "Պանակում zapret-ի ռազմավարություններ (*.bat) չկան։"
+  },
+  {
+    "Id": "L666",
+    "Ru": "не определена",
+    "En": "unknown",
+    "Hy": "անհայտ է"
+  },
+  {
+    "Id": "L667",
+    "Ru": "Файл zapret слишком большой.",
+    "En": "zapret file too large.",
+    "Hy": "zapret-ի ֆայլը չափազանց մեծ է։"
+  },
+  {
+    "Id": "L668",
+    "Ru": "Выбери стратегию zapret.",
+    "En": "Select a zapret strategy.",
+    "Hy": "Ընտրիր zapret-ի ռազմավարությունը։"
+  },
+  {
+    "Id": "L669",
+    "Ru": "Эта стратегия не поддерживается: не найден запуск winws.exe. Исходный BAT не выполнялся.",
+    "En": "Unsupported strategy: winws.exe launch not found. The original BAT was not executed.",
+    "Hy": "Ռազմավարությունը չի աջակցվում․ winws.exe-ի գործարկում չի գտնվել։ Սկզբնական BAT-ը չի կատարվել։"
+  },
+  {
+    "Id": "L670",
+    "Ru": "Неизвестная переменная в стратегии zapret.",
+    "En": "Unknown variable in zapret strategy.",
+    "Hy": "zapret-ի ռազմավարության մեջ անհայտ փոփոխական կա։"
+  },
+  {
+    "Id": "L671",
+    "Ru": "Стратегия содержит неподдерживаемые подстановки.",
+    "En": "Strategy contains unsupported substitutions.",
+    "Hy": "Ռազմավարությունը պարունակում է չաջակցվող փոխարինումներ։"
+  },
+  {
+    "Id": "L672",
+    "Ru": "Некорректные параметры стратегии zapret.",
+    "En": "Invalid zapret strategy parameters.",
+    "Hy": "zapret-ի ռազմավարության անվավեր պարամետրեր։"
+  },
+  {
+    "Id": "L673",
+    "Ru": "Стратегия запрашивает неподдерживаемую служебную операцию.",
+    "En": "Strategy requests an unsupported service operation.",
+    "Hy": "Ռազմավարությունը պահանջում է չաջակցվող ծառայողական գործողություն։"
+  },
+  {
+    "Id": "L674",
+    "Ru": "Не удалось разобрать параметры zapret.",
+    "En": "Could not parse zapret parameters.",
+    "Hy": "Չհաջողվեց վերլուծել zapret-ի պարամետրերը։"
+  },
+  {
+    "Id": "L675",
+    "Ru": "Введи порты или диапазоны через запятую: 443,1024-1934,1936-65535.",
+    "En": "Enter comma-separated ports or ranges: 443,1024-1934,1936-65535.",
+    "Hy": "Մուտքագրիր ստորակետով բաժանված պորտեր կամ միջակայքներ՝ 443,1024-1934,1936-65535։"
+  },
+  {
+    "Id": "L676",
+    "Ru": "Некорректный список портов Game Filter.",
+    "En": "Invalid Game Filter port list.",
+    "Hy": "Խաղային զտիչի պորտերի անվավեր ցանկ։"
+  },
+  {
+    "Id": "L677",
+    "Ru": "Порты должны быть от 1 до 65535, начало диапазона — не больше конца.",
+    "En": "Ports must be 1–65535. Range start must not exceed its end.",
+    "Hy": "Պորտերը պետք է լինեն 1–65535։ Միջակայքի սկիզբը չպետք է գերազանցի ավարտը։"
+  },
+  {
+    "Id": "L678",
+    "Ru": "Некорректный режим фильтра.",
+    "En": "Invalid filter mode.",
+    "Hy": "Զտիչի անվավեր ռեժիմ։"
+  },
+  {
+    "Id": "L679",
+    "Ru": "Нет сохранённого IPSet. Добавь список в папке zapret.",
+    "En": "No saved IPSet. Add a list to the zapret folder.",
+    "Hy": "Պահպանված IPSet չկա։ Ավելացրու ցանկը zapret-ի պանակում։"
+  },
+  {
+    "Id": "L680",
+    "Ru": "не выбран",
+    "En": "not selected",
+    "Hy": "ընտրված չէ"
+  },
+  {
+    "Id": "L681",
+    "Ru": "файл повреждён",
+    "En": "file damaged",
+    "Hy": "ֆայլը վնասված է"
+  },
+  {
+    "Id": "L682",
+    "Ru": "свой файл",
+    "En": "custom file",
+    "Hy": "սեփական ֆայլ"
+  },
+  {
+    "Id": "L683",
+    "Ru": "Неизвестный тип active fake.",
+    "En": "Unknown active fake type.",
+    "Hy": "Ակտիվ կեղծ փաթեթի անհայտ տեսակ։"
+  },
+  {
+    "Id": "L684",
+    "Ru": "Размер fake-файла должен быть от 1 байта до 1 МБ.",
+    "En": "Fake file size must be between 1 byte and 1 MB.",
+    "Hy": "Կեղծ փաթեթի ֆայլի չափը պետք է լինի 1 բայթից 1 ՄԲ։"
+  },
+  {
+    "Id": "L685",
+    "Ru": "Выбери fake-файл из папки bin.",
+    "En": "Select a fake file from the bin folder.",
+    "Hy": "Ընտրիր կեղծ փաթեթի ֆայլը bin պանակից։"
+  },
+  {
+    "Id": "L686",
+    "Ru": "Загружен пустой IPSet. Прежний список сохранён.",
+    "En": "Downloaded IPSet is empty. Previous list kept.",
+    "Hy": "Ներբեռնված IPSet-ը դատարկ է։ Նախորդ ցանկը պահպանված է։"
+  },
+  {
+    "Id": "L687",
+    "Ru": "Неизвестный список.",
+    "En": "Unknown list.",
+    "Hy": "Անհայտ ցանկ։"
+  },
+  {
+    "Id": "L688",
+    "Ru": "Список слишком большой или содержит недопустимый символ.",
+    "En": "List too large or contains an invalid character.",
+    "Hy": "Ցանկը չափազանց մեծ է կամ պարունակում է անվավեր նշան։"
+  },
+  {
+    "Id": "L689",
+    "Ru": "Введи домены по одному на строку, без https:// и путей.",
+    "En": "Enter one domain per line, without https:// or paths.",
+    "Hy": "Մուտքագրիր դոմենները՝ յուրաքանչյուրն առանձին տողում, առանց https://-ի և ուղիների։"
+  },
+  {
+    "Id": "L690",
+    "Ru": "Параметры службы относятся к другой папке.",
+    "En": "Service parameters belong to another folder.",
+    "Hy": "Ծառայության պարամետրերը պատկանում են այլ պանակի։"
+  },
+  {
+    "Id": "L691",
+    "Ru": "работает",
+    "En": "running",
+    "Hy": "աշխատում է"
+  },
+  {
+    "Id": "L692",
+    "Ru": "не запущена",
+    "En": "not running",
+    "Hy": "գործարկված չէ"
+  },
+  {
+    "Id": "L693",
+    "Ru": ": не установлена",
+    "En": ": not installed",
+    "Hy": "․ տեղադրված չէ"
+  },
+  {
+    "Id": "L694",
+    "Ru": ": статус недоступен",
+    "En": ": status unavailable",
+    "Hy": "․ վիճակը հասանելի չէ"
+  },
+  {
+    "Id": "L695",
+    "Ru": "Служба zapret не найдена.",
+    "En": "zapret service not found.",
+    "Hy": "zapret-ի ծառայությունը չի գտնվել։"
+  },
+  {
+    "Id": "L696",
+    "Ru": "Эта служба относится к другой папке zapret. Выбери её папку.",
+    "En": "This service belongs to another zapret folder. Select that folder.",
+    "Hy": "Այս ծառայությունը պատկանում է այլ zapret պանակի։ Ընտրիր այդ պանակը։"
+  },
+  {
+    "Id": "L697",
+    "Ru": "Перед установкой службы выключи zapret. Другие экземпляры не изменены.",
+    "En": "Stop zapret before installing the service. Other instances unchanged.",
+    "Hy": "Ծառայությունը տեղադրելուց առաջ կանգնեցրու zapret-ը։ Մյուս օրինակները չեն փոխվել։"
+  },
+  {
+    "Id": "L698",
+    "Ru": "Найдено несколько служб в этой папке. Сначала удали лишние.",
+    "En": "Several services found in this folder. Remove unused ones first.",
+    "Hy": "Այս պանակում մի քանի ծառայություն է գտնվել։ Նախ հեռացրու ավելորդները։"
+  },
+  {
+    "Id": "L699",
+    "Ru": "Служба zapret уже занята другой установкой. Чужая служба не изменена.",
+    "En": "zapret service is used by another installation. That service was not changed.",
+    "Hy": "zapret-ի ծառայությունն օգտագործվում է այլ տեղադրման կողմից։ Այդ ծառայությունը չի փոխվել։"
+  },
+  {
+    "Id": "L700",
+    "Ru": "Слишком много служб в выбранной папке.",
+    "En": "Too many services in the selected folder.",
+    "Hy": "Ընտրված պանակում չափազանց շատ ծառայություններ կան։"
+  },
+  {
+    "Id": "L701",
+    "Ru": "Не удалось запустить netsh.",
+    "En": "Could not start netsh.",
+    "Hy": "Չհաջողվեց գործարկել netsh-ը։"
+  },
+  {
+    "Id": "L702",
+    "Ru": "Windows не включила TCP timestamps. Проверь системные политики.",
+    "En": "Windows did not enable TCP timestamps. Check system policies.",
+    "Hy": "Windows-ը չի միացրել TCP timestamps-ը։ Ստուգիր համակարգային քաղաքականությունները։"
+  },
+  {
+    "Id": "L703",
+    "Ru": "Для теста выключи zapret из других папок. Их процессы не изменялись.",
+    "En": "Stop zapret instances in other folders before testing. Their processes were not changed.",
+    "Hy": "Ստուգումից առաջ կանգնեցրու այլ պանակների zapret-ները։ Նրանց գործընթացները չեն փոխվել։"
+  },
+  {
+    "Id": "L704",
+    "Ru": "Для тестирования оставь не более одного экземпляра zapret в выбранной папке.",
+    "En": "For testing, leave at most one zapret instance in the selected folder.",
+    "Hy": "Ստուգման համար ընտրված պանակում թող առավելագույնը մեկ zapret օրինակ։"
+  },
+  {
+    "Id": "L705",
+    "Ru": "Не удалось сохранить стратегию службы.",
+    "En": "Could not save service strategy.",
+    "Hy": "Չհաջողվեց պահպանել ծառայության ռազմավարությունը։"
+  },
+  {
+    "Id": "L706",
+    "Ru": "Тестовая служба ещё работает. Не удалось вернуть прежнюю стратегию.",
+    "En": "Test service is still running. Previous strategy could not be restored.",
+    "Hy": "Փորձնական ծառայությունը դեռ աշխատում է։ Նախորդ ռազմավարությունը չհաջողվեց վերականգնել։"
+  },
+  {
+    "Id": "L707",
+    "Ru": " Не удалось вернуть zapret: ",
+    "En": " Could not restore zapret: ",
+    "Hy": " Չհաջողվեց վերականգնել zapret-ը՝ "
+  },
+  {
+    "Id": "L708",
+    "Ru": "Лимит перебора 75 секунд; оставшиеся стратегии пропущены.",
+    "En": "75-second test limit reached; remaining strategies skipped.",
+    "Hy": "Լրացել է ստուգման 75 վայրկյան սահմանը․ մնացած ռազմավարությունները բաց են թողնված։"
+  },
+  {
+    "Id": "L709",
+    "Ru": "Тест завершён, но прежний zapret не восстановлен: ",
+    "En": "Test complete, but previous zapret state was not restored: ",
+    "Hy": "Ստուգումն ավարտված է, սակայն zapret-ի նախկին վիճակը չի վերականգնվել՝ "
+  },
+  {
+    "Id": "L710",
+    "Ru": "Это проверка HTTPS к YouTube и Discord, а не гарантия работы всех ресурсов. Прежнее состояние zapret восстановлено.",
+    "En": "This checks YouTube and Discord HTTPS, not every resource. Previous zapret state restored.",
+    "Hy": "Սա YouTube-ի և Discord-ի HTTPS ստուգումն է, ոչ բոլոր ռեսուրսների աշխատանքի երաշխիք։ zapret-ի նախկին վիճակը վերականգնված է։"
+  },
+  {
+    "Id": "L711",
+    "Ru": " {0} мс",
+    "En": " {0} ms",
+    "Hy": " {0} մվ"
+  },
+  {
+    "Id": "L712",
+    "Ru": " ошибка сети",
+    "En": " network error",
+    "Hy": " ցանցի սխալ"
+  },
+  {
+    "Id": "L713",
+    "Ru": " тайм-аут",
+    "En": " timed out",
+    "Hy": " ժամանակը սպառվել է"
+  },
+  {
+    "Id": "L714",
+    "Ru": "Сервер не выбран",
+    "En": "No server selected",
+    "Hy": "Սերվեր ընտրված չէ"
+  },
+  {
+    "Id": "L715",
+    "Ru": "Швеция",
+    "En": "Sweden",
+    "Hy": "Շվեդիա"
+  },
+  {
+    "Id": "L716",
+    "Ru": "Эстония",
+    "En": "Estonia",
+    "Hy": "Էստոնիա"
+  },
+  {
+    "Id": "L717",
+    "Ru": "Нидерланды",
+    "En": "Netherlands",
+    "Hy": "Նիդեռլանդներ"
+  },
+  {
+    "Id": "L718",
+    "Ru": "США",
+    "En": "USA",
+    "Hy": "ԱՄՆ"
+  },
+  {
+    "Id": "L719",
+    "Ru": "Германия",
+    "En": "Germany",
+    "Hy": "Գերմանիա"
+  },
+  {
+    "Id": "L720",
+    "Ru": "Латвия",
+    "En": "Latvia",
+    "Hy": "Լատվիա"
+  },
+  {
+    "Id": "L721",
+    "Ru": "Литва",
+    "En": "Lithuania",
+    "Hy": "Լիտվա"
+  },
+  {
+    "Id": "L722",
+    "Ru": "Финляндия",
+    "En": "Finland",
+    "Hy": "Ֆինլանդիա"
+  },
+  {
+    "Id": "L723",
+    "Ru": "Норвегия",
+    "En": "Norway",
+    "Hy": "Նորվեգիա"
+  },
+  {
+    "Id": "L724",
+    "Ru": "Дания",
+    "En": "Denmark",
+    "Hy": "Դանիա"
+  },
+  {
+    "Id": "L725",
+    "Ru": "Исландия",
+    "En": "Iceland",
+    "Hy": "Իսլանդիա"
+  },
+  {
+    "Id": "L726",
+    "Ru": "Великобритания",
+    "En": "United Kingdom",
+    "Hy": "Միացյալ Թագավորություն"
+  },
+  {
+    "Id": "L727",
+    "Ru": "Франция",
+    "En": "France",
+    "Hy": "Ֆրանսիա"
+  },
+  {
+    "Id": "L728",
+    "Ru": "Италия",
+    "En": "Italy",
+    "Hy": "Իտալիա"
+  },
+  {
+    "Id": "L729",
+    "Ru": "Ирландия",
+    "En": "Ireland",
+    "Hy": "Իռլանդիա"
+  },
+  {
+    "Id": "L730",
+    "Ru": "Бельгия",
+    "En": "Belgium",
+    "Hy": "Բելգիա"
+  },
+  {
+    "Id": "L731",
+    "Ru": "Австрия",
+    "En": "Austria",
+    "Hy": "Ավստրիա"
+  },
+  {
+    "Id": "L732",
+    "Ru": "Швейцария",
+    "En": "Switzerland",
+    "Hy": "Շվեյցարիա"
+  },
+  {
+    "Id": "L733",
+    "Ru": "Польша",
+    "En": "Poland",
+    "Hy": "Լեհաստան"
+  },
+  {
+    "Id": "L734",
+    "Ru": "Чехия",
+    "En": "Czechia",
+    "Hy": "Չեխիա"
+  },
+  {
+    "Id": "L735",
+    "Ru": "Испания",
+    "En": "Spain",
+    "Hy": "Իսպանիա"
+  },
+  {
+    "Id": "L736",
+    "Ru": "Румыния",
+    "En": "Romania",
+    "Hy": "Ռումինիա"
+  },
+  {
+    "Id": "L737",
+    "Ru": "Венгрия",
+    "En": "Hungary",
+    "Hy": "Հունգարիա"
+  },
+  {
+    "Id": "L738",
+    "Ru": "Болгария",
+    "En": "Bulgaria",
+    "Hy": "Բուլղարիա"
+  },
+  {
+    "Id": "L739",
+    "Ru": "Россия",
+    "En": "Russia",
+    "Hy": "Ռուսաստան"
+  },
+  {
+    "Id": "L740",
+    "Ru": "Украина",
+    "En": "Ukraine",
+    "Hy": "Ուկրաինա"
+  },
+  {
+    "Id": "L741",
+    "Ru": "Армения",
+    "En": "Armenia",
+    "Hy": "Հայաստան"
+  },
+  {
+    "Id": "L742",
+    "Ru": "Турция",
+    "En": "Turkey",
+    "Hy": "Թուրքիա"
+  },
+  {
+    "Id": "L743",
+    "Ru": "Канада",
+    "En": "Canada",
+    "Hy": "Կանադա"
+  },
+  {
+    "Id": "L744",
+    "Ru": "Япония",
+    "En": "Japan",
+    "Hy": "Ճապոնիա"
+  },
+  {
+    "Id": "L745",
+    "Ru": "Сингапур",
+    "En": "Singapore",
+    "Hy": "Սինգապուր"
+  },
+  {
+    "Id": "L746",
+    "Ru": "Индия",
+    "En": "India",
+    "Hy": "Հնդկաստան"
+  },
+  {
+    "Id": "L747",
+    "Ru": "ОАЭ",
+    "En": "UAE",
+    "Hy": "ԱՄԷ"
+  },
+  {
+    "Id": "L748",
+    "Ru": "Израиль",
+    "En": "Israel",
+    "Hy": "Իսրայել"
+  },
+  {
+    "Id": "L749",
+    "Ru": "Бразилия",
+    "En": "Brazil",
+    "Hy": "Բրազիլիա"
+  },
+  {
+    "Id": "L750",
+    "Ru": "Индонезия",
+    "En": "Indonesia",
+    "Hy": "Ինդոնեզիա"
+  },
+  {
+    "Id": "L751",
+    "Ru": "Европа",
+    "En": "Europe",
+    "Hy": "Եվրոպա"
+  },
+  {
+    "Id": "L752",
+    "Ru": "Страна не указана",
+    "En": "Country unknown",
+    "Hy": "Երկիրը նշված չէ"
+  }
+]

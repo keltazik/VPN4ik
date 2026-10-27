@@ -9,7 +9,7 @@ public partial class MainWindow
     private void UpdateConnectionModeUi()
     {
         if (ConnectionModeLabel == null) return;
-        ConnectionModeLabel.Text = settings.ConnectionMode == "proxy" ? "Прокси" : "Xray TUN";
+        Localization.Set(ConnectionModeLabel, System.Windows.Controls.TextBlock.TextProperty, settings.ConnectionMode == "proxy" ? "Прокси" : "Xray TUN");
         ProxyModeItem.IsChecked = settings.ConnectionMode == "proxy";
         XrayTunModeItem.IsChecked = settings.ConnectionMode != "proxy";
         LocalDnsMenuItem.IsChecked = settings.UseLocalDns;
@@ -28,7 +28,7 @@ public partial class MainWindow
         if (mode is not ("tun" or "proxy") || isConnecting || activeServer != null || isSwitching || isManagingData) return false;
         var next = settings.Copy(); next.ConnectionMode = mode;
         try { next.SaveOrThrow(); settings = next; if (draftSettings != null) draftSettings.ConnectionMode = mode; UpdateConnectionModeUi(); return true; }
-        catch { IpText.Text = "Не удалось сохранить режим подключения."; UpdateConnectionModeUi(); return false; }
+        catch { Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, "Не удалось сохранить режим подключения."); UpdateConnectionModeUi(); return false; }
     }
     private void ConnectionModeItem_Click(object sender, RoutedEventArgs e)
     {
@@ -41,9 +41,9 @@ public partial class MainWindow
         try
         {
             next.SaveOrThrow(); settings = next; if (draftSettings != null) draftSettings.UseLocalDns = next.UseLocalDns;
-            if (activeServer != null) IpText.Text = "DNS сохранён. Применится после переподключения.";
+            if (activeServer != null) Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, "DNS сохранён. Применится после переподключения.");
         }
-        catch { IpText.Text = "Не удалось сохранить настройку DNS."; }
+        catch { Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, "Не удалось сохранить настройку DNS."); }
         UpdateConnectionModeUi();
     }
 }

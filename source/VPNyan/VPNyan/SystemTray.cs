@@ -51,6 +51,8 @@ namespace VPNyan
                 ctx.Items.Add("Отключиться", null, async (s, e) => await mainWindow.Disconnect());
                 ctx.Items.Add("Открыть приложение", null, (s, e) => { mainWindow.Show(); mainWindow.WindowState = WindowState.Normal; mainWindow.Activate(); });
                 ctx.Items.Add("Выход", null, (s, e) => mainWindow.ExitApplication());
+                var labels = new[] { "Подключиться", "Отключиться", "Открыть приложение", "Выход" };
+                ctx.Opening += (_, _) => { for (var i = 0; i < labels.Length; i++) ctx.Items[i].Text = Localization.T(labels[i]); };
                 trayIcon.ContextMenuStrip = ctx;
             }
             catch
@@ -61,7 +63,7 @@ namespace VPNyan
 
         public void ShowNotification(string title, string message)
         {
-            try { trayIcon?.ShowBalloonTip(3000, title, message, ToolTipIcon.Info); }
+            try { trayIcon?.ShowBalloonTip(3000, Localization.T(title), Localization.T(message), ToolTipIcon.Info); }
             catch { }
         }
 

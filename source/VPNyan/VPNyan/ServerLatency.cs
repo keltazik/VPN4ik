@@ -39,7 +39,11 @@ internal static class ServerLatency
     internal static bool SupportsTcpPing(string protocol) => protocol.ToLowerInvariant() is not ("wireguard" or "hysteria" or "hysteria2" or "hy2");
     internal const int BatchSize = 24;
     internal const int Parallelism = 6;
-    internal static readonly TimeSpan BatchDeadline = TimeSpan.FromSeconds(6);
+    internal static readonly TimeSpan SamplingWindow = TimeSpan.FromSeconds(7);
+    internal static readonly TimeSpan BatchDeadline = TimeSpan.FromSeconds(10);
+
+    internal static int AverageSamples(IReadOnlyList<int> samples) => samples.Count == 0 ? -1 :
+        (int)Math.Max(1, Math.Round(samples.Average(), MidpointRounding.AwayFromZero));
 
     internal static async Task MeasureAsync(IReadOnlyList<(string Key, SubscriptionProfile Profile)> profiles,
         Action<LatencyResult> publish, CancellationToken cancellationToken, Action<string>? diagnostic = null,
@@ -51,8 +55,10 @@ internal static class ServerLatency
         deadline.CancelAfter(BatchDeadline);
         var dnsCache = new ConcurrentDictionary<string, Task<IPAddress[]>>(StringComparer.OrdinalIgnoreCase);
         var upstream = XraySession.SelectUpstreamInterface();
-        await Parallel.ForEachAsync(profiles.Take(BatchSize), new ParallelOptions
-        { MaxDegreeOfParallelism = Parallelism, CancellationToken = deadline.Token }, async (item, token) =>
+        using var sockets = new SemaphoreSlim(Parallelism);
+        // Limit individual sockets, not whole seven-second series: every server gets the same window.
+        var runs = new ConcurrentDictionary<(string Host, int Port), Task<LatencyResult>>();
+        await Task.WhenAll(profiles.Take(BatchSize).Select(async item =>
         {
             if (!SupportsTcpPing(item.Profile.Protocol))
             {
@@ -63,16 +69,9 @@ internal static class ServerLatency
             LatencyResult result;
             try
             {
-                using var attempt = CancellationTokenSource.CreateLinkedTokenSource(token);
-                attempt.CancelAfter(TimeSpan.FromMilliseconds(1800));
-                var addresses = await dnsCache.GetOrAdd(item.Profile.Address,
-                    host => Dns.GetHostAddressesAsync(host, deadline.Token)).WaitAsync(attempt.Token);
-                result = new LatencyResult(item.Key, -1, "TCP-пинг: нет ответа. Можно попробовать подключиться к серверу.");
-                foreach (var address in addresses.OrderBy(a => a.AddressFamily != AddressFamily.InterNetwork))
-                {
-                    result = await MeasureTcpAsync(item.Key, address, item.Profile.Port, upstream, attempt.Token);
-                    if (result.Measured || attempt.IsCancellationRequested) break;
-                }
+                result = await runs.GetOrAdd((item.Profile.Address.ToLowerInvariant(), item.Profile.Port),
+                    _ => SampleAsync(item.Profile.Address, item.Profile.Port, upstream, dnsCache, sockets, deadline.Token));
+                result = result with { Key = item.Key };
             }
             catch (Exception ex) when (ex is SocketException or OperationCanceledException)
             { result = new LatencyResult(item.Key, -1, "TCP-пинг: нет ответа. Это не означает, что VPN-сервер не работает."); }
@@ -80,7 +79,42 @@ internal static class ServerLatency
             if (vpnDuringAttempt || tunActive())
                 result = result with { PotentiallyInaccurate = true, Detail = result.Detail + " " + PingPolicy.WarningMessage };
             publish(result);
-        });
+        }));
+    }
+
+    private static async Task<LatencyResult> SampleAsync(string host, int port, string upstream,
+        ConcurrentDictionary<string, Task<IPAddress[]>> dnsCache, SemaphoreSlim sockets, CancellationToken token)
+    {
+        using var dnsTimeout = CancellationTokenSource.CreateLinkedTokenSource(token);
+        dnsTimeout.CancelAfter(TimeSpan.FromSeconds(2));
+        var addresses = (await dnsCache.GetOrAdd(host, value => Dns.GetHostAddressesAsync(value, token))
+            .WaitAsync(dnsTimeout.Token)).OrderBy(a => a.AddressFamily != AddressFamily.InterNetwork).Take(2).ToArray();
+        var clock = Stopwatch.StartNew();
+        var samples = new List<int>();
+        var attempts = 0;
+        while (clock.Elapsed < SamplingWindow)
+        {
+            using var sampleTimeout = CancellationTokenSource.CreateLinkedTokenSource(token);
+            sampleTimeout.CancelAfter(SamplingWindow - clock.Elapsed);
+            var acquired = false;
+            try
+            {
+                await sockets.WaitAsync(sampleTimeout.Token); acquired = true; attempts++;
+                foreach (var address in addresses)
+                {
+                    var result = await MeasureTcpAsync("", address, port, upstream, sampleTimeout.Token);
+                    if (result.Measured) { samples.Add(result.Milliseconds); break; }
+                }
+            }
+            catch (OperationCanceledException) when (!token.IsCancellationRequested) { break; }
+            finally { if (acquired) sockets.Release(); }
+            var remaining = SamplingWindow - clock.Elapsed;
+            if (remaining > TimeSpan.Zero) await Task.Delay(remaining < TimeSpan.FromSeconds(1) ? remaining : TimeSpan.FromSeconds(1), token);
+        }
+        token.ThrowIfCancellationRequested();
+        return new LatencyResult("", AverageSamples(samples), samples.Count == 0
+            ? "За 7 секунд сервер не ответил на TCP-проверку. Это не означает, что VPN-сервер не работает."
+            : $"Средний TCP-пинг за 7 секунд · ответов {samples.Count} из {attempts}. Подключение VPN проверяется отдельно.");
     }
 
     private static async Task<LatencyResult> MeasureTcpAsync(string key, IPAddress address, int port, string upstream, CancellationToken cancellationToken)

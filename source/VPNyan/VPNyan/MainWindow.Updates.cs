@@ -15,7 +15,7 @@ public partial class MainWindow
 
     private void InitializeUpdates()
     {
-        AppVersionText.Text = "VPN4ik " + ApplicationUpdates.CurrentVersion;
+        Localization.Set(AppVersionText, System.Windows.Controls.TextBlock.TextProperty, "VPN4ik " + ApplicationUpdates.CurrentVersion);
         if (!useBackground) return;
         updateTimer = new DispatcherTimer { Interval = TimeSpan.FromHours(4) };
         updateTimer.Tick += async (_, _) => { if (settings.CheckForUpdates) await CheckForUpdatesAsync(false); };
@@ -38,7 +38,7 @@ public partial class MainWindow
     {
         if (checkingUpdates || installingUpdate || lifetime.IsCancellationRequested || !useBackground) return;
         checkingUpdates = true; CheckUpdatesButton.IsEnabled = false;
-        if (manual) UpdateCheckStatus.Text = "Проверяю GitHub…";
+        if (manual) Localization.Set(UpdateCheckStatus, System.Windows.Controls.TextBlock.TextProperty, "Проверяю GitHub…");
         try
         {
             using var service = new ApplicationUpdates();
@@ -46,10 +46,10 @@ public partial class MainWindow
             if (lifetime.IsCancellationRequested || installingUpdate || (!manual && !settings.CheckForUpdates)) return;
             if (manual) dismissedUpdate = "";
             PresentUpdate(release);
-            UpdateCheckStatus.Text = release == null ? "Установлена актуальная версия." : "Доступна версия " + release.Version + ".";
+            Localization.Set(UpdateCheckStatus, System.Windows.Controls.TextBlock.TextProperty, release == null ? "Установлена актуальная версия." : "Доступна версия " + release.Version + ".");
         }
-        catch (OperationCanceledException) { if (manual && !lifetime.IsCancellationRequested) UpdateCheckStatus.Text = "GitHub не ответил. Попробуй позже."; }
-        catch { if (manual && !lifetime.IsCancellationRequested) UpdateCheckStatus.Text = "Не удалось проверить GitHub. Интернет и VPN можно продолжать использовать."; }
+        catch (OperationCanceledException) { if (manual && !lifetime.IsCancellationRequested) Localization.Set(UpdateCheckStatus, System.Windows.Controls.TextBlock.TextProperty, "GitHub не ответил. Попробуй позже."); }
+        catch { if (manual && !lifetime.IsCancellationRequested) Localization.Set(UpdateCheckStatus, System.Windows.Controls.TextBlock.TextProperty, "Не удалось проверить GitHub. Интернет и VPN можно продолжать использовать."); }
         finally { checkingUpdates = false; CheckUpdatesButton.IsEnabled = !installingUpdate; }
     }
 
@@ -58,9 +58,9 @@ public partial class MainWindow
         availableUpdate = release; updateFallback = release?.CanInstall != true;
         UpdateBanner.Visibility = release == null || dismissedUpdate == release.Version ? Visibility.Collapsed : Visibility.Visible;
         if (release == null) return;
-        UpdateBannerTitle.Text = "Доступно обновление · " + release.Version;
-        UpdateBannerDetail.Text = release.CanInstall ? "Скачать, установить и перезапустить VPN4ik." : "Новый выпуск доступен на GitHub.";
-        InstallUpdateButton.Content = release.CanInstall ? "Обновить" : "Открыть релиз";
+        Localization.Set(UpdateBannerTitle, System.Windows.Controls.TextBlock.TextProperty, "Доступно обновление · " + release.Version);
+        Localization.Set(UpdateBannerDetail, System.Windows.Controls.TextBlock.TextProperty, release.CanInstall ? "Скачать, установить и перезапустить VPN4ik." : "Новый выпуск доступен на GitHub.");
+        Localization.Set(InstallUpdateButton, System.Windows.Controls.Button.ContentProperty, release.CanInstall ? "Обновить" : "Открыть релиз");
         InstallUpdateButton.IsEnabled = true;
     }
 
@@ -97,12 +97,12 @@ public partial class MainWindow
                 throw new InvalidDataException("Обновление этой сборки доступно через GitHub.");
             UpdateInstaller.CheckWritable(Path.GetDirectoryName(executable)!);
             using var service = new ApplicationUpdates();
-            var progress = new Progress<string>(text => { if (installingUpdate && !lifetime.IsCancellationRequested) UpdateBannerDetail.Text = text; });
+            var progress = new Progress<string>(text => { if (installingUpdate && !lifetime.IsCancellationRequested) Localization.Set(UpdateBannerDetail, System.Windows.Controls.TextBlock.TextProperty, text); });
             var work = await service.PrepareAsync(release, progress, updateCancellation.Token);
             updateCancellation.Token.ThrowIfCancellationRequested();
             if (activeServer != null) await DisconnectCoreAsync("Обновление приложения");
             if (activeServer != null) throw new IOException("Не удалось подтвердить отключение VPN.");
-            UpdateBannerDetail.Text = "Перезапускаю VPN4ik…";
+            Localization.Set(UpdateBannerDetail, System.Windows.Controls.TextBlock.TextProperty, "Перезапускаю VPN4ik…");
             UpdateInstaller.Launch(work, executable);
             ExitApplication(); // Updating must exit even when the close button normally hides to tray.
         }
@@ -110,8 +110,8 @@ public partial class MainWindow
         catch
         {
             updateFallback = true;
-            UpdateBannerDetail.Text = "Автоустановка недоступна. Скачай новую версию со страницы релиза.";
-            InstallUpdateButton.Content = "Открыть релиз";
+            Localization.Set(UpdateBannerDetail, System.Windows.Controls.TextBlock.TextProperty, "Автоустановка недоступна. Скачай новую версию со страницы релиза.");
+            Localization.Set(InstallUpdateButton, System.Windows.Controls.Button.ContentProperty, "Открыть релиз");
         }
         finally
         {

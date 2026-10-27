@@ -78,7 +78,7 @@ public partial class MainWindow
         isSwitching = true; UpdateServerControls();
         try
         {
-            StatusText.Text = "Переключение сервера…";
+            Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Переключение сервера…");
             if (activeServer != null) await DisconnectCoreAsync("Переключение сервера");
             if (activeServer != null)
             {
@@ -130,7 +130,7 @@ public partial class MainWindow
                 ReplaceSubscriptionRows(next);
             }
             activity.Add("Информация", "Удалён источник конфигурации.");
-            SubscriptionStatusText.Text = "Источник и его серверы удалены.";
+            Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, "Источник и его серверы удалены.");
         }
         finally { isManagingData = false; UpdateServerControls(); FinishPendingClose(); }
     }
@@ -157,7 +157,7 @@ public partial class MainWindow
             }).ToList();
             SubscriptionStore.Save(SubscriptionPath, next);
             ReplaceSubscriptionRows(next);
-            SubscriptionStatusText.Text = "Сервер удалён. Остальная подписка сохранена.";
+            Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, "Сервер удалён. Остальная подписка сохранена.");
             activity.Add("Информация", "Сервер удалён из списка.");
         }
         finally { isManagingData = false; UpdateServerControls(); FinishPendingClose(); }
@@ -199,8 +199,8 @@ public partial class MainWindow
         finally { suppressSelectionSwitch = wasSuppressed; }
         settings.ServerSort = mode;
         if (save) settings.Save();
-        SortServersButton.ToolTip = "Сортировка: " + (mode switch
-        { "name" => "по имени", "country" => "по стране", "ping" => "по пингу", "protocol" => "по протоколу", _ => "порядок подписки" });
+        Localization.Set(SortServersButton, System.Windows.Controls.Button.ToolTipProperty, "Сортировка: " + (mode switch
+        { "name" => "по имени", "country" => "по стране", "ping" => "по пингу", "protocol" => "по протоколу", _ => "порядок подписки" }));
         foreach (var item in SortServersMenu.Items.OfType<MenuItem>()) item.IsChecked = (string)item.Tag == mode;
     }
 
@@ -225,7 +225,7 @@ public partial class MainWindow
     private void FinishPendingClose() { if (closeRequested) _ = Dispatcher.BeginInvoke(new Action(Close)); }
     private void ShowOperationError(Exception error)
     {
-        SubscriptionStatusText.Text = error is InvalidDataException ? error.Message : "Операция не завершена. Проверь доступ к хранилищу приложения.";
+        Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, error is InvalidDataException ? error.Message : "Операция не завершена. Проверь доступ к хранилищу приложения.");
         ShowNotice(SubscriptionStatusText.Text);
     }
 }

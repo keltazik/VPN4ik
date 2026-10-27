@@ -115,7 +115,8 @@ internal static class UpdateInstaller
         }
         catch
         {
-            System.Windows.MessageBox.Show("Не удалось завершить обновление VPN4ik. Запусти приложение вручную или скачай выпуск через GitHub. Если установка начиналась, резервная копия находится во временной папке VPN4ik-updates.", "Обновление VPN4ik", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+            Localization.Current.Apply(AppSettings.Load().Language);
+            System.Windows.MessageBox.Show(Localization.T("Не удалось завершить обновление VPN4ik. Запусти приложение вручную или скачай выпуск через GitHub. Если установка начиналась, резервная копия находится во временной папке VPN4ik-updates."), Localization.T("Обновление VPN4ik"), System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             // Never restart while the old process may still own its VPN tunnel.
             return 1;
         }

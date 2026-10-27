@@ -41,7 +41,7 @@ public partial class MainWindow
     {
         if (isConnecting || activeServer != null || isImporting || zapretBusy) return;
         if (ServerSelect.SelectedItem is not ServerItem server) { ShowSection("import"); return; }
-        if (!canCreateSession) { StatusText.Text = "Подключение доступно при обычном запуске приложения"; return; }
+        if (!canCreateSession) { Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Подключение доступно при обычном запуске приложения"); return; }
         isConnecting = true;
         connectionCancellation = CancellationTokenSource.CreateLinkedTokenSource(lifetime.Token);
         connectionCancellation.CancelAfter(TimeSpan.FromSeconds(100));
@@ -66,8 +66,8 @@ public partial class MainWindow
                 currentRecord.Result = "Туннель запущен";
                 currentRecord.Refresh();
                 StopConnectingAnimation();
-                StatusText.Text = "Туннель WireGuard запущен";
-                IpText.Text = "Служба работает; доступ через сервер ещё не подтверждён";
+                Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Туннель WireGuard запущен");
+                Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, "Служба работает; доступ через сервер ещё не подтверждён");
                 activity.Add("Информация", "Служба WireGuard запущена. Handshake не проверен.");
             }
             else
@@ -90,8 +90,8 @@ public partial class MainWindow
                 var ip = await xraySession.StartAsync(profile, settings.TunMtu, connectionCancellation.Token, enableTun: activeUsesTun, elevate: activeUsesTun, routing: settings);
                 connectionCancellation.CancelAfter(Timeout.InfiniteTimeSpan);
                 StopConnectingAnimation();
-                StatusText.Text = "Подключено";
-                IpText.Text = ExternalIpLabel(ip);
+                Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Подключено");
+                Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, ExternalIpLabel(ip));
                 activity.Connected(currentRecord, ip);
                 activity.Add("Информация", activeUsesTun ? "TUN и доступ через VPN подтверждены HTTPS-проверкой." : "Системный прокси и доступ через сервер подтверждены HTTPS-проверкой.");
             }
@@ -115,14 +115,14 @@ public partial class MainWindow
             return;
         }
         catch (Win32Exception ex) when (ex.NativeErrorCode == 1223)
-        { status = "Отменено"; StatusText.Text = "Подключение отменено"; }
+        { status = "Отменено"; Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Подключение отменено"); }
         catch (OperationCanceledException)
-        { status = "Отменено"; StatusText.Text = closeRequested ? "Подключение отменено" : "Не удалось подтвердить соединение. Попробуй другой сервер."; activity.Add("Информация", StatusText.Text); }
+        { status = "Отменено"; Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, closeRequested ? "Подключение отменено" : "Не удалось подтвердить соединение. Попробуй другой сервер."); activity.Add("Информация", StatusText.Text); }
         catch (Exception ex)
         {
             var message = ex is InvalidDataException ? ex.Message : ex is System.Net.Sockets.SocketException
                 ? "Не удалось определить адрес VPN-сервера. Проверь интернет и подписку." : "Не удалось подтвердить подключение. Подробности в журнале.";
-            StatusText.Text = message;
+            Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, message);
             activity.Add("Ошибка", message);
         }
         finally
@@ -137,11 +137,11 @@ public partial class MainWindow
                     activeServer = null;
                     currentRecord = null;
                 }
-                catch { StatusText.Text = "Отключение не подтверждено. Нажми на орнамент ещё раз."; activity.Add("Ошибка", "Не удалось подтвердить остановку VPN после ошибки подключения."); }
+                catch { Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Отключение не подтверждено. Нажми на орнамент ещё раз."); activity.Add("Ошибка", "Не удалось подтвердить остановку VPN после ошибки подключения."); }
                 if (activeServer == null) await RestorePausedZapretAsync();
                 UpdateStatusIndicator(false);
                 AnimateStatusColor("#FF8E8E");
-                IpText.Text = "";
+                Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, "");
             }
             isConnecting = false;
             UpdateServerControls();
@@ -183,20 +183,20 @@ public partial class MainWindow
             isConnected = false;
             if (!isSwitching && !isResetting) await RestorePausedZapretAsync();
             StopConnectingAnimation();
-            StatusText.Text = result == "Отключено" ? "Отключено" : "Соединение прервано";
-            IpText.Text = "";
+            Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, result == "Отключено" ? "Отключено" : "Соединение прервано");
+            Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, "");
             UpdateStatusIndicator(false);
             AnimateStatusColor("#C9A15C");
             AnimateScale(1);
-            SpeedText.Text = "0 " + settings.TrafficUnit;
+            Localization.Set(SpeedText, System.Windows.Controls.TextBlock.TextProperty, "0 " + settings.TrafficUnit);
             trafficMeter.Reset();
-            TimeConnectedText.Text = "00:00:00";
-            TrafficText.Text = "↑ 0 MB | ↓ 0 MB";
+            Localization.Set(TimeConnectedText, System.Windows.Controls.TextBlock.TextProperty, "00:00:00");
+            Localization.Set(TrafficText, System.Windows.Controls.TextBlock.TextProperty, "↑ 0 MB | ↓ 0 MB");
             connectionCancellation?.Dispose();
             connectionCancellation = null;
         }
         catch
-        { StatusText.Text = "Отключение не подтверждено"; activity.Add("Ошибка", "VPN-служба ещё не завершила отключение. Повтори отключение."); }
+        { Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Отключение не подтверждено"); activity.Add("Ошибка", "VPN-служба ещё не завершила отключение. Повтори отключение."); }
         finally { isConnecting = false; UpdateServerControls(); }
     }
 
@@ -215,10 +215,10 @@ public partial class MainWindow
                 var counters = await ReadTrafficCountersAsync();
                 if (activeServer != server || isConnecting) return;
                 var sample = trafficMeter.Sample(counters, TrafficMeter.MonotonicSeconds);
-                SpeedText.Text = $"↓ {TrafficMeter.Speed(sample.DownloadBytesPerSecond, settings.TrafficUnit)} · ↑ {TrafficMeter.Speed(sample.UploadBytesPerSecond, settings.TrafficUnit)}";
-                TrafficText.Text = $"↑ {FormatBytes(sample.Upload)} | ↓ {FormatBytes(sample.Download)}";
+                Localization.Set(SpeedText, System.Windows.Controls.TextBlock.TextProperty, $"↓ {TrafficMeter.Speed(sample.DownloadBytesPerSecond, settings.TrafficUnit)} · ↑ {TrafficMeter.Speed(sample.UploadBytesPerSecond, settings.TrafficUnit)}");
+                Localization.Set(TrafficText, System.Windows.Controls.TextBlock.TextProperty, $"↑ {FormatBytes(sample.Upload)} | ↓ {FormatBytes(sample.Download)}");
             }
-            catch { if (activeServer == server && !isConnecting) SpeedText.Text = "Нет данных"; }
+            catch { if (activeServer == server && !isConnecting) Localization.Set(SpeedText, System.Windows.Controls.TextBlock.TextProperty, "Нет данных"); }
             finally
             {
                 readingTraffic = false;
@@ -255,8 +255,8 @@ public partial class MainWindow
             var ip = checks[0];
             if (xraySession != session || isConnecting) return;
             if (activeUsesTun && !XraySession.HasTunRoute()) throw new IOException();
-            StatusText.Text = "Подключено";
-            IpText.Text = ExternalIpLabel(ip);
+            Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Подключено");
+            Localization.Set(IpText, System.Windows.Controls.TextBlock.TextProperty, ExternalIpLabel(ip));
             UpdateStatusIndicator(true);
             AnimateStatusColor("#8FCF9C");
             if (failedConnectionChecks > 0) activity.Add("Информация", "Доступ через VPN повторно подтверждён.");
@@ -269,14 +269,14 @@ public partial class MainWindow
             failedConnectionChecks++;
             if (failedConnectionChecks == 1)
             {
-                StatusText.Text = "Перепроверяю доступ через VPN…";
+                Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Перепроверяю доступ через VPN…");
                 lastConnectionCheck = DateTime.UtcNow.AddSeconds(-25);
                 StatusIndicator.Fill = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(212,170,101));
                 AnimateStatusColor("#D4AA65");
                 activity.Add("Информация", "HTTPS-проверка не прошла. Повторная проверка будет выполнена без отключения туннеля.");
                 return;
             }
-            StatusText.Text = "Нет подтверждённого доступа через VPN";
+            Localization.Set(StatusText, System.Windows.Controls.TextBlock.TextProperty, "Нет подтверждённого доступа через VPN");
             lastConnectionCheck = DateTime.UtcNow.AddSeconds(-20);
             UpdateStatusIndicator(false);
             AnimateStatusColor("#FF8E8E");
@@ -323,7 +323,7 @@ public partial class MainWindow
         LogsPage.Visibility = section == "logs" ? Visibility.Visible : Visibility.Collapsed;
         HistoryPage.Visibility = section == "history" ? Visibility.Visible : Visibility.Collapsed;
         ZapretPage.Visibility = section == "zapret" ? Visibility.Visible : Visibility.Collapsed;
-        SectionTitle.Text = section switch { "import" => "Импорт конфигурации", "settings" => "Настройки", "logs" => "Журнал событий", "history" => "История подключения", "zapret" => "Управление zapret", _ => "VPN4ik" };
+        Localization.Set(SectionTitle, System.Windows.Controls.TextBlock.TextProperty, section switch { "import" => "Импорт конфигурации", "settings" => "Настройки", "logs" => "Журнал событий", "history" => "История подключения", "zapret" => "Управление zapret", _ => "VPN4ik" });
         if (section == "settings")
         {
             loadingSettings = true;
@@ -331,7 +331,7 @@ public partial class MainWindow
             SettingsPage.DataContext = draftSettings;
             MtuText.Text = draftSettings.TunMtu.ToString();
             LoadExtraSettings();
-            SettingsStatusText.Text = "";
+            Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, "");
             loadingSettings = false;
         }
         if (section == "import") RefreshImportedSources();
@@ -358,7 +358,7 @@ public partial class MainWindow
     {
         if (loadingSettings || draftSettings == null) return;
         if (!int.TryParse(MtuText.Text, out var mtu) || mtu is < 1280 or > 1500)
-        { SettingsStatusText.Text = "MTU должен быть от 1280 до 1500. Последнее корректное значение сохранено."; return; }
+        { Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, "MTU должен быть от 1280 до 1500. Последнее корректное значение сохранено."); return; }
         draftSettings.TunMtu = mtu;
         SaveSettingsAutomatically();
     }
@@ -379,21 +379,21 @@ public partial class MainWindow
             if (useBackground && startupChanged) SetAutoStart(draftSettings.StartWithWindows);
             draftSettings.SaveOrThrow();
             settings = draftSettings.Copy();
-            if (activeServer == null) SpeedText.Text = "0 " + settings.TrafficUnit;
+            if (activeServer == null) Localization.Set(SpeedText, System.Windows.Controls.TextBlock.TextProperty, "0 " + settings.TrafficUnit);
             if (pingTimer != null) pingTimer.Interval = TimeSpan.FromSeconds(settings.PingIntervalSeconds);
             if (disableAutoPing) latencyCancellation?.Cancel();
-            SettingsStatusText.Text = int.TryParse(MtuText.Text, out var mtu) && mtu is >= 1280 and <= 1500
+            Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, int.TryParse(MtuText.Text, out var mtu) && mtu is >= 1280 and <= 1500
                 ? "Сохранено. Параметры соединения применятся после переподключения."
-                : "Настройки сохранены. Для MTU введи число от 1280 до 1500.";
+                : "Настройки сохранены. Для MTU введи число от 1280 до 1500.");
             if (settings.SplitTunnelEnabled && settings.SplitTunnelMode == "Include" &&
                 settings.SplitApplications.Count + settings.SplitDomains.Count + settings.SplitNetworks.Count == 0)
-                SettingsStatusText.Text = "Сохранено. Для подключения добавь хотя бы одно правило маршрутизации.";
+                Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, "Сохранено. Для подключения добавь хотя бы одно правило маршрутизации.");
         }
-        catch (InvalidDataException ex) { SettingsStatusText.Text = ex.Message; }
+        catch (InvalidDataException ex) { Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, ex.Message); }
         catch
         {
             if (useBackground && startupChanged) { try { SetAutoStart(settings.StartWithWindows); } catch { } }
-            SettingsStatusText.Text = "Не удалось сохранить настройки или автозапуск Windows.";
+            Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, "Не удалось сохранить настройки или автозапуск Windows.");
         }
     }
 }

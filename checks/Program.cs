@@ -96,6 +96,7 @@ internal static class Program
                 CheckLayout(window, fixtures, size);
             CheckOrnamentAnimation(window);
             CheckSections(window, fixtures);
+            LocalizationChecks.Run(fixtures, Require);
             ManagementChecks.Run(fixtures, Require);
             ConnectionChecks.Run(fixtures, Require);
             ModeChecks.Run(fixtures, Require);
@@ -649,16 +650,35 @@ internal static class Program
         {
             var port = ((IPEndPoint)listener.LocalEndpoint).Port;
             LatencyResult? measured = null;
+            Require(ServerLatency.AverageSamples(new[] { 10, 20, 90 }) == 40 && ServerLatency.AverageSamples(Array.Empty<int>()) == -1,
+                "Latency uses arithmetic mean of successful samples, with explicit no-response result");
+            var clock = System.Diagnostics.Stopwatch.StartNew();
             ServerLatency.MeasureAsync(new[] { ("test", new SubscriptionProfile { Address = "127.0.0.1", Port = port }) },
                 result => measured = result, CancellationToken.None, tunActive: () => true).GetAwaiter().GetResult();
+            Require(clock.Elapsed.TotalSeconds is >= 6.8 and < 10.5 && measured!.Detail.Contains("7 секунд"),
+                "Latency is published only after the complete seven-second sampling window");
             Require(measured is { Measured: true, PotentiallyInaccurate: true } && measured.Detail.Contains(PingPolicy.WarningMessage),
                 "TCP connects to a real loopback listener with active TUN and marks the result as approximate");
             var server = new ServerItem(); server.SetLatency(measured!);
             Require(server.PingDisplay.StartsWith("≈ "), "Potentially inaccurate VPN latency is marked in the server list");
+            var previous = server.PingDisplay; server.SetLatencyPending();
+            Require(server.PingDisplay == previous && server.Ping >= 0, "New sampling does not blank the previous complete average");
             measured = null;
-            ServerLatency.MeasureAsync(new[] { ("test", new SubscriptionProfile { Address = "127.0.0.1", Port = port }) },
-                result => measured = result, CancellationToken.None, tunActive: () => false).GetAwaiter().GetResult();
+            var results = new List<LatencyResult>(); clock.Restart();
+            ServerLatency.MeasureAsync(Enumerable.Range(0,24).Select(i => ("server-"+i,new SubscriptionProfile { Address="127.0.0.1",Port=port })).ToArray(),
+                result => { lock(results) results.Add(result); }, CancellationToken.None, tunActive: () => false).GetAwaiter().GetResult();
+            measured = results.First();
+            Require(results.Count == 24 && results.Select(r => r.Key).Distinct().Count() == 24 && clock.Elapsed.TotalSeconds < 10.5,
+                "A full batch shares its sampling window and preserves every server key");
             Require(measured is { Measured: true, PotentiallyInaccurate: false }, "TCP measurement without VPN does not add an accuracy warning");
+            using var cancel = new CancellationTokenSource(80); var published = false;
+            try
+            {
+                ServerLatency.MeasureAsync(new[] { ("test",new SubscriptionProfile { Address="127.0.0.1",Port=port }) },
+                    _ => published=true,cancel.Token,tunActive:()=>false).GetAwaiter().GetResult();
+            }
+            catch(OperationCanceledException) { }
+            Require(cancel.IsCancellationRequested && !published,"Canceled sampling never publishes a partial average");
         }
         finally { listener.Stop(); }
     }
