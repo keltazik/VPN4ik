@@ -49,6 +49,16 @@ internal static class SubscriptionParser
         return uri;
     }
 
+    internal static bool IsHitVpnAppLink(Uri uri)
+    {
+        if (!uri.Host.Equals("hvpn.io", StringComparison.OrdinalIgnoreCase)) return false;
+        var path = uri.AbsolutePath.Trim('/');
+        // HitVPN app links embed a binary configuration in the path. This is not an HTTP subscription.
+        // Do not send credentials in that path to the web endpoint or import its error page.
+        return path.Length >= 24 && path.Length <= 16384 &&
+            System.Text.RegularExpressions.Regex.IsMatch(path, @"^[A-Za-z0-9_-]+={0,2}$", System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+    }
+
     internal static List<SubscriptionProfile> Parse(string body) => ParseDocument(body).Profiles;
 
     internal static ParsedSubscription ParseDocument(string body)
@@ -205,6 +215,9 @@ internal sealed class SubscriptionClient : IDisposable
     internal async Task<Subscription> DownloadAsync(string url, CancellationToken cancellationToken = default)
     {
         var source = SubscriptionParser.ParseUrl(url);
+        cancellationToken.ThrowIfCancellationRequested();
+        if (SubscriptionParser.IsHitVpnAppLink(source))
+            throw new InvalidDataException("Это ссылка приложения HitVPN со встроенной конфигурацией, а не обычная подписка. Этот формат пока не поддерживается. Нужна обычная ссылка VLESS или экспорт WireGuard .conf из HitVPN.");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(TimeSpan.FromSeconds(30));
         var target = source;
@@ -216,6 +229,8 @@ internal sealed class SubscriptionClient : IDisposable
                 if (redirects == 5 || response.Headers.Location == null)
                     throw new InvalidDataException("Слишком много перенаправлений подписки.");
                 target = SubscriptionParser.ParseUrl(new Uri(target, response.Headers.Location).AbsoluteUri);
+                if (SubscriptionParser.IsHitVpnAppLink(target))
+                    throw new InvalidDataException("Ссылка перенаправляет в формат HitVPN. Нужна обычная ссылка VLESS или файл WireGuard .conf.");
                 continue;
             }
             if (!response.IsSuccessStatusCode)

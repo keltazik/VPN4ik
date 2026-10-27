@@ -78,6 +78,21 @@ internal static class SubscriptionRegressionChecks
                 "Downloading a mixed provider response imports only real servers");
         }
         var requests = 0;
+        var hitVpnRequests = 0;
+        using (var client = new SubscriptionClient(new Handler(_ =>
+        {
+            hitVpnRequests++;
+            return new HttpResponseMessage(HttpStatusCode.NotFound);
+        })))
+        {
+            var hitVpnUrl = "https://hvpn.io/" + new string('A', 64);
+            await RejectAsync(() => client.DownloadAsync(hitVpnUrl), require,
+                "HitVPN embedded app links receive an unsupported-format error instead of HTTP 404");
+            require(hitVpnRequests == 0, "HitVPN credentials embedded in app links are never sent to the web endpoint");
+        }
+        require(!SubscriptionParser.IsHitVpnAppLink(new Uri("https://example.test/" + new string('A', 64))) &&
+            !SubscriptionParser.IsHitVpnAppLink(new Uri("https://hvpn.io/sub/test")),
+            "HitVPN detection does not capture other providers or ordinary multisegment subscription URLs");
         using (var client = new SubscriptionClient(new Handler(request =>
         {
             requests++;
