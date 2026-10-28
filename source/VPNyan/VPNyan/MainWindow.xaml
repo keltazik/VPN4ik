@@ -519,13 +519,16 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal"><TextBlock Text="◇" Foreground="#997448" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/><TextBlock Text="keltazik" FontFamily="Georgia" FontStyle="Italic" FontSize="21" Foreground="#D9B675"/></StackPanel>
                         <TextBlock Text="PERSONAL VPN" Foreground="#806253" FontSize="8" Margin="24,6,0,0"/>
-                        <Button x:Name="RepositoryButton" Click="Repository_Click" Style="{StaticResource ActionButton}" Background="#20121C" Padding="8,5" Height="28" Margin="0,8,0,0" ToolTip="{Binding [L195], Source={x:Static local:Localization.Current}}" AutomationProperties.Name="{Binding [L196], Source={x:Static local:Localization.Current}}">
-                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="16"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="16"/></Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <Button x:Name="RepositoryButton" Click="Repository_Click" Style="{StaticResource ActionButton}" Background="#20121C" Padding="7" Width="34" Height="32" Margin="0,0,8,0" ToolTip="{Binding [L195], Source={x:Static local:Localization.Current}}" AutomationProperties.Name="{Binding [L196], Source={x:Static local:Localization.Current}}">
+                            <Grid>
                                 <Path Width="16" Height="16" Stretch="Uniform" Fill="#D9B675" Data="M 8,0 C 3.58,0 0,3.58 0,8 C 0,11.54 2.29,14.53 5.47,15.59 C 5.87,15.66 6.02,15.42 6.02,15.21 C 6.02,15.02 6.01,14.39 6.01,13.72 C 3.78,14.2 3.31,12.78 3.31,12.78 C 2.95,11.85 2.42,11.6 2.42,11.6 C 1.69,11.1 2.48,11.11 2.48,11.11 C 3.28,11.17 3.7,11.93 3.7,11.93 C 4.41,13.15 5.57,12.8 6.03,12.59 C 6.1,12.07 6.31,11.72 6.54,11.52 C 4.76,11.32 2.9,10.63 2.9,7.57 C 2.9,6.7 3.21,5.98 3.72,5.42 C 3.64,5.22 3.36,4.41 3.8,3.31 C 3.8,3.31 4.47,3.09 6,4.13 C 6.64,3.95 7.32,3.86 8,3.86 C 8.68,3.86 9.36,3.95 10,4.13 C 11.53,3.09 12.2,3.31 12.2,3.31 C 12.64,4.41 12.36,5.22 12.28,5.42 C 12.79,5.98 13.1,6.69 13.1,7.57 C 13.1,10.64 11.23,11.32 9.45,11.52 C 9.74,11.77 9.99,12.25 9.99,13 C 9.99,14.08 9.98,14.94 9.98,15.21 C 9.98,15.42 10.13,15.67 10.53,15.59 C 13.71,14.53 16,11.53 16,8 C 16,3.58 12.42,0 8,0 Z"/>
-                                <TextBlock Grid.Column="1" Text="GitHub" FontSize="11" VerticalAlignment="Center" Margin="8,0,8,0"/>
-                                <Path Grid.Column="2" Data="M 3,11 L 11,3 M 5,3 L 11,3 L 11,9" Width="12" Height="12" Stretch="Uniform" Stroke="#997448" StrokeThickness="1.3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" VerticalAlignment="Center"/>
                             </Grid>
                         </Button>
+                        <Button x:Name="SupportButton" Click="Support_Click" Style="{StaticResource ActionButton}" Background="#20121C" Width="34" Height="32" Padding="7" ToolTip="{Binding [L753], Source={x:Static local:Localization.Current}}" AutomationProperties.Name="{Binding [L754], Source={x:Static local:Localization.Current}}">
+                            <Path Width="18" Height="18" Stretch="Uniform" Data="M 3,11 V 9 A 7,7 0 0 1 17,9 V 13 A 4,4 0 0 1 13,17 H 10 M 3,9 H 5 V 14 H 3 Z M 15,9 H 17 V 14 H 15 Z" Stroke="#D9B675" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                        </Button>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </Grid>

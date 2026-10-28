@@ -4510,5 +4510,8 @@
     "Ru": "Страна не указана",
     "En": "Country unknown",
     "Hy": "Երկիրը նշված չէ"
-  }
+  },
+  {"Id":"L753","Ru":"Поддержка VPN4ik в Telegram","En":"VPN4ik support on Telegram","Hy":"VPN4ik-ի աջակցություն Telegram-ում"},
+  {"Id":"L754","Ru":"Открыть поддержку VPN4ik","En":"Open VPN4ik support","Hy":"Բացել VPN4ik-ի աջակցությունը"},
+  {"Id":"L755","Ru":"Не удалось открыть поддержку. Напиши @VPN4ikSupportBot в Telegram.","En":"Could not open support. Contact @VPN4ikSupportBot on Telegram.","Hy":"Չհաջողվեց բացել աջակցությունը։ Գրիր @VPN4ikSupportBot-ին Telegram-ում։"}
 ]

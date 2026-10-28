@@ -557,6 +557,12 @@ namespace VPNyan
             catch { ShowNotice("Не удалось открыть GitHub в браузере. Репозиторий: github.com/keltazik/VPN4ik"); }
         }
 
+        private void Support_Click(object sender, RoutedEventArgs e)
+        {
+            try { Process.Start(new ProcessStartInfo("https://t.me/VPN4ikSupportBot?start=app") { UseShellExecute = true }); }
+            catch { ShowNotice(Localization.T("Не удалось открыть поддержку. Напиши @VPN4ikSupportBot в Telegram.")); }
+        }
+
         private void TopBar_MouseDown(object sender, WpfMouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left && e.ButtonState == MouseButtonState.Pressed) DragMove();

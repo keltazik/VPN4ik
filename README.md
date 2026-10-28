@@ -3,7 +3,7 @@
   <h1>VPN4ik</h1>
   <p>Твой VPN и управление zapret — в одном приложении.</p>
   <p><strong>Windows x64 · Без установки · .NET внутри</strong></p>
-  <p><a href="https://github.com/keltazik/VPN4ik/releases/tag/v1.0.0-beta.9"><strong>↓ Скачать beta.9</strong></a></p>
+  <p><a href="https://github.com/keltazik/VPN4ik/releases/tag/v1.0.0-beta.10"><strong>↓ Скачать beta.10</strong></a></p>
   <p><a href="#быстрый-старт">Быстрый старт</a> · <a href="#zapret-прямо-в-приложении">Управление zapret</a> · <a href="CHANGELOG.md">Что нового</a></p>
 </div>
 
@@ -21,11 +21,12 @@
 | **Раздельное туннелирование** | Выбирай, какие приложения, сайты и подсети идут через VPN, а какие напрямую; программы можно добавить из запущенных процессов |
 | **Свои подписки** | Импорт ссылок и файлов, обновление серверов, поиск, сортировка и переключение сервера |
 | **Проверка соединения** | Несколько независимых HTTPS-проверок, статистика скорости и трафика, журнал подключений |
+| **Поддержка в Telegram** | Кнопка рядом с GitHub открывает [@VPN4ikSupportBot](https://t.me/VPN4ikSupportBot) |
 | **Обновление по кнопке** | Приложение сообщает о новом выпуске и предлагает установить его с сохранением подписок и настроек |
 
 ## Быстрый старт
 
-1. Скачай **[VPN4ik-v1.0.0-beta.9-windows-x64.zip](https://github.com/keltazik/VPN4ik/releases/download/v1.0.0-beta.9/VPN4ik-v1.0.0-beta.9-windows-x64.zip)**.
+1. Скачай **[VPN4ik-v1.0.0-beta.10-windows-x64.zip](https://github.com/keltazik/VPN4ik/releases/download/v1.0.0-beta.10/VPN4ik-v1.0.0-beta.10-windows-x64.zip)**.
 2. Распакуй всю папку и запусти **`VPNyan.exe`**. Папка `Engine` должна оставаться рядом. Устанавливать .NET отдельно не нужно.
 3. Открой **＋ Добавить** и импортируй свою подписку или конфигурацию.
 4. Выбери сервер и режим подключения, затем нажми на орнамент. Для TUN подтверди запрос Windows и дождись статуса **«Подключено»**.
@@ -86,7 +87,7 @@ powershell -NoProfile -File build.ps1
 ---
 
 <p align="center">
-  <a href="https://github.com/keltazik/VPN4ik/releases/tag/v1.0.0-beta.9">Скачать</a> ·
+  <a href="https://github.com/keltazik/VPN4ik/releases/tag/v1.0.0-beta.10">Скачать</a> ·
   <a href="https://github.com/keltazik/VPN4ik/issues/new?template=bug_report.md">Сообщить об ошибке</a> ·
   <a href="CONTRIBUTING.md">Участие в разработке</a>
 </p>

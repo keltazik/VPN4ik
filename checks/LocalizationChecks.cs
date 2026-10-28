@@ -38,6 +38,12 @@ internal static class LocalizationChecks
             var root = (FrameworkElement)window.Content;
             T Find<T>(string name) => (T)window.FindName(name);
             var selector = Find<ComboBox>("LanguageSelect");
+            var github = Find<Button>("RepositoryButton");
+            var support = Find<Button>("SupportButton");
+            require(github.Parent == support.Parent && github.Width == 34 && support.Width == 34,
+                "GitHub and support are adjacent compact icon buttons");
+            Find<System.Windows.Controls.Primitives.ToggleButton>("MenuToggleButton").IsChecked = true;
+            ((ColumnDefinition)window.FindName("NavigationColumn")).Width = new GridLength(208);
             var scroller = Find<ScrollViewer>("SettingsScroller");
             var reset = Find<Button>("ResetAllButton");
             var footer = Find<StackPanel>("SettingsFooter");
@@ -53,6 +59,9 @@ internal static class LocalizationChecks
             foreach (var language in new[] { "en", "hy", "ru" })
             {
                 selector.SelectedValue = language; Pump();
+                require((string)support.ToolTip == locale["L753"] &&
+                    System.Windows.Automation.AutomationProperties.GetName(support) == locale["L754"],
+                    "Support tooltip and accessible name are localized: " + language);
                 require(AppSettings.LoadFromPath(path).Language == language && locale.Language == language,
                     "Language changes and saves immediately: " + language);
                 require(Find<TextBlock>("SectionTitle").Text == Localization.T("Настройки") &&
