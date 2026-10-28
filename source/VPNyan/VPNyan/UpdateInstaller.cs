@@ -49,6 +49,7 @@ internal static class UpdateInstaller
 
     internal static bool AllowedFile(string relative) => relative is "VPNyan.exe" or "VPNyan.dll.config" or "BUILD-INFO.json" or "README.md" or "THIRD_PARTY.md" or "CHANGELOG.md" or "START-HERE.txt" ||
         relative is "Engine/xray.exe" or "Engine/wintun.dll" or "Engine/geoip.dat" or "Engine/geosite.dat" or "Engine/LICENSE" or "Engine/LICENSE-Wintun" ||
+        relative is "Engine/Hiddify/HiddifyCli.exe" or "Engine/Hiddify/hiddify-core.dll" or "Engine/Hiddify/libcronet.dll" or "Engine/Hiddify/wintun.dll" or "Engine/Hiddify/LICENSE.txt" ||
         relative.StartsWith("licenses/", StringComparison.Ordinal) && relative.EndsWith(".txt", StringComparison.OrdinalIgnoreCase) && relative.Count(c => c == '/') == 1 && !relative.Contains("..");
 
     internal static void CheckWritable(string target)

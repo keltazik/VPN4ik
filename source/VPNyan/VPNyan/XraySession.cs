@@ -29,6 +29,18 @@ internal sealed class XraySession : IVpnSession
     public bool IsRunning => engineRunning && host is { HasExited: false };
     public event Action<string>? Log;
     internal string VerificationStage { get; private set; } = "Запуск";
+    internal int[] OwnedProcessIds { get; private set; } = Array.Empty<int>();
+    internal int? HelperProcessId => host?.Id;
+
+    internal async Task StartOwnedBridgeDiagnosticAsync(EngineRequest test, CancellationToken token)
+    {
+        if(test.EnableTun || test.EnableSystemProxy || !test.UseHiddifyCore || test.Probes!=null || test.HttpProxyPort<1024)
+            throw new InvalidOperationException("Некорректная проверка задержки.");
+        EngineHost.VerifyFiles(); HiddifyCore.EnsureInstalled();
+        _=XrayConfiguration.Build(HiddifyCore.WorkerRequest(test)); _=HiddifyCore.Build(test);
+        request=test;await StartHostAsync(test,false,token);
+        await SystemProxyLease.WaitForListenerAsync(test.HttpProxyPort,token);
+    }
 
     public async Task<string> StartAsync(SubscriptionProfile profile, int mtu, CancellationToken cancellationToken,
         bool enableTun = true, bool elevate = true, bool diagnostics = false, AppSettings? routing = null)
@@ -39,6 +51,8 @@ internal sealed class XraySession : IVpnSession
         request = new EngineRequest { Profile = profile, Mtu = mtu, EnableTun = enableTun, Diagnostics = diagnostics,
             Routing = routing?.Copy() ?? new AppSettings(), ProbePort = ((IPEndPoint)listener.LocalEndpoint).Port };
         request.EnableSystemProxy = !enableTun && !diagnostics && request.Routing.ConnectionMode == "proxy";
+        request.UseHiddifyCore = request.Routing.UseHiddifyCore && !diagnostics && (enableTun || request.EnableSystemProxy);
+        if (request.UseHiddifyCore) await Task.Run(() => HiddifyCore.EnsureInstalled(), cancellationToken);
         if (request.EnableSystemProxy)
         {
             using var httpListener = new TcpListener(IPAddress.Loopback, 0); httpListener.Start();
@@ -50,7 +64,8 @@ internal sealed class XraySession : IVpnSession
         request.EndpointAddress = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)?.ToString() ?? addresses.FirstOrDefault()?.ToString()
             ?? throw new IOException("Не найден сетевой адрес сервера.");
         request.UpstreamInterface = SelectUpstreamInterface();
-        _ = XrayConfiguration.Build(request); // Reject unsupported/unsafe profiles before asking for UAC.
+        _ = XrayConfiguration.Build(request.UseHiddifyCore ? HiddifyCore.WorkerRequest(request) : request); // Validate before UAC.
+        if (request.UseHiddifyCore) _ = HiddifyCore.Build(request);
         await StartHostAsync(request, elevate, cancellationToken);
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(TimeSpan.FromSeconds(60));
@@ -134,7 +149,7 @@ internal sealed class XraySession : IVpnSession
             {
                 var message = JsonSerializer.Deserialize<EngineMessage>(line);
                 if (message?.Type == "hello") hello.TrySetResult();
-                else if (message?.Type == "started") { engineRunning = true; started.TrySetResult(); }
+                else if (message?.Type == "started") { OwnedProcessIds=message.Text.Split(',').Select(text=>int.TryParse(text,out var id)?id:0).Where(id=>id>0).ToArray(); engineRunning = true; started.TrySetResult(); }
                 else if (message?.Type == "log") Log?.Invoke(message.Text);
                 else if (message?.Type == "error") { Log?.Invoke(message.Text); hello.TrySetException(new InvalidOperationException(message.Text)); started.TrySetException(new InvalidOperationException(message.Text)); }
                 else if (message?.Type == "stopped") { engineRunning = false; stopped.TrySetResult(); break; }
@@ -158,14 +173,16 @@ internal sealed class XraySession : IVpnSession
         if (useProxy) return (proxyProbe ??= new ConnectionProbe(CreateProbeHandler(true))).CheckAsync(cancellationToken);
         return (systemProbe ??= new ConnectionProbe(CreateProbeHandler(false))).CheckAsync(cancellationToken);
     }
-    private SocketsHttpHandler CreateProbeHandler(bool proxy)
+    private SocketsHttpHandler CreateProbeHandler(bool proxy, bool controlOnly = false)
     {
         if (request == null) throw new InvalidOperationException();
         var handler = new SocketsHttpHandler
         {
             UseProxy = proxy, AllowAutoRedirect = false, ConnectTimeout = TimeSpan.FromSeconds(5),
             PooledConnectionLifetime = TimeSpan.FromMinutes(2), MaxResponseHeadersLength = 8,
-            Proxy = proxy ? new WebProxy($"socks5://127.0.0.1:{request.ProbePort}") { Credentials = new NetworkCredential(request.ProbeUser, request.ProbePassword) } : null
+            Proxy = proxy ? !controlOnly && request.UseHiddifyCore && request.EnableSystemProxy && !request.Routing.SplitTunnelEnabled && !request.Routing.BypassLocalNetwork
+                ? new WebProxy($"http://127.0.0.1:{request.HttpProxyPort}")
+                : new WebProxy($"socks5://127.0.0.1:{request.ProbePort}") { Credentials = new NetworkCredential(request.ProbeUser, request.ProbePassword) } : null
         };
         if (!proxy && request.EnableTun) handler.ConnectCallback = ConnectThroughTunAsync;
         return handler;
@@ -192,7 +209,7 @@ internal sealed class XraySession : IVpnSession
     public async Task<TrafficCounters> ReadTrafficAsync(CancellationToken cancellationToken)
     {
         if (request == null || !IsRunning) throw new IOException("VPN-движок остановлен.");
-        metricsClient ??= new HttpClient(CreateProbeHandler(true)) { Timeout = TimeSpan.FromMilliseconds(1500), MaxResponseContentBufferSize = 1_048_576 };
+        metricsClient ??= new HttpClient(CreateProbeHandler(true, controlOnly:true)) { Timeout = TimeSpan.FromMilliseconds(1500), MaxResponseContentBufferSize = 1_048_576 };
         var json = await metricsClient.GetStringAsync("http://metrics.vpn4ik.invalid/debug/vars", cancellationToken);
         return TrafficMeter.Parse(json);
     }

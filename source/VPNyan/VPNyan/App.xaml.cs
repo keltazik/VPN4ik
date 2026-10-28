@@ -11,6 +11,12 @@ public partial class App : System.Windows.Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        if(e.Args.Length>=2 && e.Args[0]=="--verify-hiddify-worker")
+        {
+            ShutdownMode=ShutdownMode.OnExplicitShutdown;
+            Shutdown(await DiagnosticsRunner.RunHiddifyWorkerAsync(e.Args[1],e.Args.Contains("--wait")));
+            return;
+        }
         if (e.Args is ["--verify-connection-series", var seriesSource, var seriesReport, var seriesIndex] && int.TryParse(seriesIndex, out var profileIndex))
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;

@@ -12,6 +12,8 @@ internal sealed class EngineRequest
     public int Mtu { get; set; } = 1500;
     public int ProbePort { get; set; }
     public bool EnableSystemProxy { get; set; }
+    public bool UseHiddifyCore { get; set; }
+    public bool EnableUdpProbe { get; set; }
     public int HttpProxyPort { get; set; }
     public string ProbeUser { get; set; } = Guid.NewGuid().ToString("N");
     public string ProbePassword { get; set; } = Guid.NewGuid().ToString("N");
@@ -66,7 +68,7 @@ internal static class XrayConfiguration
             new JsonObject
             {
                 ["tag"] = "vpn4ik-check", ["listen"] = "127.0.0.1", ["port"] = request.ProbePort, ["protocol"] = "socks",
-                ["settings"] = new JsonObject { ["auth"] = "password", ["udp"] = false,
+                ["settings"] = new JsonObject { ["auth"] = "password", ["udp"] = request.EnableUdpProbe,
                     ["accounts"] = new JsonArray(new JsonObject { ["user"] = request.ProbeUser, ["pass"] = request.ProbePassword }) }
             }
         };

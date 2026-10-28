@@ -25,6 +25,7 @@ namespace VPNyan
         public int TunMtu { get; set; } = 1500;
         public string ConnectionMode { get; set; } = "tun";
         public bool UseLocalDns { get; set; }
+        public bool UseHiddifyCore { get; set; } = true;
         public bool NavigationExpanded { get; set; }
         public string ServerSort { get; set; } = "original";
         public bool AutoCheckPings { get; set; } = true;
@@ -61,7 +62,7 @@ namespace VPNyan
             KillSwitch = KillSwitch, StartWithWindows = StartWithWindows, MinimizeToTray = MinimizeToTray, CloseToTray = CloseToTray,
             StartMinimized = StartMinimized, AutoConnect = AutoConnect, ShowNotifications = ShowNotifications, CheckForUpdates = CheckForUpdates,
             ZapretFolder = ZapretFolder, ZapretStrategy = ZapretStrategy, DisableZapretOnConnect = DisableZapretOnConnect, RestoreZapretAfterVpn = RestoreZapretAfterVpn,
-            LastServer = LastServer, Theme = Theme, Language = Language, TunMtu = TunMtu, ConnectionMode = ConnectionMode, UseLocalDns = UseLocalDns, NavigationExpanded = NavigationExpanded, ServerSort = ServerSort, StoragePath = StoragePath,
+            LastServer = LastServer, Theme = Theme, Language = Language, TunMtu = TunMtu, ConnectionMode = ConnectionMode, UseLocalDns = UseLocalDns, UseHiddifyCore = UseHiddifyCore, NavigationExpanded = NavigationExpanded, ServerSort = ServerSort, StoragePath = StoragePath,
             AutoCheckPings = AutoCheckPings, PingIntervalSeconds = PingIntervalSeconds, TrafficUnit = TrafficUnit,
             BypassLocalNetwork = BypassLocalNetwork, DnsServers = DnsServers, SplitTunnelEnabled = SplitTunnelEnabled,
             SplitTunnelMode = SplitTunnelMode, SplitApplications = new(SplitApplications), SplitDomains = new(SplitDomains), SplitNetworks = new(SplitNetworks)

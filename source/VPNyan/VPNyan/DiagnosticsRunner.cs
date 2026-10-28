@@ -8,7 +8,7 @@ using Size = System.Windows.Size;
 
 namespace VPNyan;
 
-internal static class DiagnosticsRunner
+internal static partial class DiagnosticsRunner
 {
     internal static async Task<int> RunConnectionSeriesAsync(string source, string report, int index)
     {
@@ -70,6 +70,7 @@ internal static class DiagnosticsRunner
             var bitmap = new RenderTargetBitmap(1040, 740, 96, 96, PixelFormats.Pbgra32);
             bitmap.Render(root);
             EngineHost.VerifyFiles();
+            HiddifyCore.EnsureInstalled(Path.Combine(directory,"Hiddify")); // Keep updater payload immutable for older installers.
             result["Runtime"] = System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription;
             using var process = System.Diagnostics.Process.GetCurrentProcess();
             var modules = process.Modules.Cast<System.Diagnostics.ProcessModule>().ToArray();

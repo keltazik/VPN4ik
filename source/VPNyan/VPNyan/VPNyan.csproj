@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Version>1.0.0-beta.8+local.2</Version>
+    <Version>1.0.0-beta.8+local.3</Version>
     <Product>VPN4ik</Product>
     <ApplicationIcon>Assets\VPN4ik.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
@@ -36,6 +36,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Engine\Hiddify\native.tar.gz" LogicalName="VPNyan.Hiddify.native.tar.gz" Condition="Exists('Engine\Hiddify\native.tar.gz')" />
+    <EmbeddedResource Include="..\..\..\licenses\Hiddify-Core.txt" LogicalName="VPNyan.Hiddify.LICENSE.txt" />
     <Content Include="Engine\xray.exe;Engine\wintun.dll;Engine\geoip.dat;Engine\geosite.dat;Engine\LICENSE;Engine\LICENSE-Wintun">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>

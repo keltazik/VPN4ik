@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.Http;
@@ -84,7 +85,7 @@ internal static class NativeRoutingChecks
                 await Task.WhenAll(output, errors);
             }
         }
-        return assertions + await NativeDnsChecks.RunAsync() + await CheckHttpProxyAsync(direct.Port);
+        return assertions + await NativeDnsChecks.RunAsync() + await CheckHttpProxyAsync(direct.Port) + await HiddifyChecks.NativeAsync();
     }
 
     private static async Task<int> CheckHttpProxyAsync(int targetPort)
@@ -111,7 +112,7 @@ internal static class NativeRoutingChecks
         }
         finally { if(!engine.HasExited)engine.Kill(true);await engine.WaitForExitAsync();await Task.WhenAll(output,errors); }
     }
-    private sealed class TestHttpServer : IAsyncDisposable
+    internal sealed class TestHttpServer : IAsyncDisposable
     {
         private readonly TcpListener listener = new(IPAddress.Loopback, 0);
         private readonly CancellationTokenSource stop;
@@ -128,6 +129,8 @@ internal static class NativeRoutingChecks
                     while (!stop.IsCancellationRequested)
                     {
                         using var socket = await listener.AcceptTcpClientAsync(stop.Token);
+                        try
+                        {
                         using var stream = socket.GetStream();
                         var buffer = new byte[8192];
                         var length = 0;
@@ -140,6 +143,8 @@ internal static class NativeRoutingChecks
                         }
                         var response = Encoding.ASCII.GetBytes($"HTTP/1.1 200 OK\r\nContent-Length: {body.Length}\r\nConnection: close\r\n\r\n{body}");
                         await stream.WriteAsync(response, stop.Token);
+                        }
+                        catch(IOException) { /* A probe or canceled request may reset its own connection. */ }
                     }
                 }
                 catch (Exception ex) when (ex is OperationCanceledException or SocketException or ObjectDisposedException) { }

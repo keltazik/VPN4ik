@@ -72,6 +72,7 @@ internal static class Program
             CheckHysteria();
             CheckEngineConfiguration();
             CheckRoutingAndTraffic();
+            HiddifyChecks.Offline(Require);
             CheckActivity(fixtures);
 
             // Load production resources without queuing App.OnStartup (mutex,

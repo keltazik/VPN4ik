@@ -37,6 +37,7 @@ internal static class EngineHost
         if (!pipeName.StartsWith("VPN4ik-", StringComparison.Ordinal) || pipeName.Length > 64) return 2;
         using var pipe = new NamedPipeClientStream(".", pipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
         Process? engine = null;
+        Process? tunnel = null;
         EngineJob? job = null;
         Semaphore? tunSession = null;
         bool ownsTunSession = false;
@@ -65,7 +66,9 @@ internal static class EngineHost
             if (line == null || line.Length > SubscriptionParser.MaxBytes * 2) return 4;
             var request = JsonSerializer.Deserialize<EngineRequest>(line) ?? throw new InvalidDataException("Не получен профиль подключения.");
             VerifyFiles();
-            var config = XrayConfiguration.Build(request);
+            var config = XrayConfiguration.Build(request.UseHiddifyCore ? HiddifyCore.WorkerRequest(request) : request);
+            var tunnelConfig = request.UseHiddifyCore ? HiddifyCore.Build(request) : null;
+            if (request.UseHiddifyCore) HiddifyCore.VerifyFiles();
             if (request.EnableTun)
             {
                 tunSession = new Semaphore(1, 1, "Global\\VPN4ik.TunSession");
@@ -93,28 +96,41 @@ internal static class EngineHost
             job.Assign(engine);
             await engine.StandardInput.WriteAsync(config);
             engine.StandardInput.Close();
-            async Task Pump(StreamReader output)
+            async Task Pump(StreamReader output, bool nativeTunnel = false)
             {
                 while (await output.ReadLineAsync() is string text)
                 {
+                    if (nativeTunnel && text.Contains(" monitoring: outbound ", StringComparison.Ordinal) &&
+                        text.Contains(" URL test failed: ", StringComparison.Ordinal)) continue; // Disabled duplicate URL monitor, not a connection failure.
                     try { await Send("log", text); }
                     catch (IOException) { return; }
                 }
             }
             var stdout = Pump(engine.StandardOutput);
             var stderr = Pump(engine.StandardError);
+            Task tunnelOutput = Task.CompletedTask, tunnelErrors = Task.CompletedTask;
+            if (tunnelConfig != null)
+            {
+                await SystemProxyLease.WaitForListenerAsync(request.ProbePort, connectTimeout.Token);
+                tunnel = HiddifyCore.CreateProcess();
+                if (!tunnel.Start()) throw new InvalidOperationException("Не удалось запустить VPN-службу.");
+                job.Assign(tunnel);
+                tunnelOutput = Pump(tunnel.StandardOutput, true); tunnelErrors = Pump(tunnel.StandardError, true);
+                await tunnel.StandardInput.WriteAsync(tunnelConfig); tunnel.StandardInput.Close();
+            }
             if (request.EnableSystemProxy)
             {
                 await SystemProxyLease.WaitForListenerAsync(request.HttpProxyPort, connectTimeout.Token);
                 proxyLease = SystemProxyLease.Start(request.HttpProxyPort);
             }
-            await Send("started");
+            await Send("started", engine.Id.ToString() + (tunnel==null?"":","+tunnel.Id));
             var command = reader.ReadLineAsync();
             var exited = engine.WaitForExitAsync();
             // A broken UI pipe or parent death stops this owned engine too.
-            await Task.WhenAny(command, exited, parent.WaitForExitAsync());
+            await Task.WhenAny(command, exited, parent.WaitForExitAsync(), tunnel?.WaitForExitAsync() ?? Task.Delay(Timeout.Infinite));
+            if (tunnel is { HasExited: false }) await StopEngineAsync(tunnel);
             if (!engine.HasExited) await StopEngineAsync(engine);
-            await Task.WhenAll(stdout, stderr);
+            await Task.WhenAll(stdout, stderr, tunnelOutput, tunnelErrors);
             await Send("stopped", engine.ExitCode.ToString());
             return 0;
         }
@@ -126,6 +142,11 @@ internal static class EngineHost
         }
         finally
         {
+            if (tunnel != null)
+            {
+                try { if (!tunnel.HasExited) await StopEngineAsync(tunnel); } catch { }
+                tunnel.Dispose();
+            }
             if (engine != null)
             {
                 try { if (!engine.HasExited) await StopEngineAsync(engine); } catch { }

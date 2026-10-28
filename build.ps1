@@ -8,6 +8,7 @@ foreach ($vpnName in $vpnNames) { $vpnSaved[$vpnName] = [Environment]::GetEnviro
 Push-Location $vpnProjectRoot
 try {
     if (!(Test-Path -LiteralPath 'source\VPNyan\VPNyan\Engine\xray.exe')) { & (Join-Path $vpnProjectRoot 'scripts\bootstrap-engine.ps1') }
+    & (Join-Path $vpnProjectRoot 'scripts\bootstrap-hiddify.ps1')
     $env:DOTNET_CLI_HOME = Join-Path $vpnProjectRoot '.dotnet-home'
     $env:APPDATA = Join-Path $vpnProjectRoot '.dotnet-home\AppData'
     $env:MSBuildEnableWorkloadResolver = 'false'
