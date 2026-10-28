@@ -111,7 +111,7 @@ public partial class MainWindow
             AnimateStatusColor(server.Protocol == "WireGuard" ? "#D4AA65" : "#8FCF9C");
 
             SaveServer();
-            if (settings.ShowNotifications) systemTray?.ShowNotification("VPN4ik", StatusText.Text + ": " + server.Name);
+            if (settings.ShowNotifications) systemTray?.ShowNotification("VPN4ik", StatusText.Text + ": " + server.DisplayName);
             return;
         }
         catch (Win32Exception ex) when (ex.NativeErrorCode == 1223)

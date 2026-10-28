@@ -88,6 +88,8 @@ internal static class LocalizationChecks
             }
             locale.Apply("en"); Pump();
             require(Find<TextBlock>("StatusText").Text == "VPN access not confirmed", "Existing dynamic status updates when language changes");
+            CheckServerNames(window,root,fixtures,require);
+            locale.Apply("en"); Pump();
             require(Localization.T("Выбран файл: example.bat") == "Selected file: example.bat", "Joined captions retain BAT file names");
             require(Localization.T("12:34:56 · Подписка обновлена: 3 серверов.\n12:34:57 · Не удалось загрузить подписку.") ==
                 "12:34:56 · Subscription updated: 3 servers.\n12:34:57 · Could not download subscription.", "Timestamped multiline event feed is localized");
@@ -98,6 +100,54 @@ internal static class LocalizationChecks
                 "Stored events remain canonical while presentation is localized");
         }
         finally { window.Close(); Pump(); locale.Apply("ru"); }
+    }
+    private static void CheckServerNames(MainWindow window, FrameworkElement root, string fixtures, Action<bool,string> require)
+    {
+        var locale = Localization.Current;
+        var list = (ListBox)window.FindName("ServerSelect");
+        var server = new ServerItem { Name="🇱🇻 Латвия #2", ProfileId="fixture", SubscriptionUrl="https://example.test/sub", Configuration="unchanged fixture" };
+        var key = server.SelectionKey;
+        var updates = 0; server.PropertyChanged += (_,e) => { if(e.PropertyName == nameof(ServerItem.DisplayName)) updates++; };
+        var rows = new[] { server, new ServerItem { Name="🇩🇪 Germany #3 · VLESS" }, new ServerItem { Name="Էստոնիա #4" },
+            new ServerItem { Name="MyProvider premium #5" } };
+        list.ItemsSource = rows; list.SelectedItem = server;
+        var search = (TextBox)window.FindName("ServerSearchText");
+        var history = (ListBox)window.FindName("HistoryList");
+        history.ItemsSource = new[] { new ConnectionRecord { ServerName=server.Name } };
+        foreach (var (language,latvia,germany,estonia) in new[] {
+            ("en","Latvia #2","Germany #3 · VLESS","Estonia #4"),
+            ("hy","Լատվիա #2","Գերմանիա #3 · VLESS","Էստոնիա #4"),
+            ("ru","Латвия #2","Германия #3 · VLESS","Эстония #4") })
+        {
+            locale.Apply(language); Pump();
+            require(server.DisplayName == latvia && rows[1].DisplayName == germany && rows[2].DisplayName == estonia,
+                "Server countries translate from Russian, English and Armenian: " + language);
+            require(server.Name == "🇱🇻 Латвия #2" && server.Configuration == "unchanged fixture" && server.SelectionKey == key,
+                "Server translation preserves original profile and selection key: " + language);
+            require(rows[3].DisplayName == "MyProvider premium #5", "Provider brands stay unchanged: " + language);
+            require(((TextBlock)window.FindName("SelectedServerName")).Text == latvia, "Selected server name updates live: " + language);
+            search.Text = latvia.Split(' ')[0]; Pump();
+            require(list.Items.Count == 1 && ReferenceEquals(list.Items[0],server), "Server search accepts translated names: " + language);
+            search.Text = "Латвия"; Pump();
+            require(list.Items.Count == 1,"Server search also accepts original names: " + language);
+            search.Text="";
+            window.ShowSection("history"); Pump(); Layout(root,new Size(1040,740));
+            require(Descendants(root).OfType<TextBlock>().Any(text => text.Text == latvia), "History server names use selected language: " + language);
+            window.ShowSection("home"); Pump(); Layout(root,new Size(1040,740));
+            var bitmap=new RenderTargetBitmap(1040,740,96,96,PixelFormats.Pbgra32); bitmap.Render(root);
+            var encoder=new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            using var output=File.Create(Path.Combine(fixtures,$"servers-{language}.png")); encoder.Save(output);
+        }
+        require(updates >= 3,"Weak language subscription refreshes server display properties");
+        require(rows[2].CountryCode == "EE", "Armenian country name also identifies its flag");
+    }
+    private static IEnumerable<DependencyObject> Descendants(DependencyObject root)
+    {
+        for(var i=0;i<VisualTreeHelper.GetChildrenCount(root);i++)
+        {
+            var child=VisualTreeHelper.GetChild(root,i); yield return child;
+            foreach(var nested in Descendants(child)) yield return nested;
+        }
     }
     private static bool IsAncestor(DependencyObject ancestor, DependencyObject node)
     {

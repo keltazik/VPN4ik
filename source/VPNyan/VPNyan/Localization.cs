@@ -119,19 +119,20 @@ public sealed class TranslateExtension : MarkupExtension
     public string? ElementName { get; set; }
     public string Fallback { get; set; } = "";
     public bool PreserveValue { get; set; }
+    public bool IsServerName { get; set; }
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
         var value = new Binding(Path) { Mode = BindingMode.OneWay };
         if (ElementName != null) value.ElementName = ElementName;
-        var binding = new MultiBinding { Mode = BindingMode.OneWay, Converter = new Converter(Fallback, PreserveValue) };
+        var binding = new MultiBinding { Mode = BindingMode.OneWay, Converter = new Converter(Fallback, PreserveValue, IsServerName) };
         binding.Bindings.Add(value);
         binding.Bindings.Add(new Binding(nameof(Localization.Language)) { Source = Localization.Current });
         return binding.ProvideValue(serviceProvider);
     }
-    private sealed class Converter(string fallback, bool preserveValue) : IMultiValueConverter
+    private sealed class Converter(string fallback, bool preserveValue, bool serverName) : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) =>
-            values[0] is string text && text.Length > 0 ? (preserveValue ? text : Localization.T(text)) : Localization.T(fallback);
+            values[0] is string text && text.Length > 0 ? (serverName ? ServerCountry.LocalizedDisplayName(text) : preserveValue ? text : Localization.T(text)) : Localization.T(fallback);
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) =>
             targetTypes.Select(_ => Binding.DoNothing).ToArray();
     }

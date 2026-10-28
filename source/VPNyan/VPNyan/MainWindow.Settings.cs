@@ -11,6 +11,11 @@ public partial class MainWindow
     {
         Localization.Current.Apply(settings.Language);
         Language = System.Windows.Markup.XmlLanguage.GetLanguage(settings.Language);
+        if (ServerSelect.ItemsSource != null)
+        {
+            ApplyServerSort(settings.ServerSort, false);
+            UpdateServerFilter();
+        }
     }
 
     internal void ShowSettingsCategory(string category)

@@ -63,7 +63,7 @@ namespace VPNyan
 
         public void ShowNotification(string title, string message)
         {
-            try { trayIcon?.ShowBalloonTip(3000, Localization.T(title), Localization.T(message), ToolTipIcon.Info); }
+            try { trayIcon?.ShowBalloonTip(3000, Localization.T(title), message, ToolTipIcon.Info); }
             catch { }
         }
 

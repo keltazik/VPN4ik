@@ -290,7 +290,7 @@ public partial class MainWindow
         {
             const string warning = "Если zapret включён, он может конфликтовать с VPN. Лучше выключить его. Автоотключение можно включить во вкладке zapret.";
             ShowNotice(warning);
-            if (useBackground && settings.ShowNotifications && (WindowState == WindowState.Minimized || !IsVisible)) systemTray?.ShowNotification("Возможен конфликт с zapret", warning);
+            if (useBackground && settings.ShowNotifications && (WindowState == WindowState.Minimized || !IsVisible)) systemTray?.ShowNotification("Возможен конфликт с zapret", Localization.T(warning));
             return;
         }
         if (pausedZapret?.HasEntries == true) return;

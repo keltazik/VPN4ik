@@ -116,7 +116,8 @@ public partial class MainWindow
     private void PrepareServerMenu()
     {
         if (contextServer == null) return;
-        Localization.Set(ContextServerName, System.Windows.Controls.TextBlock.TextProperty, contextServer.DisplayName); ContextServerFlag.Source = contextServer.CountryFlag;
+        ContextServerName.SetBinding(TextBlock.TextProperty, new System.Windows.Data.Binding(nameof(ServerItem.DisplayName)) { Source=contextServer });
+        ContextServerFlag.Source = contextServer.CountryFlag;
         Localization.Set(ContextConnect, System.Windows.Controls.MenuItem.HeaderProperty, ReferenceEquals(contextServer, activeServer) ? "Отключиться" : activeServer != null ? "Переключиться на сервер" : "Подключиться");
         Localization.Set(ContextCopy, System.Windows.Controls.MenuItem.HeaderProperty, contextServer.Protocol == "WireGuard" ? "Копировать конфигурацию" : "Копировать JSON / ссылку");
         var available = !isConnecting && !isSwitching && !isManagingData && !isResetting && !isImporting;

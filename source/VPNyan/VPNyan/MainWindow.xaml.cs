@@ -36,6 +36,11 @@ namespace VPNyan
     // ============================================
     public class ServerItem : INotifyPropertyChanged
     {
+        public ServerItem() => PropertyChangedEventManager.AddHandler(Localization.Current, LanguageChanged, nameof(Localization.Language));
+        private void LanguageChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(DisplayName)); OnPropertyChanged(nameof(Display)); OnPropertyChanged(nameof(CountryLabel));
+        }
         public string ConfigPath { get; set; } = "";
         private string name = "", countryCode = "";
         public string Name
@@ -49,10 +54,10 @@ namespace VPNyan
                 OnPropertyChanged(nameof(CountryCode)); OnPropertyChanged(nameof(CountryFlag)); OnPropertyChanged(nameof(CountryLabel));
             }
         }
-        public string DisplayName => ServerCountry.DisplayName(Name);
+        public string DisplayName => ServerCountry.LocalizedDisplayName(Name);
         public string CountryCode => countryCode;
         public ImageSource CountryFlag => ServerCountry.Flag(countryCode);
-        public string CountryLabel => countryCode == "" ? "Страна не указана в названии сервера" : ServerCountry.Label(countryCode) + " · по названию сервера";
+        public string CountryLabel => Localization.T(countryCode == "" ? "Страна не указана в названии сервера" : ServerCountry.Label(countryCode) + " · по названию сервера");
         public string Address { get; set; } = "";
         public int Port { get; set; }
         public string VpnEndpoint { get; set; } = "";
@@ -116,7 +121,7 @@ namespace VPNyan
             OnPropertyChanged(nameof(PingDisplay)); OnPropertyChanged(nameof(PingColor)); OnPropertyChanged(nameof(PingDetail));
         }
 
-        public string Display => $"{Name} | {PingDisplay}";
+        public string Display => $"{DisplayName} | {PingDisplay}";
         public event PropertyChangedEventHandler? PropertyChanged;
         protected virtual void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -696,7 +701,8 @@ namespace VPNyan
             var best = GetBestServer(); if (best != null) ServerSelect.SelectedItem = best;
         }
 
-        private void ServerSearch_TextChanged(object sender, TextChangedEventArgs e)
+        private void ServerSearch_TextChanged(object sender, TextChangedEventArgs e) => UpdateServerFilter();
+        private void UpdateServerFilter()
         {
             if (ServerSelect?.ItemsSource == null) return;
             var search = ServerSearchText.Text.Trim();
@@ -707,6 +713,7 @@ namespace VPNyan
             {
                 view.Filter = item => item is ServerItem server &&
                     (server.Name.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
+                     server.DisplayName.Contains(search, StringComparison.CurrentCultureIgnoreCase) ||
                      server.Protocol.Contains(search, StringComparison.OrdinalIgnoreCase));
                 if (ServerSelect.SelectedItem == null && !view.IsEmpty)
                     ServerSelect.SelectedItem = activeServer != null ? (view.Contains(activeServer) ? activeServer : null) : view.Cast<ServerItem>().FirstOrDefault();

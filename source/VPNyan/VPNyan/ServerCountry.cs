@@ -40,9 +40,14 @@ internal static class ServerCountry
     };
     private static readonly Regex FlagEmoji = new(@"(?:\uD83C[\uDDE6-\uDDFF]){2}", RegexOptions.Compiled);
     private static readonly (Country Country, Regex Pattern)[] Patterns = Countries.Select(country =>
-        (country, new Regex(@"(?<![\p{L}\p{N}])(?:(?i:" + string.Join('|', country.Aliases.Split('|').Where(alias => alias.Length > 2)) +
+    {
+        var translation = Localization.Current.Catalog.FirstOrDefault(entry => entry.Ru == country.Label);
+        var aliases = country.Aliases.Split('|').Where(alias => alias.Length > 2).Concat(new[] { country.Label,
+            translation?.En ?? country.Label, translation?.Hy ?? country.Label }).Distinct(StringComparer.OrdinalIgnoreCase);
+        return (country, new Regex(@"(?<![\p{L}\p{N}])(?:(?i:" + string.Join('|', aliases.OrderByDescending(a => a.Length).Select(Regex.Escape)) +
             ")|" + country.Code + (country.Code == "GB" ? "|UK" : "") + @")(?![\p{L}\p{N}])",
-            RegexOptions.CultureInvariant | RegexOptions.Compiled))).ToArray();
+            RegexOptions.CultureInvariant | RegexOptions.Compiled));
+    }).ToArray();
     private static readonly ConcurrentDictionary<string, ImageSource> Flags = new();
 
     internal static string Identify(string name)
@@ -57,6 +62,16 @@ internal static class ServerCountry
     }
 
     internal static string DisplayName(string name) => FlagEmoji.Replace(name, "").Trim(' ', '|', '-', '·');
+    internal static string LocalizedDisplayName(string name)
+    {
+        var display = DisplayName(name);
+        // Replace whole country tokens only; keep provider brands, numbers and transport labels intact.
+        // Match the original once so a replacement cannot be mistaken for another country's alias.
+        var replacements = Patterns.SelectMany(item => item.Pattern.Matches(display).Select(match =>
+            (match.Index, match.Length, Text: Localization.T(item.Country.Label)))).OrderByDescending(item => item.Index);
+        foreach (var item in replacements) display = display.Remove(item.Index,item.Length).Insert(item.Index,item.Text);
+        return display;
+    }
     internal static string Label(string code) => Countries.FirstOrDefault(country => country.Code == code)?.Label ?? "Страна не указана";
     internal static ImageSource Flag(string code) => Flags.GetOrAdd(code, CreateFlag);
 
