@@ -3,7 +3,7 @@
   <h1>VPN4ik</h1>
   <p>Твой VPN и управление zapret — в одном приложении.</p>
   <p><strong>Windows x64 · Без установки · .NET внутри</strong></p>
-  <p><a href="https://github.com/keltazik/VPN4ik/releases/tag/v1.0.0-beta.10"><strong>↓ Скачать beta.10</strong></a></p>
+  <p><a href="https://github.com/keltazik/VPN4ik/releases/tag/v1.0.0"><strong>↓ Скачать 1.0.0</strong></a></p>
   <p><a href="#быстрый-старт">Быстрый старт</a> · <a href="#zapret-прямо-в-приложении">Управление zapret</a> · <a href="CHANGELOG.md">Что нового</a></p>
 </div>
 
@@ -26,12 +26,12 @@
 
 ## Быстрый старт
 
-1. Скачай **[VPN4ik-v1.0.0-beta.10-windows-x64.zip](https://github.com/keltazik/VPN4ik/releases/download/v1.0.0-beta.10/VPN4ik-v1.0.0-beta.10-windows-x64.zip)**.
+1. Скачай **[VPN4ik-v1.0.0-windows-x64.zip](https://github.com/keltazik/VPN4ik/releases/download/v1.0.0/VPN4ik-v1.0.0-windows-x64.zip)**.
 2. Распакуй всю папку и запусти **`VPNyan.exe`**. Папка `Engine` должна оставаться рядом. Устанавливать .NET отдельно не нужно.
 3. Открой **＋ Добавить** и импортируй свою подписку или конфигурацию.
 4. Выбери сервер и режим подключения, затем нажми на орнамент. Для TUN подтверди запрос Windows и дождись статуса **«Подключено»**.
 
-Подписка и серверы в комплект не входят. Это предварительный выпуск для Windows x64.
+Подписка и серверы в комплект не входят. Для перехода с beta.10 скачай ZIP вручную: старый автоустановщик не принимает дополнительные файлы происхождения этой сборки. Версия 1.0.0 для Windows x64. Полный пользовательский прогон этой сборки с реальным VPN пока не выполнен.
 
 ## zapret прямо в приложении
 
@@ -87,7 +87,7 @@ powershell -NoProfile -File build.ps1
 ---
 
 <p align="center">
-  <a href="https://github.com/keltazik/VPN4ik/releases/tag/v1.0.0-beta.10">Скачать</a> ·
+  <a href="https://github.com/keltazik/VPN4ik/releases/tag/v1.0.0">Скачать</a> ·
   <a href="https://github.com/keltazik/VPN4ik/issues/new?template=bug_report.md">Сообщить об ошибке</a> ·
   <a href="CONTRIBUTING.md">Участие в разработке</a>
 </p>
