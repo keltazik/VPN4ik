@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="270" viewBox="0 0 1200 270" role="img" aria-labelledby="title description">
+  <title id="title">VPN4ik</title>
+  <desc id="description">Твой VPN и zapret в одном приложении. Бордово-золотое оформление VPN4ik.</desc>
+  <defs><path id="petal" d="M0-88 C37-67 41-31 0 0 C-41-31-37-67 0-88Z"/></defs>
+  <rect width="1200" height="270" rx="14" fill="#190e19"/>
+  <path d="M56 222H1144" stroke="#b88a54" stroke-opacity=".25"/>
+  <g transform="translate(1020 130)" fill="none" stroke="#d9b675" stroke-width="1.15">
+    <circle r="98" stroke-opacity=".16"/>
+    <g stroke-opacity=".6">
+      <use href="#petal"/><use href="#petal" transform="rotate(45)"/>
+      <use href="#petal" transform="rotate(90)"/><use href="#petal" transform="rotate(135)"/>
+      <use href="#petal" transform="rotate(180)"/><use href="#petal" transform="rotate(225)"/>
+      <use href="#petal" transform="rotate(270)"/><use href="#petal" transform="rotate(315)"/>
+    </g>
+    <path d="M0-36 36 0 0 36-36 0Z"/>
+    <path d="M0-12 12 0 0 12-12 0Z" fill="#d9b675" stroke="none"/>
+  </g>
+  <text x="56" y="126" fill="#e5c48b" font-family="Georgia, 'Times New Roman', serif" font-size="84">VPN4ik</text>
+  <text x="59" y="173" fill="#c2abb6" font-family="'Segoe UI', Arial, sans-serif" font-size="23">Твой VPN и zapret — в одном приложении.</text>
+</svg>
