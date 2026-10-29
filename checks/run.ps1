@@ -1,4 +1,4 @@
-param([switch]$NativeRouting)
+param([switch]$NativeRouting,[switch]$SettingsFeatures)
 $ErrorActionPreference = 'Stop'
 $vpnProjectRoot = Split-Path $PSScriptRoot -Parent
 $vpnEnvironmentNames = @('DOTNET_CLI_HOME', 'APPDATA', 'LOCALAPPDATA', 'MSBuildEnableWorkloadResolver', 'DOTNET_GENERATE_ASPNET_CERTIFICATE')
@@ -16,6 +16,7 @@ try {
     dotnet restore checks\VPN4ik.Checks.csproj --configfile NuGet.Config --packages .nuget -p:NuGetAudit=false --verbosity quiet
     if ($LASTEXITCODE -ne 0) { throw 'Checks restore failed.' }
     if ($NativeRouting) { dotnet run --project checks\VPN4ik.Checks.csproj --configuration Release --no-restore --verbosity quiet -- --native-routing }
+    elseif($SettingsFeatures) { dotnet run --project checks\VPN4ik.Checks.csproj --configuration Release --no-restore --verbosity quiet -- --settings-features }
     else { dotnet run --project checks\VPN4ik.Checks.csproj --configuration Release --no-restore --verbosity quiet }
     if ($LASTEXITCODE -ne 0) { throw 'Offline checks failed.' }
 }

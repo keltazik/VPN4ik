@@ -9,8 +9,9 @@ public partial class MainWindow
 {
     private void ApplyLanguage()
     {
-        Localization.Current.Apply(settings.Language);
-        Language = System.Windows.Markup.XmlLanguage.GetLanguage(settings.Language);
+        Localization.Current.Apply(settings.EffectiveLanguage);
+        ApplyAppearance();
+        Language = System.Windows.Markup.XmlLanguage.GetLanguage(settings.EffectiveLanguage);
         if (ServerSelect.ItemsSource != null)
         {
             ApplyServerSort(settings.ServerSort, false);
@@ -20,15 +21,27 @@ public partial class MainWindow
 
     internal void ShowSettingsCategory(string category)
     {
-        GeneralSettings.Visibility = category == "general" ? Visibility.Visible : Visibility.Collapsed;
-        ConnectionSettings.Visibility = category == "connection" ? Visibility.Visible : Visibility.Collapsed;
-        RoutingSettingsPanel.Visibility = category == "routing" ? Visibility.Visible : Visibility.Collapsed;
-        DisplaySettings.Visibility = category == "display" ? Visibility.Visible : Visibility.Collapsed;
+        if (!settingPages.ContainsKey(category)) category = "overview";
+        if(!restoringNavigation && SettingsPage.Visibility==Visibility.Visible && settingsCategory!=category) settingsHistory.Push(settingsCategory);
+        if (SettingsPage.Visibility==Visibility.Visible) RememberNavigation("settings", category);
+        settingsCategory=category;
+        foreach(var page in settingPages) page.Value.Visibility=page.Key==category?Visibility.Visible:Visibility.Collapsed;
         GeneralSettingsTab.IsChecked = category == "general";
         ConnectionSettingsTab.IsChecked = category == "connection";
         RoutingSettingsTab.IsChecked = category == "routing";
         DisplaySettingsTab.IsChecked = category == "display";
-        SettingsFooter.Visibility = category == "general" ? Visibility.Visible : Visibility.Collapsed;
+        SettingsFooter.Visibility = Visibility.Visible;
+        ResetAllButton.Visibility = category=="overview"?Visibility.Visible:Visibility.Collapsed;
+        SectionBackButton.Visibility=category=="overview"?Visibility.Collapsed:Visibility.Visible;
+        settingsBack.Visibility=Visibility.Collapsed;
+        settingsHeading.Visibility=Visibility.Collapsed;
+        var categoryTitle=category switch {
+            "general"=>"Поведение Windows", "appearance"=>"Оформление и язык", "connect"=>"Соединение", "connection"=>"Туннель и маршруты",
+            "routing"=>"Редактор правил", "display"=>"Настройки пинга", "subscriptions"=>"Подписки и серверы", "performance"=>"Производительность",
+            "updates"=>"Версия и обновления", "about"=>"О приложении", "backup"=>"Резервное копирование", "presets"=>"Профили маршрутизации", "diagnostics"=>"Логи и диагностика", _=>"Настройки" };
+        Localization.Set(settingsHeading,System.Windows.Controls.TextBlock.TextProperty,categoryTitle);
+        if(draftSettings!=null) RefreshExtendedSettings();
+        if (SettingsPage.Visibility==Visibility.Visible) Localization.Set(SectionTitle,System.Windows.Controls.TextBlock.TextProperty,categoryTitle);
         SettingsScroller.ScrollToTop();
     }
 
@@ -53,6 +66,7 @@ public partial class MainWindow
         Ping60Button.IsChecked = draftSettings.PingIntervalSeconds == 60;
         Ping120Button.IsChecked = draftSettings.PingIntervalSeconds == 120;
         UpdateRoutingDescription();
+        RefreshExtendedSettings();
     }
 
     private void UpdateRoutingDescription() => Localization.Set(RoutingModeDescription, System.Windows.Controls.TextBlock.TextProperty, draftSettings?.SplitTunnelMode == "Include"
@@ -117,6 +131,7 @@ public partial class MainWindow
     {
         if (loadingSettings || draftSettings == null || LanguageSelect.SelectedValue is not string language) return;
         draftSettings.Language = language;
+        draftSettings.UseSystemLanguage=false;
         SaveSettingsAutomatically();
         if (settings.Language == language) ApplyLanguage();
         else

@@ -4,8 +4,17 @@
         xmlns:local="clr-namespace:VPNyan"
         Title="VPN4ik" Icon="/VPNyan;component/Assets/VPN4ik.ico" Height="740" Width="1040" MinWidth="760" MinHeight="540"
         ResizeMode="CanResize" WindowStartupLocation="CenterScreen" WindowStyle="None"
-        Background="#110911" UseLayoutRounding="True">
+        Background="{DynamicResource AppBackground}" UseLayoutRounding="True">
     <Window.Resources>
+        <Style x:Key="SettingsMenuRow" TargetType="Button">
+            <Setter Property="Foreground" Value="{DynamicResource Accent}"/><Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Cursor" Value="Hand"/><Setter Property="Padding" Value="10,13"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocus}"/>
+            <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button">
+                <Border x:Name="RowSurface" Background="{TemplateBinding Background}" CornerRadius="7" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/></Border>
+                <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="RowSurface" Property="Background" Value="{DynamicResource HoverBackground}"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="RowSurface" Property="Background" Value="{DynamicResource PressedBackground}"/></Trigger><Trigger Property="IsEnabled" Value="False"><Setter Property="Opacity" Value="0.45"/></Trigger></ControlTemplate.Triggers>
+            </ControlTemplate></Setter.Value></Setter>
+        </Style>
         <Style x:Key="NavigationLabel" TargetType="TextBlock">
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/><Setter Property="TextWrapping" Value="Wrap"/>
             <Setter Property="Opacity" Value="0"/><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="Margin" Value="10,0,0,0"/><Setter Property="FontSize" Value="13"/>
@@ -15,28 +24,28 @@
             </DataTrigger></Style.Triggers>
         </Style>
         <Style x:Key="NavigationItem" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#C9A15C"/><Setter Property="Cursor" Value="Hand"/><Setter Property="Height" Value="44"/><Setter Property="Margin" Value="0,0,0,8"/><Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocus}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Accent}"/><Setter Property="Cursor" Value="Hand"/><Setter Property="Height" Value="44"/><Setter Property="Margin" Value="0,0,0,8"/><Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocus}"/>
             <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="RadioButton">
                 <Border x:Name="NavItemBorder" Background="Transparent" CornerRadius="8" BorderBrush="Transparent" BorderThickness="2,0,0,0"><ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/></Border>
                 <ControlTemplate.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="NavItemBorder" Property="Background" Value="#281622"/></Trigger>
-                    <Trigger Property="IsChecked" Value="True"><Setter TargetName="NavItemBorder" Property="BorderBrush" Value="#FFD27A"/><Setter Property="Foreground" Value="#FFD27A"/></Trigger>
+                    <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="NavItemBorder" Property="Background" Value="{DynamicResource HoverBackground}"/></Trigger>
+                    <Trigger Property="IsChecked" Value="True"><Setter TargetName="NavItemBorder" Property="BorderBrush" Value="{DynamicResource Accent}"/><Setter Property="Foreground" Value="{DynamicResource Accent}"/></Trigger>
                 </ControlTemplate.Triggers>
             </ControlTemplate></Setter.Value></Setter>
         </Style>
         <Style x:Key="NavigationToggle" TargetType="ToggleButton">
-            <Setter Property="Foreground" Value="#C9A15C"/><Setter Property="Height" Value="40"/><Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocus}"/>
+            <Setter Property="Foreground" Value="{DynamicResource Accent}"/><Setter Property="Height" Value="40"/><Setter Property="Cursor" Value="Hand"/><Setter Property="FocusVisualStyle" Value="{StaticResource KeyboardFocus}"/>
             <Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton">
                 <Border x:Name="ToggleBorder" Background="Transparent" CornerRadius="8"><ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/></Border>
-                <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ToggleBorder" Property="Background" Value="#281622"/></Trigger></ControlTemplate.Triggers>
+                <ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ToggleBorder" Property="Background" Value="{DynamicResource HoverBackground}"/></Trigger></ControlTemplate.Triggers>
             </ControlTemplate></Setter.Value></Setter>
         </Style>
     </Window.Resources>
     <Grid x:Name="MainGrid">
         <Grid.ColumnDefinitions><ColumnDefinition x:Name="NavigationColumn" Width="64"/><ColumnDefinition/></Grid.ColumnDefinitions>
-        <Grid Grid.ColumnSpan="2" Height="40" VerticalAlignment="Top" Background="#1A0F1A" MouseDown="TopBar_MouseDown" Panel.ZIndex="10">
+        <Grid x:Name="TitleBar" Grid.ColumnSpan="2" Height="40" VerticalAlignment="Top" Background="{DynamicResource TitleBarBackground}" MouseDown="TopBar_MouseDown" Panel.ZIndex="10">
             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="1" Text="VPN4ik" Foreground="#A78762" VerticalAlignment="Center" FontSize="12" Margin="8,0" IsHitTestVisible="False"/>
+            <TextBlock Grid.Column="1" Text="VPN4ik" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" FontSize="12" Margin="8,0" IsHitTestVisible="False"/>
             <Button x:Name="MinimizeButton" Grid.Column="2" Click="Minimize_Click" Style="{StaticResource WindowButton}" ToolTip="{Binding [L000], Source={x:Static local:Localization.Current}}" AutomationProperties.Name="{Binding [L001], Source={x:Static local:Localization.Current}}">
                 <Grid Width="20" Height="20" IsHitTestVisible="False"><Path Data="M 2,10 L 18,10" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></Grid>
             </Button>
@@ -57,14 +66,14 @@
         <Grid x:Name="ContentGrid" Grid.Column="1" Margin="0,40,0,0">
             <Grid.Background>
                 <RadialGradientBrush RadiusX="0.9" RadiusY="0.9" Center="0.78,0.4" GradientOrigin="0.78,0.4">
-                    <GradientStop Color="#39101F"/>
-                    <GradientStop Color="#1A0A14" Offset="0.55"/>
-                    <GradientStop Color="#0D070D" Offset="1"/>
+                    <GradientStop Color="{DynamicResource BackdropInnerColor}"/>
+                    <GradientStop Color="{DynamicResource BackdropMiddleColor}" Offset="0.55"/>
+                    <GradientStop Color="{DynamicResource BackdropOuterColor}" Offset="1"/>
                 </RadialGradientBrush>
             </Grid.Background>
             <Grid Margin="18,16,18,18">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="0.95*"/><ColumnDefinition Width="18"/><ColumnDefinition Width="1.25*"/></Grid.ColumnDefinitions>
-                <Border x:Name="ServersPanel" Grid.Column="0" CornerRadius="14" Background="#150B13" BorderBrush="#412332" BorderThickness="1" Padding="16">
+                <Border x:Name="ServersPanel" Grid.Column="0" CornerRadius="14" Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1" Padding="16">
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition/>
@@ -72,30 +81,27 @@
                         </Grid.RowDefinitions>
                         <WrapPanel Margin="0,0,0,10">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,4,8,4">
-                                <TextBlock Text="{Binding [L008], Source={x:Static local:Localization.Current}}" FontSize="20" FontWeight="SemiBold" Foreground="#FFD27A"/>
-                                <Border Background="#30202A" CornerRadius="8" Padding="8,3" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock x:Name="ServerCountText" Text="0" Foreground="#C9A15C" FontSize="12"/>
+                                <TextBlock Text="{Binding [L008], Source={x:Static local:Localization.Current}}" FontSize="20" FontWeight="SemiBold" Foreground="{DynamicResource Accent}"/>
+                                <Border Background="{DynamicResource SelectionBackground}" CornerRadius="8" Padding="8,3" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock x:Name="ServerCountText" Text="0" Foreground="{DynamicResource Accent}" FontSize="12"/>
                                 </Border>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,4,0,4">
                             <Button x:Name="CheckLatencyButton" Grid.Column="1" Width="28" Height="30" Padding="3" Margin="0,0,4,0" Style="{StaticResource ActionButton}" Click="CheckLatency_Click" AutomationProperties.Name="{Binding [L009], Source={x:Static local:Localization.Current}}" ToolTip="{Binding [L009], Source={x:Static local:Localization.Current}}">
-                                <Path Data="M 3,16 A 9,9 0 1 1 17,16 M 10,12 L 15,7" Width="18" Height="18" Stretch="Uniform" Stroke="#C9A15C" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                <Path Data="M 3,16 A 9,9 0 1 1 17,16 M 10,12 L 15,7" Width="18" Height="18" Stretch="Uniform" Stroke="{DynamicResource Accent}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                             </Button>
                             <Button x:Name="RefreshSubscriptionButton" Grid.Column="2" Padding="0" Width="28" Height="30"
                                     AutomationProperties.Name="{Binding [L010], Source={x:Static local:Localization.Current}}" ToolTip="{Binding [L010], Source={x:Static local:Localization.Current}}" IsEnabled="False" Style="{StaticResource ActionButton}" Click="RefreshSubscription_Click">
-                                <Path Data="M 15.5,6.5 A 6,6 0 1 0 16,11 M 15.5,2.5 L 15.5,6.5 L 11.5,6.5" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Stroke="#C9A15C" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                <Path Data="M 15.5,6.5 A 6,6 0 1 0 16,11 M 15.5,2.5 L 15.5,6.5 L 11.5,6.5" Width="16" Height="16" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" Stroke="{DynamicResource Accent}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
                             </Button>
-                            <Button x:Name="SortServersButton" Grid.Column="3" Width="28" Height="30" Padding="5" Margin="4,0,0,0" Style="{StaticResource ActionButton}" Click="SortServers_Click" AutomationProperties.Name="{Binding [L011], Source={x:Static local:Localization.Current}}" ToolTip="{Binding [L011], Source={x:Static local:Localization.Current}}">
-                                <Path Data="M 2,3 L 16,3 M 2,8 L 12,8 M 2,13 L 8,13" Width="16" Height="14" Stretch="Uniform" Stroke="#C9A15C" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
-                                <Button.ContextMenu><ContextMenu x:Name="SortServersMenu"><MenuItem Header="{Binding [L012], Source={x:Static local:Localization.Current}}" Tag="original" IsCheckable="True" Click="SortMode_Click"/><MenuItem Header="{Binding [L013], Source={x:Static local:Localization.Current}}" Tag="name" IsCheckable="True" Click="SortMode_Click"/><MenuItem Header="{Binding [L014], Source={x:Static local:Localization.Current}}" Tag="country" IsCheckable="True" Click="SortMode_Click"/><MenuItem Header="{Binding [L015], Source={x:Static local:Localization.Current}}" Tag="ping" IsCheckable="True" Click="SortMode_Click"/><MenuItem Header="{Binding [L016], Source={x:Static local:Localization.Current}}" Tag="protocol" IsCheckable="True" Click="SortMode_Click"/></ContextMenu></Button.ContextMenu>
-                            </Button>
+<Menu x:Name="SortServersButton" Grid.Column="3" Width="28" Height="30" Margin="4,0,0,0" IsMainMenu="False" Background="Transparent" Padding="0"><MenuItem x:Name="SortServersMenu" Style="{StaticResource AnchoredMenuItem}" Padding="5" AutomationProperties.Name="{Binding [L011], Source={x:Static local:Localization.Current}}"><MenuItem.Header><Path Data="M 2,3 L 16,3 M 2,8 L 12,8 M 2,13 L 8,13" Width="16" Height="14" Stretch="Uniform" Stroke="{DynamicResource Accent}" StrokeThickness="1.6" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/></MenuItem.Header><MenuItem Header="{Binding [L012], Source={x:Static local:Localization.Current}}" Tag="original" IsCheckable="True" Click="SortMode_Click"/><MenuItem Header="{Binding [L013], Source={x:Static local:Localization.Current}}" Tag="name" IsCheckable="True" Click="SortMode_Click"/><MenuItem Header="{Binding [L014], Source={x:Static local:Localization.Current}}" Tag="country" IsCheckable="True" Click="SortMode_Click"/><MenuItem Header="{Binding [L015], Source={x:Static local:Localization.Current}}" Tag="ping" IsCheckable="True" Click="SortMode_Click"/><MenuItem Header="{Binding [L016], Source={x:Static local:Localization.Current}}" Tag="protocol" IsCheckable="True" Click="SortMode_Click"/></MenuItem></Menu>
                         </StackPanel></WrapPanel>
                         <TextBox x:Name="ServerSearchText" AutomationProperties.HelpText="{Binding [L017], Source={x:Static local:Localization.Current}}" Grid.Row="1" Margin="0,0,0,12" FontSize="12"
                                  ToolTip="{Binding [L018], Source={x:Static local:Localization.Current}}" AutomationProperties.Name="{Binding [L017], Source={x:Static local:Localization.Current}}" TextChanged="ServerSearch_TextChanged">
-                            <TextBox.Background><SolidColorBrush Color="#110A10"/></TextBox.Background>
+                            <TextBox.Background><SolidColorBrush Color="{DynamicResource ControlBackgroundColor}"/></TextBox.Background>
                         </TextBox>
                         <Grid Grid.Row="2">
-                            <ListBox x:Name="ServerSelect" Background="Transparent" BorderThickness="0" Foreground="#E6C07B" PreviewMouseRightButtonDown="ServerRightClick" ContextMenuOpening="ServerMenu_Opening"
+                            <ListBox x:Name="ServerSelect" Background="Transparent" BorderThickness="0" Foreground="{DynamicResource Accent}" PreviewMouseRightButtonDown="ServerRightClick" ContextMenuOpening="ServerMenu_Opening"
                                      FocusVisualStyle="{x:Null}" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                                      ScrollViewer.CanContentScroll="True" VirtualizingPanel.ScrollUnit="Pixel"
                                      HorizontalContentAlignment="Stretch" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling">
@@ -107,7 +113,7 @@
                                     <MenuItem x:Name="ContextCopy" Header="{Binding [L021], Source={x:Static local:Localization.Current}}" Click="ContextCopy_Click"><MenuItem.Icon><TextBlock Text="▣"/></MenuItem.Icon></MenuItem>
                                     <MenuItem x:Name="ContextEdit" Header="{Binding [L022], Source={x:Static local:Localization.Current}}" Click="ContextEdit_Click"><MenuItem.Icon><TextBlock Text="✎" FontSize="16"/></MenuItem.Icon></MenuItem>
                                     <Separator/>
-                                    <MenuItem x:Name="ContextDelete" Header="{Binding [L023], Source={x:Static local:Localization.Current}}" Foreground="#FF9EAA" Click="ContextDelete_Click"><MenuItem.Icon><TextBlock Text="×" FontSize="18" Foreground="#FF9EAA"/></MenuItem.Icon></MenuItem>
+                                    <MenuItem x:Name="ContextDelete" Header="{Binding [L023], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource DangerForeground}" Click="ContextDelete_Click"><MenuItem.Icon><TextBlock Text="×" FontSize="18" Foreground="{DynamicResource DangerForeground}"/></MenuItem.Icon></MenuItem>
                                 </ContextMenu></ListBox.ContextMenu>
                                 <ListBox.Template>
                                     <ControlTemplate TargetType="ListBox">
@@ -124,14 +130,14 @@
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate TargetType="ListBoxItem">
-                                                    <Border x:Name="ServerBorder" Background="#1C101A" CornerRadius="8"
+                                                    <Border x:Name="ServerBorder" Background="{DynamicResource CardBackground}" CornerRadius="8"
                                                             Padding="{TemplateBinding Padding}" BorderThickness="2,0,0,0" BorderBrush="Transparent">
                                                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ServerBorder" Property="Background" Value="#2A1724"/></Trigger>
-                                                        <Trigger Property="IsSelected" Value="True"><Setter TargetName="ServerBorder" Property="Background" Value="#3A2332"/><Setter TargetName="ServerBorder" Property="BorderBrush" Value="#FFD27A"/></Trigger>
-                                                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ServerBorder" Property="BorderBrush" Value="#FFD27A"/></Trigger>
+                                                        <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="ServerBorder" Property="Background" Value="{DynamicResource HoverBackground}"/></Trigger>
+                                                        <Trigger Property="IsSelected" Value="True"><Setter TargetName="ServerBorder" Property="Background" Value="{DynamicResource SelectionBackground}"/><Setter TargetName="ServerBorder" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
+                                                        <Trigger Property="IsKeyboardFocused" Value="True"><Setter TargetName="ServerBorder" Property="BorderBrush" Value="{DynamicResource Accent}"/></Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
                                             </Setter.Value>
@@ -144,8 +150,8 @@
                                             <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                             <Image Source="{Binding CountryFlag}" Width="20" Height="20" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="{local:Translate Path=CountryLabel}"/>
                                             <StackPanel Grid.Column="1">
-                                                <TextBlock Text="{Binding DisplayName}" Foreground="#F1D6A5" FontSize="14" TextTrimming="CharacterEllipsis" ToolTip="{Binding DisplayName}"/>
-                                                <TextBlock Text="{Binding Protocol}" Foreground="#A78762" FontSize="10" Margin="0,5,0,0"/>
+                                                <TextBlock Text="{Binding DisplayName}" Foreground="{DynamicResource TextPrimary}" FontSize="14" TextTrimming="CharacterEllipsis" ToolTip="{Binding DisplayName}"/>
+                                                <TextBlock Text="{Binding Protocol}" Foreground="{DynamicResource TextSecondary}" FontSize="10" Margin="0,5,0,0"/>
                                             </StackPanel>
                                             <TextBlock Grid.Column="2" Text="{local:Translate Path=PingDisplay}" Foreground="{Binding PingColor}" FontSize="11"
                                                        VerticalAlignment="Center" Margin="10,0,0,0" ToolTip="{local:Translate Path=PingDetail}"/>
@@ -153,36 +159,24 @@
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
-                            <TextBlock x:Name="EmptyServersText" Text="{Binding [L024], Source={x:Static local:Localization.Current}}" Foreground="#A78762" TextWrapping="Wrap" TextAlignment="Center" Margin="18" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                            <TextBlock x:Name="EmptyServersText" Text="{Binding [L024], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" TextAlignment="Center" Margin="18" VerticalAlignment="Center" IsHitTestVisible="False"/>
                         </Grid>
                         <StackPanel Grid.Row="3" Margin="0,10,0,12">
-                            <TextBlock x:Name="ServerSummaryText" Text="{Binding Text, ElementName=SubscriptionStatusText}" Foreground="#A78762" FontSize="11" TextWrapping="Wrap"/>
-                            <TextBlock x:Name="LatencyStatusText" Text="{Binding [L025], Source={x:Static local:Localization.Current}}" Foreground="#8F7162" FontSize="10" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                            <TextBlock x:Name="ServerSummaryText" Text="{Binding Text, ElementName=SubscriptionStatusText}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="LatencyStatusText" Text="{Binding [L025], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="10" TextWrapping="Wrap" Margin="0,5,0,0"/>
                         </StackPanel>
                         <Button x:Name="BestServerButton" Grid.Row="4" Content="{Binding [L026], Source={x:Static local:Localization.Current}}" Click="BestServer_Click" Style="{StaticResource ActionButton}" ToolTip="{Binding [L027], Source={x:Static local:Localization.Current}}"/>
                     </Grid>
                 </Border>
                 <Grid x:Name="ConnectionPanel" Grid.Column="2" Margin="12,8,12,0">
                     <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <Viewbox Height="52" MaxWidth="280" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center">
-                        <Grid Height="48">
-                            <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="16"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="16"/><ColumnDefinition Width="28"/></Grid.ColumnDefinitions>
-                            <Border Height="1" VerticalAlignment="Center"><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#00C9A15C" Offset="0"/><GradientStop Color="#9B7448" Offset="1"/></LinearGradientBrush></Border.Background></Border>
-                            <Path Grid.Column="1" Data="M 3,0 L 6,3 L 3,6 L 0,3 Z" Width="6" Height="6" Fill="#B98A4E" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="BrandTitle" Grid.Column="2" FontFamily="Georgia" FontSize="32" VerticalAlignment="Center" AutomationProperties.Name="VPN4ik">
-                                <TextBlock.Foreground><LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#FFF0C7" Offset="0"/><GradientStop Color="#E9BF70" Offset="0.55"/><GradientStop Color="#AD7D3F" Offset="1"/></LinearGradientBrush></TextBlock.Foreground>
-                                <TextBlock.Effect><DropShadowEffect Color="#FFD27A" BlurRadius="10" ShadowDepth="0" Opacity="0.28"/></TextBlock.Effect>
-                                <Run Text="VPN"/><Run Text="4ik" FontStyle="Italic"/>
-                            </TextBlock>
-                            <Path Grid.Column="3" Data="M 3,0 L 6,3 L 3,6 L 0,3 Z" Width="6" Height="6" Fill="#B98A4E" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <Border Grid.Column="4" Height="1" VerticalAlignment="Center"><Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,0"><GradientStop Color="#9B7448" Offset="0"/><GradientStop Color="#00C9A15C" Offset="1"/></LinearGradientBrush></Border.Background></Border>
-                        </Grid>
-                    </Viewbox>
-                    <Viewbox x:Name="OrnamentViewbox" Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" Margin="16,18">
-                        <Grid x:Name="OrnamentMotion" Width="380" Height="380" RenderTransformOrigin="0.5,0.5">
+                    <Viewbox Height="64" MaxWidth="300" Stretch="Uniform" StretchDirection="DownOnly" HorizontalAlignment="Center">
+                        <Image x:Name="MainWordmarkImage" Width="600" Height="160" Stretch="Uniform" AutomationProperties.Name="VPN4ik" RenderOptions.BitmapScalingMode="HighQuality"/>
+                    </Viewbox>                    <Viewbox x:Name="OrnamentViewbox" Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" Margin="16,18">
+                        <Grid x:Name="OrnamentPulse" Width="380" Height="380" RenderTransformOrigin="0.5,0.5"><Grid.RenderTransform><ScaleTransform x:Name="OrnamentPulseScale"/></Grid.RenderTransform><Grid x:Name="OrnamentMotion" Width="380" Height="380" RenderTransformOrigin="0.5,0.5">
                             <Grid.RenderTransform><ScaleTransform x:Name="OrnamentScale"/></Grid.RenderTransform>
                             <Image x:Name="OrnamentGlow" Source="{StaticResource OrnamentVector}" Stretch="Uniform" Opacity="0" IsHitTestVisible="False" Focusable="False">
-                                <Image.Effect><DropShadowEffect Color="#FFD27A" BlurRadius="26" ShadowDepth="0" Opacity="1" RenderingBias="Performance"/></Image.Effect>
+                                <Image.Effect><DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="26" ShadowDepth="0" Opacity="1" RenderingBias="Performance"/></Image.Effect>
                                 <Image.CacheMode><BitmapCache RenderAtScale="1.5" SnapsToDevicePixels="False"/></Image.CacheMode>
                             </Image>
                             <local:AlphaHitImage x:Name="OrnamentImage" Source="{StaticResource OrnamentVector}" HitGeometry="{StaticResource OrnamentHitGeometry}"
@@ -194,86 +188,80 @@
                                 <local:AlphaHitImage.CacheMode><BitmapCache RenderAtScale="1.5" SnapsToDevicePixels="False"/></local:AlphaHitImage.CacheMode>
                             </local:AlphaHitImage>
                         </Grid>
-                    </Viewbox>
-                    <StackPanel Grid.Row="2" Margin="0,0,0,18">
-                        <TextBlock x:Name="SelectedServerName" Text="{local:Translate Path=SelectedItem.DisplayName, ElementName=ServerSelect, Fallback=Сервер не выбран, PreserveValue=True}"
-                                   Foreground="#F1D6A5" FontSize="20" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,12"/>
-                        <Border Background="#1A0D17" CornerRadius="12" Padding="12,8" HorizontalAlignment="Center">
-                            <StackPanel Orientation="Horizontal">
+</Grid>                    </Viewbox>
+<Viewbox Grid.Row="1" Stretch="Uniform" StretchDirection="DownOnly" Margin="12" Visibility="{Binding Visibility, ElementName=StandardConnectButton}"><Button x:Name="StandardConnectButton" Visibility="Collapsed" Width="164" Height="164" HorizontalAlignment="Center" VerticalAlignment="Center" Click="StandardConnect_Click" Style="{StaticResource StandardConnectionButton}"><TextBlock Text="⏻" FontSize="58" HorizontalAlignment="Center"/></Button>                    </Viewbox><StackPanel Grid.Row="2" Margin="0,0,0,14"><Border x:Name="ConnectedServerCard" Padding="11,7" CornerRadius="10" BorderThickness="1" HorizontalAlignment="Center" MaxWidth="340"><Grid Margin="0" HorizontalAlignment="Center"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions><Image x:Name="ConnectedServerFlag" Width="24" Height="24" Margin="0,0,10,0"/>                        <TextBlock Grid.Column="1" x:Name="SelectedServerName" Text="{local:Translate Path=SelectedItem.DisplayName, ElementName=ServerSelect, Fallback=Сервер не выбран, PreserveValue=True}"
+                                   Foreground="{DynamicResource TextPrimary}" FontSize="20" FontWeight="SemiBold" TextAlignment="Center" TextWrapping="Wrap" Margin="0"/>
+</Grid></Border><TextBlock x:Name="ConnectedServerProtocol" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextAlignment="Center" Margin="0,5,0,8"/>                        <Border Background="{DynamicResource ControlBackground}" CornerRadius="12" Padding="12,8" HorizontalAlignment="Center">
+                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
                                 <Ellipse x:Name="StatusIndicator" Width="8" Height="8" Fill="#FF6B6B" Margin="0,0,8,0"/>
-                                <TextBlock x:Name="StatusText" Text="{Binding [L030], Source={x:Static local:Localization.Current}}" Foreground="#E6C07B" FontSize="12" TextWrapping="Wrap" MaxWidth="280"/>
-                            </StackPanel>
+                                <TextBlock Grid.Column="1" x:Name="StatusText" Text="{Binding [L030], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" FontSize="12" TextWrapping="Wrap" MaxWidth="280"/>
+                            </Grid>
                         </Border>
-                        <TextBlock x:Name="IpText" Text="" Foreground="#A78762" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" Margin="0,7,0,0"/>
+                        <TextBlock x:Name="IpText" Text="" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap" TextAlignment="Center" Margin="0,7,0,0"/>
                     </StackPanel>
-                    <Border Grid.Row="3" Background="#180D16" BorderBrush="#412332" BorderThickness="1" CornerRadius="12" Padding="16,12">
+                    <Border Grid.Row="3" Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1" CornerRadius="12" Padding="16,12">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                             <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                             <StackPanel>
-                                <TextBlock Text="{Binding [L031], Source={x:Static local:Localization.Current}}" Foreground="#A78762" FontSize="10"/>
-                                <TextBlock x:Name="TimeConnectedText" Text="00:00:00" Foreground="#FFD27A" FontSize="16" Margin="0,4,0,0"/>
+                                <TextBlock Text="{Binding [L031], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="10"/>
+                                <TextBlock x:Name="TimeConnectedText" Text="00:00:00" Foreground="{DynamicResource Accent}" FontSize="16" Margin="0,4,0,0"/>
                             </StackPanel>
-                            <Button x:Name="ConnectionModeButton" Grid.Column="1" Margin="8,0,0,0" Padding="9,7" Style="{StaticResource ActionButton}" Click="ConnectionMode_Click" AutomationProperties.Name="{Binding [L032], Source={x:Static local:Localization.Current}}">
-                                <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="16"/></Grid.ColumnDefinitions>
+<Menu x:Name="ConnectionModeButton" Grid.Column="1" Margin="8,0,0,0" IsMainMenu="False" Background="Transparent" Padding="0"><MenuItem x:Name="ConnectionModeMenu" Style="{StaticResource AnchoredMenuItem}" Padding="9,7" local:MenuPlacement.Value="Top" SubmenuOpened="ConnectionMode_Opened" AutomationProperties.Name="{Binding [L032], Source={x:Static local:Localization.Current}}"><MenuItem.Header><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="16"/></Grid.ColumnDefinitions>
                                     <TextBlock x:Name="ConnectionModeLabel" Text="Xray TUN" FontSize="11" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
-                                    <Path Grid.Column="1" Data="M 0,0 L 4,4 L 8,0" Stroke="#D4AA65" StrokeThickness="1.4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                </Grid>
-                                <Button.ContextMenu>
-                                    <ContextMenu x:Name="ConnectionModeMenu">
+                                    <Path Grid.Column="1" Data="M 0,0 L 4,4 L 8,0" Stroke="{DynamicResource Accent}" StrokeThickness="1.4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                </Grid></MenuItem.Header>
                                         <MenuItem x:Name="ProxyModeItem" Header="{Binding [L033], Source={x:Static local:Localization.Current}}" IsCheckable="True" Tag="proxy" Click="ConnectionModeItem_Click" ToolTip="{Binding [L034], Source={x:Static local:Localization.Current}}"/>
                                         <Separator/>
                                         <MenuItem Header="TUN" IsEnabled="False" FontWeight="SemiBold"/>
                                         <MenuItem x:Name="XrayTunModeItem" Header="Xray TUN" IsCheckable="True" Tag="tun" Click="ConnectionModeItem_Click"/>
                                         <Separator/>
                                         <MenuItem x:Name="LocalDnsMenuItem" Header="{Binding [L035], Source={x:Static local:Localization.Current}}" IsCheckable="True" StaysOpenOnClick="True" Click="LocalDns_Click" ToolTip="{Binding [L036], Source={x:Static local:Localization.Current}}"/>
-                                    </ContextMenu>
-                                </Button.ContextMenu>
-                            </Button>
-                            <TextBlock x:Name="SpeedText" Grid.Row="1" Grid.ColumnSpan="2" Text="0 Mbps" Foreground="#C9A15C" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"/>
-                            <TextBlock x:Name="TrafficText" Grid.Row="2" Grid.ColumnSpan="2" Text="↑ 0 MB | ↓ 0 MB" Foreground="#A78762" FontSize="11" Margin="0,5,0,0" TextWrapping="Wrap"/>
+                                    </MenuItem></Menu>
+                            <TextBlock x:Name="SpeedText" Grid.Row="1" Grid.ColumnSpan="2" Text="0 Mbps" Foreground="{DynamicResource Accent}" FontSize="12" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                            <TextBlock x:Name="TrafficText" Grid.Row="2" Grid.ColumnSpan="2" Text="↑ 0 MB | ↓ 0 MB" Foreground="{DynamicResource TextSecondary}" FontSize="11" Margin="0,5,0,0" TextWrapping="Wrap"/>
                         </Grid>
                     </Border>
                 </Grid>
             </Grid>
         </Grid>
-        <Border x:Name="SectionPanel" Grid.Column="1" Margin="18,56,18,18" Background="#150B13" BorderBrush="#412332" BorderThickness="1" CornerRadius="14" Padding="22" Visibility="Collapsed">
+        <Border x:Name="SectionPanel" Grid.Column="1" Margin="18,56,18,18" Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1" CornerRadius="14" Padding="22" Visibility="Collapsed">
             <Grid>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-                    <Button x:Name="SectionBackButton" Content="←" Width="38" Height="36" Padding="0" Click="Home_Click" Style="{StaticResource ActionButton}" ToolTip="{Binding [L037], Source={x:Static local:Localization.Current}}"/>
-                    <TextBlock x:Name="SectionTitle" Text="VPN4ik" Foreground="#FFD27A" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center" Margin="14,0,0,0"/>
+                    <Button x:Name="SectionBackButton" Content="←" Width="38" Height="36" Padding="0" Click="Back_Click" Style="{StaticResource ActionButton}" ToolTip="{Binding [L037], Source={x:Static local:Localization.Current}}"/>
+                    <TextBlock x:Name="SectionTitle" Text="VPN4ik" Foreground="{DynamicResource Accent}" FontSize="24" FontWeight="SemiBold" VerticalAlignment="Center" Margin="14,0,0,0"/>
                 </StackPanel>
                 <Grid Grid.Row="1">
                     <ScrollViewer x:Name="ImportPage" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Style="{StaticResource ThemedScrollViewer}">
 
                         <StackPanel>
-                            <TextBlock Text="{Binding [L038], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                            <TextBlock Text="{Binding [L039], Source={x:Static local:Localization.Current}}" Foreground="#A78762" FontSize="12" Margin="0,0,0,16" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding [L038], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                            <TextBlock Text="{Binding [L039], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="12" Margin="0,0,0,16" TextWrapping="Wrap"/>
                             <Grid>
                                 <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                 <TextBox x:Name="SubscriptionUrlText" AutomationProperties.HelpText="https://…" MinWidth="0" FontSize="13" AutomationProperties.Name="{Binding [L040], Source={x:Static local:Localization.Current}}"/>
                                 <Button x:Name="ImportSubscriptionButton" Grid.Column="1" Content="{Binding [L041], Source={x:Static local:Localization.Current}}" Margin="8,0,0,0" Style="{StaticResource ActionButton}" Click="ImportSubscription_Click"/>
                             </Grid>
-                            <TextBlock x:Name="SubscriptionStatusText" Text="{Binding [L042], Source={x:Static local:Localization.Current}}" Foreground="#C9A15C" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,26"/>
-                            <Border BorderBrush="#412332" BorderThickness="0,1,0,0" Padding="0,20,0,0">
+                            <TextBlock x:Name="SubscriptionStatusText" Text="{Binding [L042], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,26"/>
+                            <Border BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,1,0,0" Padding="0,20,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="{Binding [L043], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                                    <TextBlock Text="{Binding [L044], Source={x:Static local:Localization.Current}}" Foreground="#A78762" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,14"/>
+                                    <TextBlock Text="{Binding [L043], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="18" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <TextBlock Text="{Binding [L044], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,14"/>
                                     <Button x:Name="ImportConfigButton" Content="{Binding [L045], Source={x:Static local:Localization.Current}}" Click="ImportConfig_Click" Style="{StaticResource ActionButton}" HorizontalAlignment="Left" Padding="20,10"/>
                                 </StackPanel>
                             </Border>
-                            <Border BorderBrush="#412332" BorderThickness="0,1,0,0" Padding="0,20,0,0" Margin="0,24,0,0">
+                            <Border BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,1,0,0" Padding="0,20,0,0" Margin="0,24,0,0">
                                 <StackPanel>
-                                    <TextBlock Text="{Binding [L046], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <TextBlock Text="{Binding [L046], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="17" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,12"/>
                                     <ItemsControl x:Name="ImportedSourcesList">
-                                        <ItemsControl.ItemTemplate><DataTemplate><Border Background="#21121D" CornerRadius="9" Padding="12" Margin="0,0,0,8">
-                                            <StackPanel><TextBlock Text="{Binding Name}" Foreground="#F1D6A5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="{local:Translate Path=Detail}" Foreground="#A78762" FontSize="12" Margin="0,5,0,9"/>
-                                                <WrapPanel><Button Content="{Binding [L047], Source={x:Static local:Localization.Current}}" Click="RefreshSource_Click" Style="{StaticResource ActionButton}" IsEnabled="{Binding CanRefresh}" Margin="0,0,8,0"/><Button Content="{Binding [L048], Source={x:Static local:Localization.Current}}" Click="DeleteSource_Click" Style="{StaticResource ActionButton}" Foreground="#FFA5B0"/></WrapPanel>
+                                        <ItemsControl.ItemTemplate><DataTemplate><Border Background="{DynamicResource CardBackground}" CornerRadius="9" Padding="12" Margin="0,0,0,8">
+                                            <StackPanel><TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="{local:Translate Path=Detail}" Foreground="{DynamicResource TextSecondary}" FontSize="12" Margin="0,5,0,9"/>
+                                                <WrapPanel><Button Content="{Binding [L047], Source={x:Static local:Localization.Current}}" Click="RefreshSource_Click" Style="{StaticResource ActionButton}" IsEnabled="{Binding CanRefresh}" Margin="0,0,8,0"/><Button Content="{Binding [L048], Source={x:Static local:Localization.Current}}" Click="DeleteSource_Click" Style="{StaticResource ActionButton}" Foreground="{DynamicResource DangerForeground}"/></WrapPanel>
                                             </StackPanel>
                                         </Border></DataTemplate></ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                    <TextBlock x:Name="ImportedSourcesEmpty" Text="{Binding [L049], Source={x:Static local:Localization.Current}}" Foreground="#8F7162" FontSize="12" Margin="0,2,0,12"/>
+                                    <TextBlock x:Name="ImportedSourcesEmpty" Text="{Binding [L049], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="12" Margin="0,2,0,12"/>
                                 </StackPanel>
                             </Border>
                             <Button Content="{Binding [L050], Source={x:Static local:Localization.Current}}" Click="Home_Click" Style="{StaticResource ActionButton}" HorizontalAlignment="Left" Margin="0,26,0,0"/>
@@ -281,202 +269,202 @@
                     </ScrollViewer>
                     <Grid x:Name="SettingsPage" Visibility="Collapsed">
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                        <WrapPanel Margin="0,0,0,12">
+                        <WrapPanel x:Name="SettingsTabsPanel" Margin="0,0,0,12">
                             <RadioButton x:Name="GeneralSettingsTab" GroupName="SettingsTabs" Content="{Binding [L051], Source={x:Static local:Localization.Current}}" Tag="general" IsChecked="True" Click="SettingsTab_Click" Style="{StaticResource SettingsTab}"/>
                             <RadioButton x:Name="ConnectionSettingsTab" GroupName="SettingsTabs" Content="{Binding [L052], Source={x:Static local:Localization.Current}}" Tag="connection" Click="SettingsTab_Click" Style="{StaticResource SettingsTab}"/>
                             <RadioButton x:Name="RoutingSettingsTab" GroupName="SettingsTabs" Content="{Binding [L053], Source={x:Static local:Localization.Current}}" Tag="routing" Click="SettingsTab_Click" Style="{StaticResource SettingsTab}"/>
                             <RadioButton x:Name="DisplaySettingsTab" GroupName="SettingsTabs" Content="{Binding [L054], Source={x:Static local:Localization.Current}}" Tag="display" Click="SettingsTab_Click" Style="{StaticResource SettingsTab}"/>
                         </WrapPanel>
                         <ScrollViewer x:Name="SettingsScroller" Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Style="{StaticResource ThemedScrollViewer}">
-                            <Grid Margin="0,0,12,0" MaxWidth="700" HorizontalAlignment="Left" VerticalAlignment="Top">
+                            <StackPanel><Grid x:Name="SettingsContentGrid" Margin="0,0,12,0" HorizontalAlignment="Stretch" VerticalAlignment="Top">
                                 <StackPanel x:Name="GeneralSettings" MaxWidth="700" HorizontalAlignment="Stretch">
-                                    <TextBlock Text="{Binding [L055], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,18"/>
+                                    <TextBlock Text="{Binding [L055], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,18"/>
                                     <CheckBox Content="{Binding [L056], Source={x:Static local:Localization.Current}}" IsChecked="{Binding StartWithWindows, Mode=TwoWay}" Click="SettingsCheckBox_Click"/>
                                     <CheckBox Content="{Binding [L057], Source={x:Static local:Localization.Current}}" IsChecked="{Binding StartMinimized, Mode=TwoWay}" Click="SettingsCheckBox_Click"/>
                                     <CheckBox Content="{Binding [L058], Source={x:Static local:Localization.Current}}" IsChecked="{Binding AutoConnect, Mode=TwoWay}" Click="SettingsCheckBox_Click"/>
                                     <CheckBox Content="{Binding [L059], Source={x:Static local:Localization.Current}}" IsChecked="{Binding ShowNotifications, Mode=TwoWay}" Click="SettingsCheckBox_Click"/>
                                     <Expander x:Name="TraySettingsExpander" Header="{Binding [L060], Source={x:Static local:Localization.Current}}" Style="{StaticResource TrayOptionsExpander}" Margin="0,0,0,12">
-                                        <StackPanel><CheckBox x:Name="MinimizeToTrayBox" Content="{Binding [L061], Source={x:Static local:Localization.Current}}" IsChecked="{Binding MinimizeToTray, Mode=TwoWay}" Click="SettingsCheckBox_Click"/><CheckBox x:Name="CloseToTrayBox" Content="{Binding [L062], Source={x:Static local:Localization.Current}}" IsChecked="{Binding CloseToTray, Mode=TwoWay}" Click="SettingsCheckBox_Click"/><TextBlock Text="{Binding [L063], Source={x:Static local:Localization.Current}}" Foreground="#947765" FontSize="11" TextWrapping="Wrap"/></StackPanel>
+                                        <StackPanel><CheckBox x:Name="MinimizeToTrayBox" Content="{Binding [L061], Source={x:Static local:Localization.Current}}" IsChecked="{Binding MinimizeToTray, Mode=TwoWay}" Click="SettingsCheckBox_Click"/><CheckBox x:Name="CloseToTrayBox" Content="{Binding [L062], Source={x:Static local:Localization.Current}}" IsChecked="{Binding CloseToTray, Mode=TwoWay}" Click="SettingsCheckBox_Click"/><TextBlock Text="{Binding [L063], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap"/></StackPanel>
                                     </Expander>
-                                    <TextBlock Text="{Binding [L064], Source={x:Static local:Localization.Current}}" Foreground="#E6C07B" Margin="0,8,0,10"/>
+                                    <TextBlock Text="{Binding [L064], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,8,0,10"/>
                                     <ComboBox x:Name="LanguageSelect" Style="{StaticResource ZapretSelector}" MaxWidth="320" HorizontalAlignment="Left" MinWidth="220" SelectedValuePath="Tag" SelectionChanged="Language_Changed" PreviewMouseWheel="ZapretStrategy_MouseWheel" AutomationProperties.Name="{Binding [L064], Source={x:Static local:Localization.Current}}" Margin="0,0,0,12">
                                         <ComboBoxItem Content="{Binding [L065], Source={x:Static local:Localization.Current}}" Tag="ru"/><ComboBoxItem Content="English" Tag="en"/><ComboBoxItem Content="Հայերեն" Tag="hy"/>
                                     </ComboBox>
-                                    <Border BorderBrush="#412332" BorderThickness="0,1,0,0" Padding="0,18,0,0" Margin="0,8,0,0">
+                                    <Border BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,1,0,0" Padding="0,18,0,0" Margin="0,8,0,0">
                                         <StackPanel>
-                                            <TextBlock Text="{Binding [L066], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                                            <TextBlock x:Name="AppVersionText" Foreground="#A78762" FontSize="12" Margin="0,0,0,10"/>
+                                            <TextBlock Text="{Binding [L066], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                                            <TextBlock x:Name="AppVersionText" Foreground="{DynamicResource TextSecondary}" FontSize="12" Margin="0,0,0,10"/>
                                             <CheckBox x:Name="UpdateAutoCheckBox" Content="{Binding [L067], Source={x:Static local:Localization.Current}}" IsChecked="{Binding CheckForUpdates, Mode=TwoWay}" Click="SettingsCheckBox_Click"/>
                                             <Button x:Name="CheckUpdatesButton" Content="{Binding [L068], Source={x:Static local:Localization.Current}}" Click="CheckUpdates_Click" Style="{StaticResource ActionButton}" HorizontalAlignment="Left"/>
-                                            <TextBlock x:Name="UpdateCheckStatus" Foreground="#A78762" FontSize="12" TextWrapping="Wrap" Margin="0,10,0,0"/>
+                                            <TextBlock x:Name="UpdateCheckStatus" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,10,0,0"/>
                                         </StackPanel>
                                     </Border>
                                 </StackPanel>
                                 <StackPanel x:Name="ConnectionSettings" Visibility="Collapsed" MaxWidth="700">
-                                    <TextBlock Text="{Binding [L069], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                                    <TextBlock Text="{Binding [L070], Source={x:Static local:Localization.Current}}" Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,18"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,18"><TextBlock Text="MTU (1280–1500)" Foreground="#E6C07B" VerticalAlignment="Center" Margin="0,0,16,0"/><TextBox x:Name="MtuText" Width="90" AutomationProperties.Name="MTU" TextChanged="MtuText_TextChanged"/></StackPanel>
+                                    <TextBlock Text="{Binding [L069], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                                    <TextBlock Text="{Binding [L070], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,18"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,18"><TextBlock Text="MTU (1280–1500)" Foreground="{DynamicResource Accent}" VerticalAlignment="Center" Margin="0,0,16,0"/><TextBox x:Name="MtuText" Width="90" AutomationProperties.Name="MTU" TextChanged="MtuText_TextChanged"/></StackPanel>
                                     <CheckBox Content="{Binding [L071], Source={x:Static local:Localization.Current}}" IsChecked="{Binding BypassLocalNetwork, Mode=TwoWay}" Click="SettingsCheckBox_Click"/>
-                                    <TextBlock Text="{Binding [L072], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="14" Margin="0,12,0,8"/>
-                                    <TextBlock Text="{Binding [L073], Source={x:Static local:Localization.Current}}" Foreground="#A78762" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                    <TextBlock Text="{Binding [L072], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="14" Margin="0,12,0,8"/>
+                                    <TextBlock Text="{Binding [L073], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"/>
                                     <TextBox x:Name="DnsServersText" Height="88" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{Binding [L072], Source={x:Static local:Localization.Current}}" AutomationProperties.HelpText="{Binding [L074], Source={x:Static local:Localization.Current}}" TextChanged="RoutingText_TextChanged" Tag="dns"/>
                                 </StackPanel>
                                 <StackPanel x:Name="RoutingSettingsPanel" Visibility="Collapsed" MaxWidth="700">
-                                    <TextBlock Text="{Binding [L075], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
-                                    <TextBlock Text="{Binding [L076], Source={x:Static local:Localization.Current}}" Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,16"/>
+                                    <TextBlock Text="{Binding [L075], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                                    <TextBlock Text="{Binding [L076], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,16"/>
                                     <CheckBox Content="{Binding [L077], Source={x:Static local:Localization.Current}}" IsChecked="{Binding SplitTunnelEnabled, Mode=TwoWay}" Click="SettingsCheckBox_Click"/>
                                     <WrapPanel Margin="0,6,0,12">
                                         <RadioButton x:Name="BypassModeButton" GroupName="SplitMode" Content="{Binding [L078], Source={x:Static local:Localization.Current}}" Tag="Bypass" Click="SplitMode_Click" Style="{StaticResource SettingsTab}"/>
                                         <RadioButton x:Name="IncludeModeButton" GroupName="SplitMode" Content="{Binding [L079], Source={x:Static local:Localization.Current}}" Tag="Include" Click="SplitMode_Click" Style="{StaticResource SettingsTab}"/>
                                     </WrapPanel>
-                                    <TextBlock x:Name="RoutingModeDescription" Foreground="#C9A15C" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,18"/>
-                                    <TextBlock Text="{Binding [L080], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="14" Margin="0,0,0,10"/>
+                                    <TextBlock x:Name="RoutingModeDescription" Foreground="{DynamicResource Accent}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,18"/>
+                                    <TextBlock Text="{Binding [L080], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="14" Margin="0,0,0,10"/>
                                     <WrapPanel Margin="0,0,0,10"><Button Content="{Binding [L081], Source={x:Static local:Localization.Current}}" Click="AddSplitApplication_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,6"/><Button x:Name="AddRunningProcessButton" Content="{Binding [L082], Source={x:Static local:Localization.Current}}" Click="AddRunningProcess_Click" Style="{StaticResource ActionButton}" Margin="0,0,0,6"/></WrapPanel>
-                                    <TextBlock Text="{Binding [L083], Source={x:Static local:Localization.Current}}" Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,8"/>
+                                    <TextBlock Text="{Binding [L083], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,8"/>
                                     <TextBox x:Name="SplitApplicationsText" Tag="process" Height="92" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{Binding [L084], Source={x:Static local:Localization.Current}}" AutomationProperties.HelpText="{Binding [L085], Source={x:Static local:Localization.Current}}" TextChanged="RoutingText_TextChanged"/>
-                                    <TextBlock Text="{Binding [L086], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="14" Margin="0,18,0,8"/>
-                                    <TextBlock Text="{Binding [L087], Source={x:Static local:Localization.Current}}" Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,8"/>
+                                    <TextBlock Text="{Binding [L086], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="14" Margin="0,18,0,8"/>
+                                    <TextBlock Text="{Binding [L087], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,8"/>
                                     <TextBox x:Name="SplitDomainsText" Tag="domain" Height="92" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{Binding [L088], Source={x:Static local:Localization.Current}}" AutomationProperties.HelpText="{Binding [L089], Source={x:Static local:Localization.Current}}" TextChanged="RoutingText_TextChanged"/>
-                                    <TextBlock Text="{Binding [L090], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="14" Margin="0,18,0,8"/>
-                                    <TextBlock Text="{Binding [L091], Source={x:Static local:Localization.Current}}" Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,8"/>
+                                    <TextBlock Text="{Binding [L090], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="14" Margin="0,18,0,8"/>
+                                    <TextBlock Text="{Binding [L091], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,8"/>
                                     <TextBox x:Name="SplitNetworksText" Tag="ip" Height="92" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{Binding [L092], Source={x:Static local:Localization.Current}}" AutomationProperties.HelpText="{Binding [L093], Source={x:Static local:Localization.Current}}" TextChanged="RoutingText_TextChanged"/>
                                 </StackPanel>
                                 <StackPanel x:Name="DisplaySettings" Visibility="Collapsed" MaxWidth="700">
-                                    <TextBlock Text="{Binding [L094], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,16"/>
-                                    <TextBlock Text="{Binding [L095], Source={x:Static local:Localization.Current}}" Foreground="#E6C07B" Margin="0,0,0,10"/>
+                                    <TextBlock Text="{Binding [L094], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,16"/>
+                                    <TextBlock Text="{Binding [L095], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,0,0,10"/>
                                     <WrapPanel Margin="0,0,0,18">
                                         <RadioButton x:Name="MbpsUnitButton" GroupName="TrafficUnits" Content="{Binding [L096], Source={x:Static local:Localization.Current}}" Tag="Mbps" Click="TrafficUnit_Click" Style="{StaticResource SettingsTab}"/>
                                         <RadioButton x:Name="MegabytesUnitButton" GroupName="TrafficUnits" Content="{Binding [L097], Source={x:Static local:Localization.Current}}" Tag="MB/s" Click="TrafficUnit_Click" Style="{StaticResource SettingsTab}"/>
                                     </WrapPanel>
-                                    <TextBlock Text="{Binding [L098], Source={x:Static local:Localization.Current}}" Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,22"/>
+                                    <TextBlock Text="{Binding [L098], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,22"/>
                                     <CheckBox Content="{Binding [L099], Source={x:Static local:Localization.Current}}" IsChecked="{Binding AutoCheckPings, Mode=TwoWay}" Click="SettingsCheckBox_Click"/>
-                                    <TextBlock Text="{Binding [L100], Source={x:Static local:Localization.Current}}" Foreground="#E6C07B" Margin="0,8,0,10"/>
-                                    <TextBlock Text="{Binding [L101], Source={x:Static local:Localization.Current}}" Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,12"/>
+                                    <TextBlock Text="{Binding [L100], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,8,0,10"/>
+                                    <TextBlock Text="{Binding [L101], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12" Margin="0,0,0,12"/>
                                     <WrapPanel>
                                         <RadioButton x:Name="Ping30Button" GroupName="PingInterval" Content="{Binding [L102], Source={x:Static local:Localization.Current}}" Tag="30" Click="PingInterval_Click" Style="{StaticResource SettingsTab}"/>
                                         <RadioButton x:Name="Ping60Button" GroupName="PingInterval" Content="{Binding [L103], Source={x:Static local:Localization.Current}}" Tag="60" Click="PingInterval_Click" Style="{StaticResource SettingsTab}"/>
                                         <RadioButton x:Name="Ping120Button" GroupName="PingInterval" Content="{Binding [L104], Source={x:Static local:Localization.Current}}" Tag="120" Click="PingInterval_Click" Style="{StaticResource SettingsTab}"/>
                                     </WrapPanel>
-                                    <TextBlock Text="{Binding [L105], Source={x:Static local:Localization.Current}}" Foreground="#A78762" TextWrapping="Wrap" FontSize="12" Margin="0,12,0,0"/>
+                                    <TextBlock Text="{Binding [L105], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="12" Margin="0,12,0,0"/>
                                 </StackPanel>
                             </Grid>
-                        </ScrollViewer>
-                        <StackPanel x:Name="SettingsFooter" Grid.Row="2" Margin="0,14,0,0">
-                            <TextBlock Text="{Binding [L106], Source={x:Static local:Localization.Current}}" Foreground="#8F7162" FontSize="11"/>
-                            <TextBlock x:Name="SettingsStatusText" Foreground="#C9A15C" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
-                            <Button x:Name="ResetAllButton" Content="{Binding [L107], Source={x:Static local:Localization.Current}}" Click="ResetAll_Click" Style="{StaticResource ActionButton}" Foreground="#FFA5B0" Background="#30131F" HorizontalAlignment="Stretch" Margin="0,12,0,0"/>
-                        </StackPanel>
+                        <StackPanel x:Name="SettingsFooter" Margin="0,14,0,0">
+                            <TextBlock Text="{Binding [L106], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="11"/>
+                            <TextBlock x:Name="SettingsStatusText" Foreground="{DynamicResource Accent}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                            <Button x:Name="ResetAllButton" Content="{Binding [L107], Source={x:Static local:Localization.Current}}" Click="ResetAll_Click" Style="{StaticResource ActionButton}" Foreground="{DynamicResource DangerForeground}" Background="{DynamicResource DangerBackground}" HorizontalAlignment="Stretch" Margin="0,12,0,0"/>
+                        </StackPanel></StackPanel>                        </ScrollViewer>
+
                     </Grid>
                     <Grid x:Name="LogsPage" Visibility="Collapsed">
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
-                        <DockPanel Margin="0,0,0,14"><Button Content="{Binding [L108], Source={x:Static local:Localization.Current}}" Click="ClearLogs_Click" Style="{StaticResource ActionButton}" DockPanel.Dock="Right"/><TextBlock Text="{Binding [L109], Source={x:Static local:Localization.Current}}" Foreground="#A78762" VerticalAlignment="Center"/></DockPanel>
+                        <DockPanel Margin="0,0,0,14"><Button Content="{Binding [L108], Source={x:Static local:Localization.Current}}" Click="ClearLogs_Click" Style="{StaticResource ActionButton}" DockPanel.Dock="Right"/><TextBlock Text="{Binding [L109], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"/></DockPanel>
                         <ListBox x:Name="LogsList" Grid.Row="1">
-                            <ListBox.ItemTemplate><DataTemplate><StackPanel><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding TimeDisplay}" Foreground="#A78762" FontSize="11"/><TextBlock Text="{local:Translate Path=Level}" Foreground="{Binding LevelColor}" FontSize="11" Margin="12,0,0,0"/></StackPanel><TextBlock Text="{local:Translate Path=Message}" Foreground="#E6C07B" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/></StackPanel></DataTemplate></ListBox.ItemTemplate>
+                            <ListBox.ItemTemplate><DataTemplate><StackPanel><StackPanel Orientation="Horizontal"><TextBlock Text="{Binding TimeDisplay}" Foreground="{DynamicResource TextSecondary}" FontSize="11"/><TextBlock Text="{local:Translate Path=Level}" Foreground="{Binding LevelColor}" FontSize="11" Margin="12,0,0,0"/></StackPanel><TextBlock Text="{local:Translate Path=Message}" Foreground="{DynamicResource Accent}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,0"/></StackPanel></DataTemplate></ListBox.ItemTemplate>
                         </ListBox>
                     </Grid>
                     <ScrollViewer x:Name="ZapretPage" Visibility="Collapsed" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel Margin="0,0,12,0">
-                            <Border Background="#25141F" BorderBrush="#503441" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,18">
+                            <Border Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1" CornerRadius="12" Padding="16" Margin="0,0,0,18">
                                 <StackPanel>
-                                    <TextBlock x:Name="ZapretStateText" Text="{Binding [L110], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                    <TextBlock x:Name="ZapretVersionText" Text="{Binding [L111], Source={x:Static local:Localization.Current}}" Foreground="#A78762" TextWrapping="Wrap" Margin="0,7,0,12"/>
-                                    <TextBlock Text="{Binding [L112], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <TextBlock x:Name="ZapretStateText" Text="{Binding [L110], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                    <TextBlock x:Name="ZapretVersionText" Text="{Binding [L111], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" Margin="0,7,0,12"/>
+                                    <TextBlock Text="{Binding [L112], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
                                     <ComboBox x:Name="ZapretStrategySelect" SelectedValuePath="FileName" SelectionChanged="ZapretStrategy_Changed" PreviewMouseWheel="ZapretStrategy_MouseWheel" Style="{StaticResource ZapretSelector}" AutomationProperties.Name="{Binding [L113], Source={x:Static local:Localization.Current}}" Margin="0,0,0,8">
                                         <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding FileName}" TextTrimming="CharacterEllipsis" ToolTip="{Binding FileName}"/></DataTemplate></ComboBox.ItemTemplate>
                                     </ComboBox>
-                                    <WrapPanel><Button x:Name="ZapretStartButton" Background="#553925" Foreground="#FFE0A1" Content="{Binding [L114], Source={x:Static local:Localization.Current}}" Click="ZapretStart_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button x:Name="ZapretStopButton" Background="#35202C" Content="{Binding [L115], Source={x:Static local:Localization.Current}}" Click="ZapretStop_Click" Style="{StaticResource ActionButton}" Foreground="#FFA5B0" Margin="0,0,8,8"/><Button x:Name="ZapretRestartButton" Background="#35202C" Content="{Binding [L116], Source={x:Static local:Localization.Current}}" Click="ZapretRestart_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/></WrapPanel>
-                                <Expander x:Name="ZapretServiceExpander" Header="{Binding [L117], Source={x:Static local:Localization.Current}}" IsExpanded="True" Foreground="#E6C07B" Margin="0,0,0,18">
-                                    <StackPanel Margin="0,12,0,0"><TextBlock x:Name="ZapretServiceText" Foreground="#C9A15C" TextWrapping="Wrap" Margin="0,0,0,10"/>
-                                        <WrapPanel><Button x:Name="ZapretServiceBatButton" Content="{Binding [L118], Source={x:Static local:Localization.Current}}" Click="ZapretServiceBat_Click" Style="{StaticResource ActionButton}" ToolTip="{Binding [L119], Source={x:Static local:Localization.Current}}" Margin="0,0,8,8"/><Button x:Name="ZapretInstallServiceButton" Content="{Binding [L120], Source={x:Static local:Localization.Current}}" ToolTip="{Binding [L121], Source={x:Static local:Localization.Current}}" Tag="install-service" Click="ZapretService_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button x:Name="ZapretRemoveServiceButton" Content="{Binding [L122], Source={x:Static local:Localization.Current}}" ToolTip="{Binding [L123], Source={x:Static local:Localization.Current}}" Tag="remove-service" Click="ZapretService_Click" Style="{StaticResource ActionButton}" Foreground="#FFA5B0" Margin="0,0,0,8"/></WrapPanel>
+                                    <WrapPanel><Button x:Name="ZapretStartButton" Background="{DynamicResource BorderSubtle}" Foreground="{DynamicResource Accent}" Content="{Binding [L114], Source={x:Static local:Localization.Current}}" Click="ZapretStart_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button x:Name="ZapretStopButton" Background="{DynamicResource SelectionBackground}" Content="{Binding [L115], Source={x:Static local:Localization.Current}}" Click="ZapretStop_Click" Style="{StaticResource ActionButton}" Foreground="{DynamicResource DangerForeground}" Margin="0,0,8,8"/><Button x:Name="ZapretRestartButton" Background="{DynamicResource SelectionBackground}" Content="{Binding [L116], Source={x:Static local:Localization.Current}}" Click="ZapretRestart_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/></WrapPanel>
+                                <Expander x:Name="ZapretServiceExpander" Header="{Binding [L117], Source={x:Static local:Localization.Current}}" IsExpanded="True" Foreground="{DynamicResource Accent}" Margin="0,0,0,18">
+                                    <StackPanel Margin="0,12,0,0"><TextBlock x:Name="ZapretServiceText" Foreground="{DynamicResource Accent}" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                        <WrapPanel><Button x:Name="ZapretServiceBatButton" Content="{Binding [L118], Source={x:Static local:Localization.Current}}" Click="ZapretServiceBat_Click" Style="{StaticResource ActionButton}" ToolTip="{Binding [L119], Source={x:Static local:Localization.Current}}" Margin="0,0,8,8"/><Button x:Name="ZapretInstallServiceButton" Content="{Binding [L120], Source={x:Static local:Localization.Current}}" ToolTip="{Binding [L121], Source={x:Static local:Localization.Current}}" Tag="install-service" Click="ZapretService_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button x:Name="ZapretRemoveServiceButton" Content="{Binding [L122], Source={x:Static local:Localization.Current}}" ToolTip="{Binding [L123], Source={x:Static local:Localization.Current}}" Tag="remove-service" Click="ZapretService_Click" Style="{StaticResource ActionButton}" Foreground="{DynamicResource DangerForeground}" Margin="0,0,0,8"/></WrapPanel>
                                     </StackPanel>
                                 </Expander>
-                            <TextBlock x:Name="ZapretActionStatus" Foreground="#D4AA65" TextWrapping="Wrap" Margin="0,0,0,8"><TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><Trigger Property="Text" Value=""><Setter Property="Visibility" Value="Collapsed"/></Trigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                            <TextBlock x:Name="ZapretActionStatus" Foreground="{DynamicResource Accent}" TextWrapping="Wrap" Margin="0,0,0,8"><TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><Trigger Property="Text" Value=""><Setter Property="Visibility" Value="Collapsed"/></Trigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
                                 </StackPanel>
                             </Border>
-                            <Border BorderBrush="#412332" BorderThickness="0,1,0,0" Padding="0,18,0,0">
-                                <StackPanel><TextBlock Text="{Binding [L124], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
+                            <Border BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,1,0,0" Padding="0,18,0,0">
+                                <StackPanel><TextBlock Text="{Binding [L124], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,12"/>
                                     <CheckBox x:Name="DisableZapretOnConnectBox" Content="{Binding [L125], Source={x:Static local:Localization.Current}}" Click="ZapretCompatibility_Click"/>
-                                    <TextBlock Text="{Binding [L126], Source={x:Static local:Localization.Current}}" Foreground="#A78762" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                    <TextBlock Text="{Binding [L126], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,10"/>
                                     <CheckBox x:Name="RestoreZapretAfterVpnBox" Content="{Binding [L127], Source={x:Static local:Localization.Current}}" Click="ZapretCompatibility_Click"/>
-                                    <TextBlock Text="{Binding [L128], Source={x:Static local:Localization.Current}}" Foreground="#947765" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18"/>
+                                    <TextBlock Text="{Binding [L128], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,18"/>
                                 </StackPanel>
                             </Border>
-                            <Expander x:Name="ZapretFolderExpander" Header="{Binding [L129], Source={x:Static local:Localization.Current}}" Foreground="#E6C07B" Margin="0,0,0,14">
+                            <Expander x:Name="ZapretFolderExpander" Header="{Binding [L129], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,0,0,14">
                                 <StackPanel Margin="0,12,0,0">
-                            <TextBlock Text="{Binding [L130], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                            <TextBlock Text="{Binding [L130], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/>
                             <TextBox x:Name="ZapretFolderText" IsReadOnly="True" AutomationProperties.Name="{Binding [L130], Source={x:Static local:Localization.Current}}" AutomationProperties.HelpText="{Binding [L131], Source={x:Static local:Localization.Current}}" Margin="0,0,0,10"/>
-                                    <TextBlock x:Name="ZapretDiscoveryStatus" Text="" Foreground="#A78762" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                    <TextBlock x:Name="ZapretDiscoveryStatus" Text="" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap" Margin="0,6,0,0"/>
                             <WrapPanel Margin="0,0,0,10"><Button x:Name="ZapretFindFolderButton" Content="{Binding [L132], Source={x:Static local:Localization.Current}}" Click="ZapretFindFolder_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button x:Name="ZapretChooseFolderButton" Content="{Binding [L133], Source={x:Static local:Localization.Current}}" Click="ZapretChooseFolder_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button x:Name="ZapretOpenFolderButton" Content="{Binding [L134], Source={x:Static local:Localization.Current}}" Click="ZapretOpenFolder_Click" Style="{StaticResource ActionButton}" Margin="0,0,0,8"/><Button x:Name="ZapretRefreshButton" Content="{Binding [L135], Source={x:Static local:Localization.Current}}" Click="ZapretRefresh_Click" Style="{StaticResource ActionButton}" Margin="0,0,0,8"/></WrapPanel>
                             <ComboBox x:Name="ZapretInstallationsSelect" Visibility="Collapsed" Style="{StaticResource ZapretSelector}" SelectionChanged="ZapretInstallation_Changed" AutomationProperties.Name="{Binding [L136], Source={x:Static local:Localization.Current}}" Margin="0,0,0,16"/>
                                 </StackPanel>
                             </Expander>
-                            <Expander x:Name="ZapretFiltersExpander" Header="{Binding [L137], Source={x:Static local:Localization.Current}}" Foreground="#E6C07B" Margin="0,0,0,14">
+                            <Expander x:Name="ZapretFiltersExpander" Header="{Binding [L137], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,0,0,14">
                                 <StackPanel Margin="0,12,0,0">
-                                    <TextBlock Text="{Binding [L138], Source={x:Static local:Localization.Current}}" Foreground="#A78762" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <TextBlock Text="{Binding [L138], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
                             <WrapPanel Margin="0,0,0,18">
-                                <StackPanel Width="200" Margin="0,0,12,10"><TextBlock Text="{Binding [L139], Source={x:Static local:Localization.Current}}" Foreground="#C9A15C" Margin="0,0,0,8"/><ComboBox x:Name="ZapretGameSelect" Style="{StaticResource ZapretSelector}" SelectionChanged="ZapretFilters_Changed"><ComboBoxItem Content="{Binding [L140], Source={x:Static local:Localization.Current}}" Tag="disabled"/><ComboBoxItem Content="{Binding [L141], Source={x:Static local:Localization.Current}}" Tag="all"/><ComboBoxItem Content="{Binding [L142], Source={x:Static local:Localization.Current}}" Tag="tcp"/><ComboBoxItem Content="{Binding [L143], Source={x:Static local:Localization.Current}}" Tag="udp"/></ComboBox></StackPanel>
-                                <StackPanel Width="200" Margin="0,0,0,10"><TextBlock Text="IPSet" Foreground="#C9A15C" Margin="0,0,0,8"/><ComboBox x:Name="ZapretIpSetSelect" Style="{StaticResource ZapretSelector}" SelectionChanged="ZapretFilters_Changed"><ComboBoxItem Content="{Binding [L144], Source={x:Static local:Localization.Current}}" Tag="loaded"/><ComboBoxItem Content="{Binding [L140], Source={x:Static local:Localization.Current}}" Tag="none"/><ComboBoxItem Content="{Binding [L145], Source={x:Static local:Localization.Current}}" Tag="any"/></ComboBox></StackPanel>
+                                <StackPanel Width="200" Margin="0,0,12,10"><TextBlock Text="{Binding [L139], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,0,0,8"/><ComboBox x:Name="ZapretGameSelect" Style="{StaticResource ZapretSelector}" SelectionChanged="ZapretFilters_Changed"><ComboBoxItem Content="{Binding [L140], Source={x:Static local:Localization.Current}}" Tag="disabled"/><ComboBoxItem Content="{Binding [L141], Source={x:Static local:Localization.Current}}" Tag="all"/><ComboBoxItem Content="{Binding [L142], Source={x:Static local:Localization.Current}}" Tag="tcp"/><ComboBoxItem Content="{Binding [L143], Source={x:Static local:Localization.Current}}" Tag="udp"/></ComboBox></StackPanel>
+                                <StackPanel Width="200" Margin="0,0,0,10"><TextBlock Text="IPSet" Foreground="{DynamicResource Accent}" Margin="0,0,0,8"/><ComboBox x:Name="ZapretIpSetSelect" Style="{StaticResource ZapretSelector}" SelectionChanged="ZapretFilters_Changed"><ComboBoxItem Content="{Binding [L144], Source={x:Static local:Localization.Current}}" Tag="loaded"/><ComboBoxItem Content="{Binding [L140], Source={x:Static local:Localization.Current}}" Tag="none"/><ComboBoxItem Content="{Binding [L145], Source={x:Static local:Localization.Current}}" Tag="any"/></ComboBox></StackPanel>
                             </WrapPanel>
-                                <TextBlock Text="{Binding [L146], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                                <TextBlock Text="{Binding [L147], Source={x:Static local:Localization.Current}}" Foreground="#947765" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
-                                <WrapPanel><StackPanel Width="250" Margin="0,0,12,10"><TextBlock Text="TCP" Foreground="#C9A15C" Margin="0,0,0,6"/><TextBox x:Name="ZapretTcpPorts" LostKeyboardFocus="ZapretPorts_LostFocus" KeyDown="ZapretPorts_KeyDown" AutomationProperties.Name="{Binding [L148], Source={x:Static local:Localization.Current}}"/></StackPanel><StackPanel Width="250" Margin="0,0,0,10"><TextBlock Text="UDP" Foreground="#C9A15C" Margin="0,0,0,6"/><TextBox x:Name="ZapretUdpPorts" LostKeyboardFocus="ZapretPorts_LostFocus" KeyDown="ZapretPorts_KeyDown" AutomationProperties.Name="{Binding [L149], Source={x:Static local:Localization.Current}}"/></StackPanel></WrapPanel>
+                                <TextBlock Text="{Binding [L146], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding [L147], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                <WrapPanel><StackPanel Width="250" Margin="0,0,12,10"><TextBlock Text="TCP" Foreground="{DynamicResource Accent}" Margin="0,0,0,6"/><TextBox x:Name="ZapretTcpPorts" LostKeyboardFocus="ZapretPorts_LostFocus" KeyDown="ZapretPorts_KeyDown" AutomationProperties.Name="{Binding [L148], Source={x:Static local:Localization.Current}}"/></StackPanel><StackPanel Width="250" Margin="0,0,0,10"><TextBlock Text="UDP" Foreground="{DynamicResource Accent}" Margin="0,0,0,6"/><TextBox x:Name="ZapretUdpPorts" LostKeyboardFocus="ZapretPorts_LostFocus" KeyDown="ZapretPorts_KeyDown" AutomationProperties.Name="{Binding [L149], Source={x:Static local:Localization.Current}}"/></StackPanel></WrapPanel>
                                 </StackPanel>
                             </Expander>
                             <StackPanel x:Name="ZapretAdvancedPanel">
-                                <Expander x:Name="ZapretFakesExpander" Header="{Binding [L150], Source={x:Static local:Localization.Current}}" Foreground="#E6C07B" Margin="0,0,0,18">
-                                    <StackPanel Margin="0,12,0,0"><TextBlock Text="{Binding [L151], Source={x:Static local:Localization.Current}}" Foreground="#947765" TextWrapping="Wrap" FontSize="11" Margin="0,0,0,12"/>
-                                        <TextBlock x:Name="ZapretDiscordFakeCurrent" Foreground="#C9A15C" TextWrapping="Wrap" Margin="0,0,0,6"/><ComboBox x:Name="ZapretDiscordFake" Style="{StaticResource ZapretSelector}" AutomationProperties.Name="{Binding [L152], Source={x:Static local:Localization.Current}}"/>
+                                <Expander x:Name="ZapretFakesExpander" Header="{Binding [L150], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,0,0,18">
+                                    <StackPanel Margin="0,12,0,0"><TextBlock Text="{Binding [L151], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" FontSize="11" Margin="0,0,0,12"/>
+                                        <TextBlock x:Name="ZapretDiscordFakeCurrent" Foreground="{DynamicResource Accent}" TextWrapping="Wrap" Margin="0,0,0,6"/><ComboBox x:Name="ZapretDiscordFake" Style="{StaticResource ZapretSelector}" AutomationProperties.Name="{Binding [L152], Source={x:Static local:Localization.Current}}"/>
                                         <Button Content="{Binding [L153], Source={x:Static local:Localization.Current}}" Tag="discord" Click="ZapretFake_Click" Style="{StaticResource ActionButton}" HorizontalAlignment="Left" Margin="0,8,0,14"/>
-                                        <TextBlock x:Name="ZapretGameFakeCurrent" Foreground="#C9A15C" TextWrapping="Wrap" Margin="0,0,0,6"/><ComboBox x:Name="ZapretGameFake" Style="{StaticResource ZapretSelector}" AutomationProperties.Name="{Binding [L154], Source={x:Static local:Localization.Current}}"/>
+                                        <TextBlock x:Name="ZapretGameFakeCurrent" Foreground="{DynamicResource Accent}" TextWrapping="Wrap" Margin="0,0,0,6"/><ComboBox x:Name="ZapretGameFake" Style="{StaticResource ZapretSelector}" AutomationProperties.Name="{Binding [L154], Source={x:Static local:Localization.Current}}"/>
                                         <Button Content="{Binding [L155], Source={x:Static local:Localization.Current}}" Tag="game" Click="ZapretFake_Click" Style="{StaticResource ActionButton}" HorizontalAlignment="Left" Margin="0,8,0,0"/>
                                     </StackPanel>
                                 </Expander>
 
-                                <Expander x:Name="ZapretToolsExpander" Header="{Binding [L156], Source={x:Static local:Localization.Current}}" Foreground="#E6C07B" Margin="0,0,0,18">
+                                <Expander x:Name="ZapretToolsExpander" Header="{Binding [L156], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,0,0,18">
                                     <StackPanel Margin="0,12,0,0">
                                 <CheckBox x:Name="ZapretUpdateCheckBox" Content="{Binding [L157], Source={x:Static local:Localization.Current}}" Click="ZapretUpdateCheck_Click" Margin="0,8,0,8"/>
-                                <TextBlock x:Name="ZapretUpdatesStatus" Foreground="#C9A15C" TextWrapping="Wrap" Margin="0,0,0,8"/>
-                                <TextBlock Text="{Binding [L158], Source={x:Static local:Localization.Current}}" Foreground="#947765" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16"/>
+                                <TextBlock x:Name="ZapretUpdatesStatus" Foreground="{DynamicResource Accent}" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding [L158], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,16"/>
 <WrapPanel><Button Content="{Binding [L159], Source={x:Static local:Localization.Current}}" Tag="ipset" Click="ZapretTool_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button Content="{Binding [L160], Source={x:Static local:Localization.Current}}" Tag="hosts" Click="ZapretTool_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button Content="{Binding [L161], Source={x:Static local:Localization.Current}}" Tag="version" Click="ZapretTool_Click" Style="{StaticResource ActionButton}" Margin="0,0,0,8"/></WrapPanel>
                                         <Button x:Name="ZapretReleaseButton" Content="{Binding [L162], Source={x:Static local:Localization.Current}}" Click="ZapretRelease_Click" Visibility="Collapsed" Style="{StaticResource ActionButton}" HorizontalAlignment="Left" Margin="0,0,0,10"/>
-                                        <TextBlock Text="{Binding [L163], Source={x:Static local:Localization.Current}}" Foreground="#947765" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,10"/>
+                                        <TextBlock Text="{Binding [L163], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,10"/>
                                         <WrapPanel><Button Content="{Binding [L164], Source={x:Static local:Localization.Current}}" Tag="diagnostics" Click="ZapretTool_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button x:Name="ZapretTestButton" Content="{Binding [L165], Source={x:Static local:Localization.Current}}" Tag="test-strategies" Click="ZapretTool_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button Content="{Binding [L166], Source={x:Static local:Localization.Current}}" Tag="timestamps" Click="ZapretTool_Click" Style="{StaticResource ActionButton}" Margin="0,0,0,8"/></WrapPanel>
-                                        <TextBlock x:Name="ZapretToolReport" Foreground="#C9A15C" TextWrapping="Wrap" Margin="0,8,0,12"/>
-                                        <StackPanel x:Name="ZapretHostsPanel" Visibility="Collapsed"><TextBlock Text="{Binding [L167], Source={x:Static local:Localization.Current}}" Foreground="#947765" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8"/><TextBox x:Name="ZapretHostsPreview" IsReadOnly="True" Height="180" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{Binding [L168], Source={x:Static local:Localization.Current}}"/><WrapPanel Margin="0,10,0,0"><Button Content="{Binding [L169], Source={x:Static local:Localization.Current}}" Click="ZapretCopyHosts_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button Content="{Binding [L170], Source={x:Static local:Localization.Current}}" Click="ZapretOpenHosts_Click" Style="{StaticResource ActionButton}" Margin="0,0,0,8"/></WrapPanel></StackPanel>
+                                        <TextBlock x:Name="ZapretToolReport" Foreground="{DynamicResource Accent}" TextWrapping="Wrap" Margin="0,8,0,12"/>
+                                        <StackPanel x:Name="ZapretHostsPanel" Visibility="Collapsed"><TextBlock Text="{Binding [L167], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8"/><TextBox x:Name="ZapretHostsPreview" IsReadOnly="True" Height="180" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" AutomationProperties.Name="{Binding [L168], Source={x:Static local:Localization.Current}}"/><WrapPanel Margin="0,10,0,0"><Button Content="{Binding [L169], Source={x:Static local:Localization.Current}}" Click="ZapretCopyHosts_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,8"/><Button Content="{Binding [L170], Source={x:Static local:Localization.Current}}" Click="ZapretOpenHosts_Click" Style="{StaticResource ActionButton}" Margin="0,0,0,8"/></WrapPanel></StackPanel>
                                     </StackPanel>
                                 </Expander>
                             </StackPanel>
-                            <Expander x:Name="ZapretListsExpander" Header="{Binding [L171], Source={x:Static local:Localization.Current}}" Foreground="#E6C07B" Expanded="ZapretLists_Expanded" Margin="0,0,0,18">
-                                <StackPanel Margin="0,14,0,0"><TextBlock Text="{Binding [L172], Source={x:Static local:Localization.Current}}" Foreground="#A78762" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
-                                    <TextBlock Text="{Binding [L173], Source={x:Static local:Localization.Current}}" Foreground="#C9A15C" Margin="0,0,0,8"/><TextBox x:Name="ZapretDomainsText" Tag="domains" Height="120" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextChanged="ZapretList_Changed" AutomationProperties.HelpText="{Binding [L174], Source={x:Static local:Localization.Current}}" Margin="0,0,0,14"/>
-                                    <TextBlock Text="{Binding [L175], Source={x:Static local:Localization.Current}}" Foreground="#C9A15C" Margin="0,0,0,8"/><TextBox x:Name="ZapretExcludeText" Tag="exclude" Height="110" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextChanged="ZapretList_Changed" AutomationProperties.HelpText="{Binding [L176], Source={x:Static local:Localization.Current}}" Margin="0,0,0,14"/>
-                                    <TextBlock Text="{Binding [L177], Source={x:Static local:Localization.Current}}" Foreground="#C9A15C" Margin="0,0,0,8"/><TextBox x:Name="ZapretIpsText" Tag="ips" Height="110" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextChanged="ZapretList_Changed" AutomationProperties.HelpText="{Binding [L178], Source={x:Static local:Localization.Current}}"/>
+                            <Expander x:Name="ZapretListsExpander" Header="{Binding [L171], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Expanded="ZapretLists_Expanded" Margin="0,0,0,18">
+                                <StackPanel Margin="0,14,0,0"><TextBlock Text="{Binding [L172], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,12"/>
+                                    <TextBlock Text="{Binding [L173], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,0,0,8"/><TextBox x:Name="ZapretDomainsText" Tag="domains" Height="120" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextChanged="ZapretList_Changed" AutomationProperties.HelpText="{Binding [L174], Source={x:Static local:Localization.Current}}" Margin="0,0,0,14"/>
+                                    <TextBlock Text="{Binding [L175], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,0,0,8"/><TextBox x:Name="ZapretExcludeText" Tag="exclude" Height="110" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextChanged="ZapretList_Changed" AutomationProperties.HelpText="{Binding [L176], Source={x:Static local:Localization.Current}}" Margin="0,0,0,14"/>
+                                    <TextBlock Text="{Binding [L177], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Margin="0,0,0,8"/><TextBox x:Name="ZapretIpsText" Tag="ips" Height="110" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextChanged="ZapretList_Changed" AutomationProperties.HelpText="{Binding [L178], Source={x:Static local:Localization.Current}}"/>
                                     <Button x:Name="ZapretSaveListsAdminButton" Content="{Binding [L179], Source={x:Static local:Localization.Current}}" Click="ZapretSaveListsAdmin_Click" Visibility="Collapsed" Style="{StaticResource ActionButton}" HorizontalAlignment="Left" Margin="0,12,0,0"/>
                                 </StackPanel>
                             </Expander>
-                            <TextBlock Text="{Binding [L180], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/><TextBlock x:Name="ZapretLogText" Text="{Binding [L181], Source={x:Static local:Localization.Current}}" Foreground="#947765" FontSize="12" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding [L180], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontSize="16" FontWeight="SemiBold" Margin="0,0,0,10"/><TextBlock x:Name="ZapretLogText" Text="{Binding [L181], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap"/>
                         </StackPanel>
                     </ScrollViewer>
                     <Grid x:Name="HistoryPage" Visibility="Collapsed">
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
-                        <DockPanel Margin="0,0,0,14"><Button Content="{Binding [L182], Source={x:Static local:Localization.Current}}" Click="ClearHistory_Click" Style="{StaticResource ActionButton}" DockPanel.Dock="Right"/><TextBlock Text="{Binding [L183], Source={x:Static local:Localization.Current}}" Foreground="#A78762" VerticalAlignment="Center"/></DockPanel>
+                        <DockPanel Margin="0,0,0,14"><Button Content="{Binding [L182], Source={x:Static local:Localization.Current}}" Click="ClearHistory_Click" Style="{StaticResource ActionButton}" DockPanel.Dock="Right"/><TextBlock Text="{Binding [L183], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"/></DockPanel>
                         <ListBox x:Name="HistoryList" Grid.Row="1">
-                            <ListBox.ItemTemplate><DataTemplate><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{local:Translate Path=ServerName, IsServerName=True}" Foreground="#F1D6A5" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="{Binding Protocol}" Foreground="#A78762" FontSize="11" Margin="0,4,0,0"/><TextBlock Text="{Binding StartedDisplay}" Foreground="#A78762" FontSize="11" Margin="0,8,0,0"/><TextBlock Text="{Binding ExternalIp}" Foreground="#C9A15C" FontSize="11" Margin="0,4,0,0"/></StackPanel><StackPanel Grid.Column="1" HorizontalAlignment="Right"><TextBlock Text="{local:Translate Path=Result}" Foreground="{Binding ResultColor}" FontSize="12" HorizontalAlignment="Right"/><TextBlock Text="{local:Translate Path=DurationDisplay}" Foreground="#A78762" FontSize="11" Margin="0,8,0,0" HorizontalAlignment="Right"/></StackPanel></Grid></DataTemplate></ListBox.ItemTemplate>
+                            <ListBox.ItemTemplate><DataTemplate><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="{local:Translate Path=ServerName, IsServerName=True}" Foreground="{DynamicResource TextPrimary}" FontSize="15" FontWeight="SemiBold"/><TextBlock Text="{Binding Protocol}" Foreground="{DynamicResource TextSecondary}" FontSize="11" Margin="0,4,0,0"/><TextBlock Text="{Binding StartedDisplay}" Foreground="{DynamicResource TextSecondary}" FontSize="11" Margin="0,8,0,0"/><TextBlock Text="{Binding ExternalIp}" Foreground="{DynamicResource Accent}" FontSize="11" Margin="0,4,0,0"/></StackPanel><StackPanel Grid.Column="1" HorizontalAlignment="Right"><TextBlock Text="{local:Translate Path=Result}" Foreground="{Binding ResultColor}" FontSize="12" HorizontalAlignment="Right"/><TextBlock Text="{local:Translate Path=DurationDisplay}" Foreground="{DynamicResource TextSecondary}" FontSize="11" Margin="0,8,0,0" HorizontalAlignment="Right"/></StackPanel></Grid></DataTemplate></ListBox.ItemTemplate>
                         </ListBox>
-                        <TextBlock Grid.Row="1" Text="{Binding [L184], Source={x:Static local:Localization.Current}}" Foreground="#A78762" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding Items.Count, ElementName=HistoryList}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
+                        <TextBlock Grid.Row="1" Text="{Binding [L184], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextSecondary}" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False"><TextBlock.Style><Style TargetType="TextBlock"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding Items.Count, ElementName=HistoryList}" Value="0"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></TextBlock.Style></TextBlock>
                     </Grid>
                 </Grid>
             </Grid>
         </Border>
-        <Border x:Name="NavigationRail" Grid.Column="0" Margin="0,40,0,0" Background="#150B13" BorderBrush="#412332" BorderThickness="0,0,1,0" Padding="8,8,8,12" ClipToBounds="True">
+        <Border x:Name="NavigationRail" Grid.Column="0" Margin="0,40,0,0" Background="{DynamicResource PanelBackground}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="0,0,1,0" Padding="8,8,8,12" ClipToBounds="True">
             <Grid>
                 <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                 <ToggleButton x:Name="MenuToggleButton" IsChecked="False" Click="MenuButton_Click" Style="{StaticResource NavigationToggle}" Margin="0,0,0,20" AutomationProperties.Name="{Binding [L185], Source={x:Static local:Localization.Current}}">
                     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                        <Path Data="M 7,4 L 13,10 L 7,16" Stroke="#C9A15C" StrokeThickness="1.7" StrokeLineJoin="Round" Width="20" Height="20" Stretch="None" RenderTransformOrigin="0.5,0.5">
+                        <Path Data="M 7,4 L 13,10 L 7,16" Stroke="{DynamicResource Accent}" StrokeThickness="1.7" StrokeLineJoin="Round" Width="20" Height="20" Stretch="None" RenderTransformOrigin="0.5,0.5">
                             <Path.Style><Style TargetType="Path"><Style.Triggers><DataTrigger Binding="{Binding IsChecked, ElementName=MenuToggleButton}" Value="True"><Setter Property="RenderTransform"><Setter.Value><ScaleTransform ScaleX="-1"/></Setter.Value></Setter></DataTrigger></Style.Triggers></Style></Path.Style>
                         </Path>
-                        <TextBlock Grid.Column="1" Text="{Binding [L186], Source={x:Static local:Localization.Current}}" Foreground="#C9A15C" Style="{StaticResource NavigationLabel}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding [L186], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource Accent}" Style="{StaticResource NavigationLabel}"/>
                     </Grid>
                 </ToggleButton>
                 <StackPanel Grid.Row="1">
@@ -498,13 +486,13 @@
                             <TextBlock Grid.Column="1" Text="{Binding [L190], Source={x:Static local:Localization.Current}}" Style="{StaticResource NavigationLabel}"/>
                         </Grid>
                     </RadioButton>
-                    <RadioButton x:Name="LogsMenuButton" GroupName="Navigation" Click="Logs_Click" Style="{StaticResource NavigationItem}" AutomationProperties.Name="{Binding [L191], Source={x:Static local:Localization.Current}}">
+                    <RadioButton x:Name="LogsMenuButton" Visibility="Collapsed" GroupName="Navigation" Click="Logs_Click" Style="{StaticResource NavigationItem}" AutomationProperties.Name="{Binding [L191], Source={x:Static local:Localization.Current}}">
                         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition/></Grid.ColumnDefinitions>
                             <Grid Width="20" Height="20"><Path Data="M 3,1 L 13,1 L 18,6 L 18,19 L 3,19 Z M 13,1 L 13,6 L 18,6 M 6,10 L 15,10 M 6,14 L 15,14" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.4" StrokeLineJoin="Round"/></Grid>
                             <TextBlock Grid.Column="1" Text="{Binding [L191], Source={x:Static local:Localization.Current}}" Style="{StaticResource NavigationLabel}"/>
                         </Grid>
                     </RadioButton>
-                    <RadioButton x:Name="HistoryMenuButton" GroupName="Navigation" Click="History_Click" Style="{StaticResource NavigationItem}" AutomationProperties.Name="{Binding [L192], Source={x:Static local:Localization.Current}}">
+                    <RadioButton x:Name="HistoryMenuButton" Visibility="Collapsed" GroupName="Navigation" Click="History_Click" Style="{StaticResource NavigationItem}" AutomationProperties.Name="{Binding [L192], Source={x:Static local:Localization.Current}}">
                         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition/></Grid.ColumnDefinitions>
                             <Grid Width="20" Height="20"><Path Data="M 2,9 A 8,8 0 1 1 3,15 M 2,3 L 2,9 L 8,9 M 10,5 L 10,11 L 14,13" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.5" StrokeLineJoin="Round"/></Grid>
                             <TextBlock Grid.Column="1" Text="{Binding [L193], Source={x:Static local:Localization.Current}}" Style="{StaticResource NavigationLabel}"/>
@@ -514,55 +502,55 @@
                         <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition/></Grid.ColumnDefinitions><Grid Width="22" Height="22"><Path Data="M 11,1 L 20,5 L 19,13 Q 17,18 11,21 Q 5,18 3,13 L 2,5 Z M 12,5 L 7,12 L 11,12 L 10,17 L 15,9 L 11,9 Z" Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" StrokeThickness="1.35" StrokeLineJoin="Round"/></Grid><TextBlock Grid.Column="1" Text="zapret" Style="{StaticResource NavigationLabel}"/></Grid>
                     </RadioButton>
                 </StackPanel>
-                <Border x:Name="CreatorSignature" Grid.Row="2" Margin="10,12,10,0" Padding="0,12,0,0" BorderThickness="0,1,0,0" BorderBrush="#412332">
+                <Border x:Name="CreatorSignature" Grid.Row="2" Margin="10,12,10,0" Padding="0,12,0,0" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource BorderSubtle}">
                     <Border.Style><Style TargetType="Border"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding IsChecked, ElementName=MenuToggleButton}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Border.Style>
                     <StackPanel>
-                        <StackPanel Orientation="Horizontal"><TextBlock Text="◇" Foreground="#997448" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/><TextBlock Text="keltazik" FontFamily="Georgia" FontStyle="Italic" FontSize="21" Foreground="#D9B675"/></StackPanel>
-                        <TextBlock Text="PERSONAL VPN" Foreground="#806253" FontSize="8" Margin="24,6,0,0"/>
+                        <StackPanel Orientation="Horizontal"><TextBlock Text="◇" Foreground="{DynamicResource Accent}" FontSize="18" VerticalAlignment="Center" Margin="0,0,8,0"/><TextBlock Text="keltazik" FontFamily="Georgia" FontStyle="Italic" FontSize="21" Foreground="{DynamicResource Accent}"/></StackPanel>
+                        <TextBlock Text="PERSONAL VPN" Foreground="{DynamicResource TextSecondary}" FontSize="8" Margin="24,6,0,0"/>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <Button x:Name="RepositoryButton" Click="Repository_Click" Style="{StaticResource ActionButton}" Background="#20121C" Padding="7" Width="34" Height="32" Margin="0,0,8,0" ToolTip="{Binding [L195], Source={x:Static local:Localization.Current}}" AutomationProperties.Name="{Binding [L196], Source={x:Static local:Localization.Current}}">
+                        <Button x:Name="RepositoryButton" Click="Repository_Click" Style="{StaticResource ActionButton}" Background="{DynamicResource CardBackground}" Padding="7" Width="34" Height="32" Margin="0,0,8,0" ToolTip="{Binding [L195], Source={x:Static local:Localization.Current}}" AutomationProperties.Name="{Binding [L196], Source={x:Static local:Localization.Current}}">
                             <Grid>
-                                <Path Width="16" Height="16" Stretch="Uniform" Fill="#D9B675" Data="M 8,0 C 3.58,0 0,3.58 0,8 C 0,11.54 2.29,14.53 5.47,15.59 C 5.87,15.66 6.02,15.42 6.02,15.21 C 6.02,15.02 6.01,14.39 6.01,13.72 C 3.78,14.2 3.31,12.78 3.31,12.78 C 2.95,11.85 2.42,11.6 2.42,11.6 C 1.69,11.1 2.48,11.11 2.48,11.11 C 3.28,11.17 3.7,11.93 3.7,11.93 C 4.41,13.15 5.57,12.8 6.03,12.59 C 6.1,12.07 6.31,11.72 6.54,11.52 C 4.76,11.32 2.9,10.63 2.9,7.57 C 2.9,6.7 3.21,5.98 3.72,5.42 C 3.64,5.22 3.36,4.41 3.8,3.31 C 3.8,3.31 4.47,3.09 6,4.13 C 6.64,3.95 7.32,3.86 8,3.86 C 8.68,3.86 9.36,3.95 10,4.13 C 11.53,3.09 12.2,3.31 12.2,3.31 C 12.64,4.41 12.36,5.22 12.28,5.42 C 12.79,5.98 13.1,6.69 13.1,7.57 C 13.1,10.64 11.23,11.32 9.45,11.52 C 9.74,11.77 9.99,12.25 9.99,13 C 9.99,14.08 9.98,14.94 9.98,15.21 C 9.98,15.42 10.13,15.67 10.53,15.59 C 13.71,14.53 16,11.53 16,8 C 16,3.58 12.42,0 8,0 Z"/>
+                                <Path Width="16" Height="16" Stretch="Uniform" Fill="{DynamicResource Accent}" Data="M 8,0 C 3.58,0 0,3.58 0,8 C 0,11.54 2.29,14.53 5.47,15.59 C 5.87,15.66 6.02,15.42 6.02,15.21 C 6.02,15.02 6.01,14.39 6.01,13.72 C 3.78,14.2 3.31,12.78 3.31,12.78 C 2.95,11.85 2.42,11.6 2.42,11.6 C 1.69,11.1 2.48,11.11 2.48,11.11 C 3.28,11.17 3.7,11.93 3.7,11.93 C 4.41,13.15 5.57,12.8 6.03,12.59 C 6.1,12.07 6.31,11.72 6.54,11.52 C 4.76,11.32 2.9,10.63 2.9,7.57 C 2.9,6.7 3.21,5.98 3.72,5.42 C 3.64,5.22 3.36,4.41 3.8,3.31 C 3.8,3.31 4.47,3.09 6,4.13 C 6.64,3.95 7.32,3.86 8,3.86 C 8.68,3.86 9.36,3.95 10,4.13 C 11.53,3.09 12.2,3.31 12.2,3.31 C 12.64,4.41 12.36,5.22 12.28,5.42 C 12.79,5.98 13.1,6.69 13.1,7.57 C 13.1,10.64 11.23,11.32 9.45,11.52 C 9.74,11.77 9.99,12.25 9.99,13 C 9.99,14.08 9.98,14.94 9.98,15.21 C 9.98,15.42 10.13,15.67 10.53,15.59 C 13.71,14.53 16,11.53 16,8 C 16,3.58 12.42,0 8,0 Z"/>
                             </Grid>
                         </Button>
-                        <Button x:Name="SupportButton" Click="Support_Click" Style="{StaticResource ActionButton}" Background="#20121C" Width="34" Height="32" Padding="7" ToolTip="{Binding [L753], Source={x:Static local:Localization.Current}}" AutomationProperties.Name="{Binding [L754], Source={x:Static local:Localization.Current}}">
-                            <Path Width="18" Height="18" Stretch="Uniform" Data="M 3,11 V 9 A 7,7 0 0 1 17,9 V 13 A 4,4 0 0 1 13,17 H 10 M 3,9 H 5 V 14 H 3 Z M 15,9 H 17 V 14 H 15 Z" Stroke="#D9B675" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                        <Button x:Name="SupportButton" Click="Support_Click" Style="{StaticResource ActionButton}" Background="{DynamicResource CardBackground}" Width="34" Height="32" Padding="7" ToolTip="{Binding [L753], Source={x:Static local:Localization.Current}}" AutomationProperties.Name="{Binding [L754], Source={x:Static local:Localization.Current}}">
+                            <Path Width="18" Height="18" Stretch="Uniform" Data="M 3,11 V 9 A 7,7 0 0 1 17,9 V 13 A 4,4 0 0 1 13,17 H 10 M 3,9 H 5 V 14 H 3 Z M 15,9 H 17 V 14 H 15 Z" Stroke="{DynamicResource Accent}" StrokeThickness="1.5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
                         </Button>
                         </StackPanel>
                     </StackPanel>
                 </Border>
             </Grid>
         </Border>
-        <Border x:Name="PingWarning" Grid.ColumnSpan="2" Visibility="Collapsed" Panel.ZIndex="20" Background="#302C2B" BorderBrush="#60472C" BorderThickness="1" CornerRadius="8" Padding="16,14" Margin="20,0,20,20" MaxWidth="520" HorizontalAlignment="Center" VerticalAlignment="Bottom" IsHitTestVisible="False">
+        <Border x:Name="PingWarning" Grid.ColumnSpan="2" Visibility="Collapsed" Panel.ZIndex="20" Background="{DynamicResource AccentSoftBackground}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1" CornerRadius="8" Padding="16,14" Margin="20,0,20,20" MaxWidth="520" HorizontalAlignment="Center" VerticalAlignment="Bottom" IsHitTestVisible="False">
             <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/></Grid.ColumnDefinitions>
-                <Grid Width="22" Height="22" VerticalAlignment="Center" Margin="0,0,14,0"><Path Data="M 11,1 L 21,20 L 1,20 Z" Fill="#FFC400"/><TextBlock Text="!" Foreground="#302C2B" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,3,0,0"/></Grid>
-                <TextBlock x:Name="PingWarningText" Grid.Column="1" Foreground="#F5ECE3" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center"/>
+                <Grid Width="22" Height="22" VerticalAlignment="Center" Margin="0,0,14,0"><Path Data="M 11,1 L 21,20 L 1,20 Z" Fill="#FFC400"/><TextBlock Text="!" Foreground="{DynamicResource AccentSoftBackground}" FontWeight="Bold" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,3,0,0"/></Grid>
+                <TextBlock x:Name="PingWarningText" Grid.Column="1" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center" TextAlignment="Center"/>
             </Grid>
         </Border>
-        <Border x:Name="UpdateBanner" Grid.Column="1" Visibility="Collapsed" Panel.ZIndex="21" MaxWidth="440" Margin="16,50,16,16" HorizontalAlignment="Right" VerticalAlignment="Top" Background="#24141F" BorderBrush="#60422E" BorderThickness="1" CornerRadius="12" Padding="14">
+        <Border x:Name="UpdateBanner" Grid.Column="1" Visibility="Collapsed" Panel.ZIndex="21" MaxWidth="440" Margin="16,50,16,16" HorizontalAlignment="Right" VerticalAlignment="Top" Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1" CornerRadius="12" Padding="14">
             <Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <StackPanel Margin="0,0,12,0">
-                    <TextBlock x:Name="UpdateBannerTitle" Text="{Binding [L197], Source={x:Static local:Localization.Current}}" Foreground="#F1D6A5" FontWeight="SemiBold" FontSize="14" TextWrapping="Wrap"/>
-                    <TextBlock x:Name="UpdateBannerDetail" Foreground="#B79B83" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,10"/>
+                    <TextBlock x:Name="UpdateBannerTitle" Text="{Binding [L197], Source={x:Static local:Localization.Current}}" Foreground="{DynamicResource TextPrimary}" FontWeight="SemiBold" FontSize="14" TextWrapping="Wrap"/>
+                    <TextBlock x:Name="UpdateBannerDetail" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,6,0,10"/>
                     <Button x:Name="InstallUpdateButton" Content="{Binding [L047], Source={x:Static local:Localization.Current}}" Click="InstallUpdate_Click" Style="{StaticResource ActionButton}" HorizontalAlignment="Left"/>
                 </StackPanel>
                 <Button x:Name="DismissUpdateButton" Grid.Column="1" Content="×" Width="28" Height="28" Padding="0" VerticalAlignment="Top" Click="DismissUpdate_Click" Style="{StaticResource ActionButton}" ToolTip="{Binding [L198], Source={x:Static local:Localization.Current}}" AutomationProperties.Name="{Binding [L199], Source={x:Static local:Localization.Current}}"/>
             </Grid>
         </Border>
-        <Grid x:Name="ActionOverlay" Grid.ColumnSpan="2" Visibility="Collapsed" Background="#C0080308" Panel.ZIndex="30" PreviewKeyDown="ActionOverlay_KeyDown">
-            <Border MaxWidth="720" MaxHeight="620" Margin="24" Padding="22" CornerRadius="16" Background="#190E17" BorderBrush="#51333F" BorderThickness="1" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="Cycle">
+        <Grid x:Name="ActionOverlay" Grid.ColumnSpan="2" Visibility="Collapsed" Background="{DynamicResource OverlayScrim}" Panel.ZIndex="30" PreviewKeyDown="ActionOverlay_KeyDown">
+            <Border MaxWidth="720" MaxHeight="620" Margin="24" Padding="22" CornerRadius="16" Background="{DynamicResource CardBackground}" BorderBrush="{DynamicResource BorderSubtle}" BorderThickness="1" VerticalAlignment="Center" KeyboardNavigation.TabNavigation="Cycle">
                 <Grid><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                    <TextBlock x:Name="DialogTitle" Text="{Binding [L200], Source={x:Static local:Localization.Current}}" FontSize="22" FontWeight="SemiBold" Foreground="#F1D6A5" TextWrapping="Wrap"/>
-                    <TextBlock x:Name="DialogDescription" Grid.Row="1" Foreground="#B79B83" FontSize="12" TextWrapping="Wrap" Margin="0,10,0,16"/>
+                    <TextBlock x:Name="DialogTitle" Text="{Binding [L200], Source={x:Static local:Localization.Current}}" FontSize="22" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}" TextWrapping="Wrap"/>
+                    <TextBlock x:Name="DialogDescription" Grid.Row="1" Foreground="{DynamicResource TextSecondary}" FontSize="12" TextWrapping="Wrap" Margin="0,10,0,16"/>
                     <Grid x:Name="EditorPanel" Grid.Row="2" Visibility="Collapsed"><TextBox x:Name="ConfigurationEditor" MinHeight="150" AcceptsReturn="True" AcceptsTab="True" FontFamily="Consolas" FontSize="12" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" AutomationProperties.Name="{Binding [L201], Source={x:Static local:Localization.Current}}"/></Grid>
                     <Grid x:Name="ProcessPickerPanel" Grid.Row="2" Visibility="Collapsed">
                         <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
                         <TextBox x:Name="ProcessSearchText" AutomationProperties.HelpText="{Binding [L202], Source={x:Static local:Localization.Current}}" TextChanged="ProcessSearch_TextChanged" Margin="0,0,0,12"/>
                         <ListBox x:Name="ProcessPickerList" Grid.Row="1" MinHeight="160" MaxHeight="360" Background="Transparent">
-                            <ListBox.ItemTemplate><DataTemplate><CheckBox IsChecked="{Binding Selected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="0"><CheckBox.Content><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition/></Grid.ColumnDefinitions><Image Source="{Binding Icon}" Width="28" Height="28" Margin="0,0,12,0" IsHitTestVisible="False"/><StackPanel Grid.Column="1"><TextBlock Text="{Binding Name}" Foreground="#F1D6A5" FontSize="13" TextTrimming="CharacterEllipsis"/><TextBlock Text="{local:Translate Path=Detail}" Foreground="#947765" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="500" Margin="0,4,0,0"/></StackPanel></Grid></CheckBox.Content></CheckBox></DataTemplate></ListBox.ItemTemplate>
+                            <ListBox.ItemTemplate><DataTemplate><CheckBox IsChecked="{Binding Selected,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" Margin="0"><CheckBox.Content><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="40"/><ColumnDefinition/></Grid.ColumnDefinitions><Image Source="{Binding Icon}" Width="28" Height="28" Margin="0,0,12,0" IsHitTestVisible="False"/><StackPanel Grid.Column="1"><TextBlock Text="{Binding Name}" Foreground="{DynamicResource TextPrimary}" FontSize="13" TextTrimming="CharacterEllipsis"/><TextBlock Text="{local:Translate Path=Detail}" Foreground="{DynamicResource TextSecondary}" FontSize="10" TextTrimming="CharacterEllipsis" MaxWidth="500" Margin="0,4,0,0"/></StackPanel></Grid></CheckBox.Content></CheckBox></DataTemplate></ListBox.ItemTemplate>
                         </ListBox>
                     </Grid>
-                    <TextBlock x:Name="DialogError" Grid.Row="3" Foreground="#FF9EAA" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,0"/>
+                    <TextBlock x:Name="DialogError" Grid.Row="3" Foreground="{DynamicResource DangerForeground}" FontSize="12" TextWrapping="Wrap" Margin="0,12,0,0"/>
                     <WrapPanel Grid.Row="4" HorizontalAlignment="Right" Margin="0,16,0,0"><Button x:Name="DialogCancel" Content="{Binding [L203], Source={x:Static local:Localization.Current}}" Click="DialogCancel_Click" Style="{StaticResource ActionButton}" Margin="0,0,8,6"/><Button x:Name="DialogPrimary" Content="{Binding [L204], Source={x:Static local:Localization.Current}}" Click="DialogPrimary_Click" Style="{StaticResource ActionButton}" Margin="0,0,0,6"/></WrapPanel>
                 </Grid>
             </Border>

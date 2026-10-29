@@ -50,6 +50,8 @@ internal sealed class XraySession : IVpnSession
         listener.Start();
         request = new EngineRequest { Profile = profile, Mtu = mtu, EnableTun = enableTun, Diagnostics = diagnostics,
             Routing = routing?.Copy() ?? new AppSettings(), ProbePort = ((IPEndPoint)listener.LocalEndpoint).Port };
+        // Saved presets belong to the editor; only the selected live rules travel to the helper.
+        request.Routing.RoutingPresets.Clear();
         request.EnableSystemProxy = !enableTun && !diagnostics && request.Routing.ConnectionMode == "proxy";
         request.UseHiddifyCore = request.Routing.UseHiddifyCore && !diagnostics && (enableTun || request.EnableSystemProxy);
         if (request.UseHiddifyCore) await Task.Run(() => HiddifyCore.EnsureInstalled(), cancellationToken);
@@ -61,9 +63,12 @@ internal sealed class XraySession : IVpnSession
         listener.Stop();
         VerificationStage = "Разрешение адреса сервера";
         var addresses = await Dns.GetHostAddressesAsync(profile.Address, cancellationToken);
-        request.EndpointAddress = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)?.ToString() ?? addresses.FirstOrDefault()?.ToString()
-            ?? throw new IOException("Не найден сетевой адрес сервера.");
-        request.UpstreamInterface = SelectUpstreamInterface();
+        VerificationStage = "Выбор сетевого адреса сервера";
+        var tcpTransport = profile.Protocol.ToLowerInvariant() is not ("hysteria" or "hysteria2" or "hy2");
+        request.EndpointAddress = tcpTransport ? (await ServerEndpointSelector.SelectAsync(addresses, profile.Port, cancellationToken)).ToString()
+            : addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)?.ToString() ?? addresses.FirstOrDefault()?.ToString()
+                ?? throw new IOException("Не найден сетевой адрес сервера.");
+        request.UpstreamInterface = SelectUpstreamInterface(IPAddress.Parse(request.EndpointAddress));
         _ = XrayConfiguration.Build(request.UseHiddifyCore ? HiddifyCore.WorkerRequest(request) : request); // Validate before UAC.
         if (request.UseHiddifyCore) _ = HiddifyCore.Build(request);
         await StartHostAsync(request, elevate, cancellationToken);
@@ -214,7 +219,10 @@ internal sealed class XraySession : IVpnSession
         return TrafficMeter.Parse(json);
     }
 
-    internal static bool HasTunRoute() => HasTunRoute(IPAddress.Parse("1.1.1.1"));
+    internal static bool HasTunRoute() => HasTunRoutes(Socket.OSSupportsIPv6, HasTunRoute);
+    // An IPv4-only route must not turn a dual-stack TUN green while IPv6 still escapes elsewhere.
+    internal static bool HasTunRoutes(bool ipv6Enabled, Func<IPAddress, bool> route) =>
+        route(IPAddress.Parse("1.1.1.1")) && (!ipv6Enabled || route(IPAddress.Parse("2606:4700:4700::1111")));
     internal static bool HasTunRoute(IPAddress destination)
     {
         try
@@ -230,17 +238,32 @@ internal sealed class XraySession : IVpnSession
         catch (NetworkInformationException) { return false; }
     }
 
-    internal static string SelectUpstreamInterface()
+    internal static string SelectUpstreamInterface(IPAddress? destination = null)
     {
         // A running third-party TUN may itself own the default route. Bind to an
         // active hardware connection so VPN4ik does not depend on that other VPN.
+        destination ??= IPAddress.Parse("1.1.1.1");
         var physical = NetworkInterface.GetAllNetworkInterfaces()
             .Where(a => a.OperationalStatus == OperationalStatus.Up &&
                 a.NetworkInterfaceType is NetworkInterfaceType.Ethernet or NetworkInterfaceType.Wireless80211 &&
                 !System.Text.RegularExpressions.Regex.IsMatch(a.Description + " " + a.Name, "(?i)wintun|wireguard|radmin|\\bVPN\\b|\\bTAP\\b|\\bTUN\\b|Hyper-V Virtual") &&
-                a.GetIPProperties().GatewayAddresses.Any(g => g.Address.AddressFamily == AddressFamily.InterNetwork && !g.Address.Equals(IPAddress.Any)))
-            .OrderByDescending(a => a.Speed).FirstOrDefault();
-        return physical?.Name ?? "auto";
+                a.GetIPProperties().GatewayAddresses.Any(g => g.Address.AddressFamily == destination.AddressFamily &&
+                    !g.Address.Equals(IPAddress.Any) && !g.Address.Equals(IPAddress.IPv6Any)))
+            .Select(a => (a.Name, Index: (uint?)(destination.AddressFamily == AddressFamily.InterNetwork
+                ? a.GetIPProperties().GetIPv4Properties()?.Index : a.GetIPProperties().GetIPv6Properties()?.Index), a.Speed))
+            .Where(a => a.Index.HasValue).Select(a => (a.Name, Index: a.Index!.Value, a.Speed)).ToArray();
+        var serialized = new IPEndPoint(destination, 0).Serialize();
+        var address = new byte[serialized.Size]; for (var i = 0; i < address.Length; i++) address[i] = serialized[i];
+        uint? preferred = GetBestInterfaceEx(address, out var best) == 0 ? best : null;
+        return ChooseUpstreamInterface(physical, preferred);
+    }
+
+    internal static string ChooseUpstreamInterface(IEnumerable<(string Name, uint Index, long Speed)> physical, uint? preferred)
+    {
+        var candidates = physical.ToArray();
+        // Respect Windows' selected physical route before link speed. Never select a third-party TUN.
+        return candidates.FirstOrDefault(a => a.Index == preferred).Name ??
+            candidates.OrderByDescending(a => a.Speed).FirstOrDefault().Name ?? "auto";
     }
 
     internal static object RouteDiagnostic()
@@ -248,7 +271,15 @@ internal sealed class XraySession : IVpnSession
         var address = new byte[16]; address[0] = 2; IPAddress.Parse("1.1.1.1").GetAddressBytes().CopyTo(address, 4);
         var error = GetBestInterfaceEx(address, out var index);
         return new { BestInterface = index, Error = error, Adapters = NetworkInterface.GetAllNetworkInterfaces()
-            .Select(a => new { a.Name, Status = a.OperationalStatus.ToString(), Index = a.GetIPProperties().GetIPv4Properties()?.Index }).ToArray() };
+            .Select(a => new { a.Name, Status = a.OperationalStatus.ToString(), Index = ReadInterfaceIndex(() => a.GetIPProperties().GetIPv4Properties()?.Index) }).ToArray() };
+    }
+
+    internal static int? ReadInterfaceIndex(Func<int?> read)
+    {
+        // Disabled/IPv6-only adapters can throw WSAEPROTONOSUPPORT on Windows.
+        // A diagnostic must retain the other interfaces instead of masking the original connection error.
+        try { return read(); }
+        catch (NetworkInformationException) { return null; }
     }
 
     internal async Task StopAsync()

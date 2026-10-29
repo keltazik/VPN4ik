@@ -114,7 +114,7 @@ internal static class HiddifyCore
         if(request.EnableTun) inbounds.Add(new JsonObject {
             ["type"]="tun",["tag"]="vpn4ik-tun",["interface_name"]=XrayConfiguration.InterfaceName,
             ["address"]=new JsonArray("172.19.0.1/28","fdfe:dcba:9876::1/126"),
-            ["mtu"]=request.Mtu,["auto_route"]=true,["strict_route"]=true,["stack"]="mixed" });
+            ["mtu"]=request.Mtu,["auto_route"]=true,["strict_route"]=true,["stack"]="gvisor" });
         if(request.HttpProxyPort>0) inbounds.Add(new JsonObject {
             ["type"]="http",["tag"]="vpn4ik-system-proxy",["listen"]="127.0.0.1",["listen_port"]=request.HttpProxyPort });
         var direct=new JsonObject { ["type"]="direct",["tag"]="direct" };
@@ -123,9 +123,17 @@ internal static class HiddifyCore
             ["type"]="socks",["tag"]="proxy",["server"]="127.0.0.1",["server_port"]=request.ProbePort,
             ["version"]="5",["username"]=request.ProbeUser,["password"]=request.ProbePassword },direct);
         var rules=new JsonArray(new JsonObject { ["domain"]=new JsonArray("localhost"),["action"]="resolve",["server"]="vpn4ik-localhost",["strategy"]="prefer_ipv4" },
-            new JsonObject { ["action"]="sniff" },
             new JsonObject { ["protocol"]="dns",["action"]="hijack-dns" },
             new JsonObject { ["port"]=53,["action"]="hijack-dns" });
+        if(settings.SniffDomains) rules.Insert(1,new JsonObject { ["action"]="sniff" });
+        var ipv4Fallback=request.EnableTun && !request.TunIpv6Available && !settings.SplitTunnelEnabled && !settings.BypassLocalNetwork;
+        if(ipv4Fallback)
+        {
+            // Reject before sniffing accepts the TCP handshake: cached AAAA/DoH answers must also
+            // fall back to IPv4. Keep the IPv6 TUN route so rejected traffic cannot escape directly.
+            rules.Insert(0,new JsonObject { ["ip_version"]=6,["action"]="reject",["method"]="default",["no_drop"]=true });
+            rules.Insert(0,new JsonObject { ["port"]=53,["action"]="hijack-dns" });
+        }
         if(settings.BypassLocalNetwork) rules.Add(new JsonObject { ["ip_is_private"]=true,["outbound"]="direct" });
         var target=settings.SplitTunnelMode=="Include" ? "proxy" : "direct";
         if(settings.SplitTunnelEnabled)
@@ -168,7 +176,7 @@ internal static class HiddifyCore
             ["experimental"]=new JsonObject { ["monitoring"]=new JsonObject {
                 ["urls"]=new JsonArray("http://127.0.0.1:1/"),["url_test_timeout"]="1ns",["interval"]="8760h",["idle_timeout"]="8760h",["workers"]=1 } },
             ["inbounds"]=inbounds,["outbounds"]=outbounds,["route"]=route,
-            ["dns"]=new JsonObject { ["servers"]=dnsServers,["final"]="vpn4ik-dns",["strategy"]="prefer_ipv4",["independent_cache"]=true,
+            ["dns"]=new JsonObject { ["servers"]=dnsServers,["final"]="vpn4ik-dns",["strategy"]=ipv4Fallback?"ipv4_only":"prefer_ipv4",["independent_cache"]=true,
                 ["rules"]=new JsonArray(new JsonObject { ["domain"]=new JsonArray("localhost"),["server"]="vpn4ik-localhost" }) }
         }.ToJsonString();
     }

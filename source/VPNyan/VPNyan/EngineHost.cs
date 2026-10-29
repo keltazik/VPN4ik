@@ -112,6 +112,13 @@ internal static class EngineHost
             if (tunnelConfig != null)
             {
                 await SystemProxyLease.WaitForListenerAsync(request.ProbePort, connectTimeout.Token);
+                if (request.EnableTun && !request.Routing.SplitTunnelEnabled && !request.Routing.BypassLocalNetwork)
+                {
+                    request.TunIpv6Available = await TunnelIpv6Probe.CheckAsync(request, connectTimeout.Token);
+                    if (!request.TunIpv6Available)
+                        await Send("log", "IPv6 через выбранный сервер не подтверждён. TUN использует IPv4 для DNS и отклоняет IPv6 до установления соединения, чтобы браузер мог перейти на IPv4.");
+                    tunnelConfig = HiddifyCore.Build(request);
+                }
                 tunnel = HiddifyCore.CreateProcess();
                 if (!tunnel.Start()) throw new InvalidOperationException("Не удалось запустить VPN-службу.");
                 job.Assign(tunnel);

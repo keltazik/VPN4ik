@@ -41,6 +41,24 @@ internal static class Program
             }
             if (args is ["--provider-response", var response, var report])
                 return ProviderSubscriptionChecks.RunAsync(response, report).GetAwaiter().GetResult();
+            if (args is ["--verify-throughput", var throughputSource, var throughputReport, var throughputIndex] && int.TryParse(throughputIndex, out var throughputNumber))
+                return ThroughputChecks.RunAsync(throughputSource, throughputReport, throughputNumber).GetAwaiter().GetResult();
+            if (args is ["--verify-exit-routing", var exitReport, var expectedExit])
+                return ExitRoutingChecks.RunAsync(exitReport, expectedExit).GetAwaiter().GetResult();
+            if (args is ["--verify-endpoint-throughput", var endpointSource, var endpointReport, var endpointIndex] && int.TryParse(endpointIndex, out var endpointNumber))
+                return EndpointThroughputChecks.RunAsync(endpointSource, endpointReport, endpointNumber).GetAwaiter().GetResult();
+            if (args is ["--verify-live-servers", var savedSource, var savedReport, var networkPath])
+                return LiveServerChecks.RunAsync(savedSource,savedReport,networkPath).GetAwaiter().GetResult();
+            if (args is ["--check-profile-compatibility"])
+            {
+                ProfileCompatibilityChecks.Offline(Require);
+                Console.WriteLine($"PASS: {passed} profile compatibility checks."); return 0;
+            }
+            if (args is ["--native-profile-compatibility"])
+            {
+                var native=NativeProfileCompatibilityChecks.RunAsync().GetAwaiter().GetResult();
+                Console.WriteLine($"PASS: {native} native profile checks (loopback only)."); return 0;
+            }
             if (args.Contains("--native-routing"))
             {
                 var native = NativeRoutingChecks.RunAsync().GetAwaiter().GetResult();
@@ -50,6 +68,13 @@ internal static class Program
             // Caller must isolate APPDATA/LOCALAPPDATA before invoking this executable.
             var fixtures = Path.Combine(Environment.CurrentDirectory, ".checks-data");
             Directory.CreateDirectory(fixtures);
+            if(args.Contains("--settings-features"))
+            {
+                var settingsApp=new Application { ShutdownMode=ShutdownMode.OnExplicitShutdown };
+                settingsApp.Resources.MergedDictionaries.Add(new ResourceDictionary { Source=new Uri("/VPNyan;component/Theme.xaml",UriKind.Relative) });
+                settingsApp.Resources.MergedDictionaries.Add(new ResourceDictionary { Source=new Uri("/VPNyan;component/Ornament.xaml",UriKind.Relative) });
+                SettingsFeatureChecks.Run(fixtures,Require); Console.WriteLine($"PASS: {passed} settings checks."); return 0;
+            }
             CheckProfile(fixtures, "ipv4.conf", "Endpoint=192.0.2.1:51820", "192.0.2.1");
             CheckProfile(fixtures, "ipv6.conf", "Endpoint = [2001:db8::1]:51820 # comment", "2001:db8::1");
             CheckProfile(fixtures, "host.conf", "  endpoint\t= vpn.example.test:1234", "vpn.example.test");
@@ -73,6 +98,8 @@ internal static class Program
             CheckEngineConfiguration();
             CheckRoutingAndTraffic();
             HiddifyChecks.Offline(Require);
+            ServerEndpointChecks.RunAsync(Require).GetAwaiter().GetResult();
+            ProfileCompatibilityChecks.Offline(Require);
             CheckActivity(fixtures);
 
             // Load production resources without queuing App.OnStartup (mutex,
@@ -98,8 +125,10 @@ internal static class Program
             CheckOrnamentAnimation(window);
             CheckSections(window, fixtures);
             LocalizationChecks.Run(fixtures, Require);
+            SettingsFeatureChecks.Run(fixtures,Require);
             ManagementChecks.Run(fixtures, Require);
             ConnectionChecks.Run(fixtures, Require);
+            TunnelIpv6Checks.RunAsync(Require).GetAwaiter().GetResult();
             ModeChecks.Run(fixtures, Require);
             TrayChecks.Run(fixtures, Require);
             UpdateChecks.Run(fixtures, Require);
@@ -249,7 +278,7 @@ internal static class Program
         var track = (System.Windows.Controls.Primitives.Track)scrollBar.Template.FindName("PART_Track", scrollBar);
         track.Thumb.ApplyTemplate();
         var thumb = (Border)track.Thumb.Template.FindName("ThumbBorder", track.Thumb);
-        Require(thumb?.Background is SolidColorBrush brush && brush.Color == (Color)ColorConverter.ConvertFromString("#9B7448"), "Scrollbar uses the gold theme instead of the system template");
+        Require(thumb?.Background is SolidColorBrush brush && brush.Color == ((SolidColorBrush)window.FindResource("TextSecondary")).Color, "Scrollbar uses the selected theme instead of the system template");
         var bitmap = new RenderTargetBitmap((int)size.Width, (int)size.Height, 96, 96, PixelFormats.Pbgra32);
         bitmap.Render(root);
         var encoder = new PngBitmapEncoder();
@@ -326,7 +355,7 @@ internal static class Program
         Require(Math.Abs(glow.Opacity-pulse)>0.02 && glow.HasAnimatedProperties, "Connecting animates the ornament glow with a visible pulse");
         State(false,false,true); WaitForAnimation(280); var connectedGlow = glow.Opacity;
         State(true,false,true); State(false,false,true); WaitForAnimation(280);
-        Require(connectedGlow > 0.6 && Math.Abs(glow.Opacity-connectedGlow)<0.01, "Connected glow stays visible after the pointer leaves"); Snapshot("ornament-connected.png");
+        Require(connectedGlow>=0.5 && glow.Opacity>=0.5 && ((ScaleTransform)window.FindName("OrnamentPulseScale")).HasAnimatedProperties, "Connected glow and ornament keep their slow pulse after the pointer leaves"); Snapshot("ornament-connected.png");
         State(false,false,false); WaitForAnimation(280);
         Require(glow.Opacity == 0 && image.Effect == null, "Disconnect fades glow away without changing the sharp ornament layer");
     }
@@ -537,7 +566,8 @@ internal static class Program
                 Require(window.FindName("SaveSettingsButton") == null && AppSettings.LoadFromPath(Path.Combine(testDataDirectory, "settings.json")).TunMtu == 1400, "Valid MTU saves without a save button");
                 ((TextBox)window.FindName("MtuText")).Text = "14";
                 Require(AppSettings.LoadFromPath(Path.Combine(testDataDirectory, "settings.json")).TunMtu == 1400, "Incomplete MTU does not overwrite the last valid value");
-                foreach (var checkbox in Descendants((DependencyObject)window.FindName("SettingsPage")).OfType<CheckBox>())
+                foreach (var checkbox in Descendants((DependencyObject)window.FindName("SettingsPage")).OfType<CheckBox>()
+                    .Where(box => box.GetBindingExpression(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty) != null))
                 {
                     var property = checkbox.GetBindingExpression(System.Windows.Controls.Primitives.ToggleButton.IsCheckedProperty)!.ParentBinding.Path.Path;
                     var expected = checkbox.IsChecked != true;
@@ -567,11 +597,12 @@ internal static class Program
                     foreach (var size in new[] { new Size(1040, 740), new Size(760, 540) })
                     {
                         root.Measure(size); root.Arrange(new Rect(size)); root.UpdateLayout();
+                        ((ScrollViewer)window.FindName("SettingsScroller")).ScrollToBottom();PumpDispatcher();root.UpdateLayout();
                         var bitmap = new RenderTargetBitmap((int)size.Width, (int)size.Height, 96, 96, PixelFormats.Pbgra32); bitmap.Render(root);
                         var encoder = new PngBitmapEncoder(); encoder.Frames.Add(BitmapFrame.Create(bitmap));
                         using var output = File.Create(Path.Combine(fixtures, $"settings-{category}-{size.Width}x{size.Height}.png")); encoder.Save(output);
                         var status = (FrameworkElement)window.FindName("SettingsStatusText");
-                        Require(status.TransformToAncestor(root).TransformBounds(new Rect(status.RenderSize)).Bottom <= size.Height, category + " feedback stays visible at minimum size");
+                        Require(status.TransformToAncestor(root).TransformBounds(new Rect(status.RenderSize)).Bottom <= size.Height, category + " feedback is reachable at the bottom at minimum size");
                     }
                 }
                 window.ShowSettingsCategory("routing");
@@ -596,7 +627,10 @@ internal static class Program
             }
         }
         Click("SectionBackButton");
-        Require(((FrameworkElement)window.FindName("ContentGrid")).Visibility == Visibility.Visible, "Back returns to the server list");
+        Require(((FrameworkElement)window.FindName("LogsPage")).Visibility == Visibility.Visible, "Back returns one step from history to logs");
+        for(var step=0;step<30 && ((FrameworkElement)window.FindName("ContentGrid")).Visibility!=Visibility.Visible;step++) Click("SectionBackButton");
+        Require(((FrameworkElement)window.FindName("SettingsPage")).Visibility==Visibility.Visible && ((TextBlock)window.FindName("SectionTitle")).Text=="Настройки", "Repeated back from settings stops at their overview");
+        Click("ServersNavButton");
         toggle.IsChecked = false;
         Click("MenuToggleButton");
         WaitForAnimation(70);
@@ -606,7 +640,7 @@ internal static class Program
         toggle.IsChecked = false; Click("MenuToggleButton"); WaitForAnimation(300);
         Require(((ColumnDefinition)window.FindName("NavigationColumn")).Width.Value == 64 && ((FrameworkElement)window.FindName("NavigationRail")).Visibility == Visibility.Visible, "Collapsing labels keeps the navigation icons visible");
         var hoverKey = (DependencyPropertyKey)typeof(UIElement).GetField("IsMouseOverPropertyKey", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!.GetValue(null)!;
-        foreach (var (name, surface, expected) in new[] { ("CloseWindowButton", "Surface", "#C42B3A"), ("MinimizeButton", "Surface", "#392E39"), ("ImportSubscriptionButton", "ButtonBorder", "#352933") })
+        foreach (var (name, surface, expected) in new[] { ("CloseWindowButton", "Surface", "#C42B3A"), ("MinimizeButton", "Surface", "#352933"), ("ImportSubscriptionButton", "ButtonBorder", "#352933") })
         {
             var button = (Button)window.FindName(name);
             button.ApplyTemplate();

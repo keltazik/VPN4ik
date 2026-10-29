@@ -14,6 +14,7 @@ internal static class UpdateChecks
 {
     internal static void Run(string fixtures, Action<bool, string> check)
     {
+        check(ReleaseVersion.Parse(ApplicationUpdates.CurrentVersion)?.Preview.Length==0,"The prepared release uses a stable application version without beta identifiers");
         using (var self = System.Diagnostics.Process.GetCurrentProcess())
         {
             Reject(() => UpdateInstaller.WaitForParentAsync(self.Id, 0, TimeSpan.FromMilliseconds(50)).GetAwaiter().GetResult());

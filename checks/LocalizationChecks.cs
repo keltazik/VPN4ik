@@ -49,13 +49,14 @@ internal static class LocalizationChecks
             var footer = Find<StackPanel>("SettingsFooter");
             var general = Find<StackPanel>("GeneralSettings");
             var tray = Find<Expander>("TraySettingsExpander");
-            var notify = general.Children.OfType<CheckBox>().Single(c => (string)c.Content == "Показывать уведомления о подключении");
+            var windowsBehavior=(StackPanel)tray.Parent;
+            var notify = windowsBehavior.Children.OfType<CheckBox>().Single(c => (string)c.Content == "Показывать уведомления о подключении");
             var selectedName = "Настройки"; // Deliberately identical to a translatable UI label.
             var list = Find<ListBox>("ServerSelect");
             list.ItemsSource = new[] { new ServerItem { Name=selectedName } }; list.SelectedIndex=0;
-            require(general.Children.IndexOf(tray) == general.Children.IndexOf(notify) + 1,
+            require(windowsBehavior.Children.IndexOf(tray) == windowsBehavior.Children.IndexOf(notify) + 1,
                 "Tray settings follow connection notifications");
-            require(!IsAncestor(scroller, footer), "Reset footer is outside the settings scroll viewer");
+            require(IsAncestor(scroller, footer), "Reset follows settings content inside the scroll viewer");
             foreach (var language in new[] { "en", "hy", "ru" })
             {
                 selector.SelectedValue = language; Pump();
@@ -64,7 +65,7 @@ internal static class LocalizationChecks
                     "Support tooltip and accessible name are localized: " + language);
                 require(AppSettings.LoadFromPath(path).Language == language && locale.Language == language,
                     "Language changes and saves immediately: " + language);
-                require(Find<TextBlock>("SectionTitle").Text == Localization.T("Настройки") &&
+                require(Find<TextBlock>("SectionTitle").Text == Localization.T("Поведение Windows") &&
                     (string)reset.Content == Localization.T("Сбросить все данные VPN4ik") &&
                     (string)tray.Header == Localization.T("Скрывать в трей"), "Live titles and controls translated: " + language);
                 require((string)Find<MenuItem>("ContextPing").Header == Localization.T("Тест пинга"),
@@ -77,14 +78,15 @@ internal static class LocalizationChecks
                 require(Localization.T("Подписка обновлена: 12 серверов.").Contains("12") &&
                     (language == "ru" || !Regex.IsMatch(Localization.T("Подписка обновлена: 12 серверов."), "[А-Яа-я]")),
                     "Formatted messages retain values: " + language);
+                window.ShowSettingsCategory("overview");
                 foreach (var size in new[] { new Size(1040,740), new Size(760,540) })
                 {
                     Layout(root, size); scroller.ScrollToTop(); Pump(); Layout(root,size);
                     var before = reset.TransformToAncestor(root).TransformBounds(new Rect(reset.RenderSize));
                     scroller.ScrollToBottom(); Pump(); Layout(root,size);
                     var after = reset.TransformToAncestor(root).TransformBounds(new Rect(reset.RenderSize));
-                    require(Math.Abs(before.Y-after.Y) < 1 && after.Bottom <= size.Height && after.Height >= 30,
-                        "Reset stays pinned and reachable: " + language + " " + size);
+                    require(after.Bottom<=size.Height && after.Height>=30 && (scroller.ScrollableHeight<1 || before.Y>after.Y+1),
+                        "Reset scrolls with settings and is reachable at the bottom: " + language + " " + size);
                     scroller.ScrollToTop(); Pump(); Layout(root,size);
                     var bitmap = new RenderTargetBitmap((int)size.Width,(int)size.Height,96,96,PixelFormats.Pbgra32);
                     bitmap.Render(root);
@@ -92,7 +94,7 @@ internal static class LocalizationChecks
                     using var output = File.Create(Path.Combine(fixtures, $"settings-{language}-{size.Width}.png")); encoder.Save(output);
                 }
                 window.ShowSettingsCategory("connection");
-                require(footer.Visibility == Visibility.Collapsed, "Reset is only shown on General: " + language);
+                require(reset.Visibility == Visibility.Collapsed, "Reset is absent from settings subsections: " + language);
                 window.ShowSettingsCategory("general");
             }
             locale.Apply("en"); Pump();
@@ -160,7 +162,7 @@ internal static class LocalizationChecks
     }
     private static bool IsAncestor(DependencyObject ancestor, DependencyObject node)
     {
-        for (var parent=VisualTreeHelper.GetParent(node); parent!=null; parent=VisualTreeHelper.GetParent(parent)) if(parent==ancestor) return true;
+        for (var parent=LogicalTreeHelper.GetParent(node)??VisualTreeHelper.GetParent(node); parent!=null; parent=LogicalTreeHelper.GetParent(parent)??(parent is Visual?VisualTreeHelper.GetParent(parent):null)) if(parent==ancestor) return true;
         return false;
     }
     private static void Layout(FrameworkElement root, Size size) { root.Measure(size); root.Arrange(new Rect(size)); root.UpdateLayout(); }

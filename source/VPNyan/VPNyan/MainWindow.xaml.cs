@@ -178,13 +178,14 @@ namespace VPNyan
 
         public MainWindow() : this(true) { }
 
-        internal MainWindow(bool startMonitoring, string? dataDirectory = null, Func<IVpnSession>? connectionFactory = null, IZapretController? zapret = null, ITrayHost? tray = null)
+        internal MainWindow(bool startMonitoring, string? dataDirectory = null, Func<IVpnSession>? connectionFactory = null, IZapretController? zapret = null, ITrayHost? tray = null, bool connectOnLaunch = false)
         {
             sessionFactory = connectionFactory ?? (() => new XraySession());
             canCreateSession = startMonitoring || connectionFactory != null;
             settings = AppSettings.LoadFromPath(dataDirectory == null ? null : Path.Combine(dataDirectory, "settings.json"));
-            Localization.Current.Apply(settings.Language);
+            Localization.Current.Apply(settings.EffectiveLanguage);
             InitializeComponent();
+            InitializeSettingsPages();
             ApplyLanguage();
             UpdateOrnamentCache();
             Loaded += (_, _) => UpdateOrnamentCache();
@@ -228,6 +229,7 @@ namespace VPNyan
 
             InitializeUpdates();
             InitializeZapret();
+            InitializeSettingsBackground();
             if (startMonitoring)
             {
                 StartPingLoop();
@@ -237,7 +239,8 @@ namespace VPNyan
                 {
                     if (settings.StartMinimized) WindowState = WindowState.Minimized;
                     if (zapretInitialization != null) await zapretInitialization;
-                    if (settings.AutoConnect && !lifetime.IsCancellationRequested && !closeRequested) await Connect();
+                    if(settings.RefreshSubscriptionsOnStartup) await RefreshSubscriptionsAtStartupAsync();
+                    if ((settings.AutoConnect || connectOnLaunch) && !lifetime.IsCancellationRequested && !closeRequested) await Connect();
                 };
             }
         }
@@ -395,7 +398,7 @@ namespace VPNyan
             catch (OperationCanceledException) when (lifetime.IsCancellationRequested) { }
             catch
             { Localization.Set(SubscriptionStatusText, System.Windows.Controls.TextBlock.TextProperty, "Не удалось сохранить подписку. Прежние серверы сохранены."); }
-            finally { isImporting = false; UpdateServerControls(); }
+            finally { isImporting = false; UpdateServerControls(); FinishPendingClose(); }
         }
 
         internal void ApplySubscription(Subscription subscription)
@@ -628,23 +631,24 @@ namespace VPNyan
         private int ornamentGlowState = -1;
         private void UpdateOrnamentGlow()
         {
-            var state = isConnected ? 2 : isConnecting ? 1 : isMouseOverOrnament ? 3 : 0;
-            if (OrnamentGlow == null || ornamentGlowState == state) return;
-            ornamentGlowState = state;
-            var animation = new DoubleAnimation
+            UpdateConnectedServerCard();
+            var state=ContentGrid.Visibility!=Visibility.Visible || WindowState==WindowState.Minimized || settings.ConnectionVisual=="button"?0:isConnecting?1:isConnected?2:isMouseOverOrnament?3:0;
+            if(OrnamentGlow==null || ornamentGlowState==state)return;
+            ornamentGlowState=state;
+            OrnamentGlow.BeginAnimation(OpacityProperty,null);
+            OrnamentPulseScale.BeginAnimation(ScaleTransform.ScaleXProperty,null);
+            OrnamentPulseScale.BeginAnimation(ScaleTransform.ScaleYProperty,null);
+            OrnamentPulseScale.ScaleX=OrnamentPulseScale.ScaleY=1;
+            OrnamentGlow.Opacity=state==2?.78:state==1?.5:state==3?.55:settings.ConnectionVisual=="halo"?.28:0;
+            if(!SystemParameters.ClientAreaAnimation || state is not (1 or 2))return;
+            var seconds=state==1?1.1:2.8;
+            OrnamentGlow.BeginAnimation(OpacityProperty,new DoubleAnimation {From=state==1?.25:.5,To=.9,Duration=TimeSpan.FromSeconds(seconds),AutoReverse=true,RepeatBehavior=RepeatBehavior.Forever,EasingFunction=new SineEase {EasingMode=EasingMode.EaseInOut}});
+            if(state==2)
             {
-                To = state == 2 ? 0.8 : state == 3 ? 0.62 : 0,
-                Duration = TimeSpan.FromMilliseconds(240),
-                EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut }
-            };
-            if (state == 1)
-            {
-                animation.From = 0.3; animation.To = 0.75; animation.Duration = TimeSpan.FromMilliseconds(650);
-                animation.AutoReverse = true; animation.RepeatBehavior = RepeatBehavior.Forever;
+                var pulse=new DoubleAnimation {From=.99,To=1.025,Duration=TimeSpan.FromSeconds(seconds),AutoReverse=true,RepeatBehavior=RepeatBehavior.Forever,EasingFunction=new SineEase {EasingMode=EasingMode.EaseInOut}};
+                OrnamentPulseScale.BeginAnimation(ScaleTransform.ScaleXProperty,pulse);OrnamentPulseScale.BeginAnimation(ScaleTransform.ScaleYProperty,pulse);
             }
-            OrnamentGlow.BeginAnimation(OpacityProperty, animation);
         }
-
         void AnimateStatusColor(string toColor)
         {
             var brush = (StatusText.Foreground as SolidColorBrush)?.Clone() ?? new SolidColorBrush();

@@ -15,9 +15,20 @@ internal static class HiddifyChecks
     {
         var request=Request(); var config=JsonNode.Parse(HiddifyCore.Build(request))!;
         var tun=config["inbounds"]![0]!;
-        require((string?)tun["type"]=="tun" && (string?)tun["stack"]=="mixed" && (bool)tun["strict_route"]! && (bool)tun["auto_route"]!,
-            "Hiddify owns mixed-stack TUN with strict automatic routing");
+        require((string?)tun["type"]=="tun" && (string?)tun["stack"]=="gvisor" && (bool)tun["strict_route"]! && (bool)tun["auto_route"]!,
+            "Hiddify owns a gVisor TUN with strict automatic routing");
         require((string?)tun["interface_name"]==XrayConfiguration.InterfaceName && tun["address"]!.AsArray().Count==2,"Hiddify uses the application's verified interface name and dual-stack addresses");
+        request.TunIpv6Available=false;
+        var fallback=JsonNode.Parse(HiddifyCore.Build(request))!;
+        var fallbackRules=fallback["route"]!["rules"]!.AsArray();
+        require((string?)fallback["dns"]!["strategy"]=="ipv4_only" && (string?)fallbackRules[0]!["action"]=="hijack-dns" &&
+            (int)fallbackRules[1]!["ip_version"]! == 6 && (string?)fallbackRules[1]!["action"]=="reject" && (bool)fallbackRules[1]!["no_drop"]!,
+            "An IPv4-only server rejects IPv6 before sniffing/TCP acceptance, while its internal DNS remains reachable");
+        require(fallback["inbounds"]![0]!["address"]!.AsArray().Count==2 && (bool)fallback["inbounds"]![0]!["strict_route"]!,
+            "IPv4 fallback retains the IPv6 TUN route to prevent direct escape");
+        request.Routing.SplitTunnelEnabled=true;
+        require((string?)JsonNode.Parse(HiddifyCore.Build(request))!["dns"]!["strategy"]=="prefer_ipv4", "Fallback does not override user-defined split routing");
+        request.Routing.SplitTunnelEnabled=false;request.TunIpv6Available=true;
         require(config["experimental"]!["clash_api"]==null && config["ntp"]==null && config["route"]!["rule_set"]==null &&
             (string?)config["experimental"]!["monitoring"]!["urls"]![0]=="http://127.0.0.1:1/" &&
             (string?)config["experimental"]!["monitoring"]!["url_test_timeout"]=="1ns","Hiddify config disables implicit public URL tests and has no control API, external rules or NTP downloads");
@@ -53,11 +64,12 @@ internal static class HiddifyChecks
         using var deadline=new CancellationTokenSource(TimeSpan.FromSeconds(55)); var token=deadline.Token;
         await using var direct=new NativeRoutingChecks.TestHttpServer("direct",token);
         await using var selected=new NativeRoutingChecks.TestHttpServer("proxy",token);
-        foreach(var scenario in new[]{"all","all-bound-interface","bypass-ip","include-ip","include-miss","bypass-domain","bypass-process"})
+        foreach(var scenario in new[]{"all","all-no-sniff","all-bound-interface","bypass-ip","include-ip","include-miss","bypass-domain","bypass-process"})
         {
             var request=Request();request.ProbePort=Port();var frontPort=Port();
             if(scenario=="all-bound-interface") request.UpstreamInterface=XraySession.SelectUpstreamInterface();
-            request.Routing.SplitTunnelEnabled=scenario!="all";request.Routing.SplitTunnelMode=scenario.StartsWith("include")?"Include":"Bypass";
+            request.Routing.SniffDomains=scenario!="all-no-sniff";
+            request.Routing.SplitTunnelEnabled=!scenario.StartsWith("all");request.Routing.SplitTunnelMode=scenario.StartsWith("include")?"Include":"Bypass";
             if(scenario.EndsWith("ip")) request.Routing.SplitNetworks.Add("127.0.0.1");
             if(scenario.EndsWith("miss")) request.Routing.SplitNetworks.Add("192.0.2.0/24");
             if(scenario.EndsWith("domain")) request.Routing.SplitDomains.Add("localhost");
@@ -108,7 +120,10 @@ internal static class HiddifyChecks
         },stop.Token);
         try
         {
-            var request=Request();request.ProbePort=Port();var frontPort=Port();
+            var count=0;
+            foreach(var ipv6Available in new[]{true,false})
+            {
+            var request=Request();request.TunIpv6Available=ipv6Available;request.ProbePort=Port();var frontPort=Port();
             var native=JsonNode.Parse(HiddifyCore.Build(request))!;
             native["inbounds"]![0]=new JsonObject{["type"]="direct",["tag"]="vpn4ik-tun",["listen"]="127.0.0.1",["listen_port"]=frontPort,["override_address"]="127.0.0.1",["override_port"]=53};
             for(var i=0;i<2;i++) {native["dns"]!["servers"]![i]!["server"]="127.0.0.1";native["dns"]!["servers"]![i]!["server_port"]=i==0?Port():dnsPort;}
@@ -121,9 +136,12 @@ internal static class HiddifyChecks
                 var query=Convert.FromHexString("123401000001000000000000076578616d706c6503636f6d0000010001");query[^3]=(byte)type;
                 await udp.SendAsync(query,new IPEndPoint(IPAddress.Loopback,frontPort),token);
                 var response=await udp.ReceiveAsync(token).AsTask().WaitAsync(TimeSpan.FromSeconds(8),token);
-                if(response.Buffer.Length<12 || (response.Buffer[3]&15)!=0 || response.Buffer[7]!=1) throw new IOException("Hiddify DNS TCP fallback failed.");
+                var expected=type==28&&!ipv6Available?0:1;
+                if(response.Buffer.Length<12 || (response.Buffer[3]&15)!=0 || response.Buffer[7]!=expected) throw new IOException("Hiddify DNS TCP/IPv6 fallback failed.");
+                count++;
             }
-            return 2;
+            }
+            return count;
         }
         finally { stop.Cancel();dns.Stop();await serving; }
     }

@@ -25,12 +25,11 @@ public partial class MainWindow
 
     private static Subscription CopySubscription(Subscription source, IEnumerable<SubscriptionProfile>? profiles = null) => new()
     {
-        Url = source.Url, DisplayName = source.DisplayName, UpdatedAt = source.UpdatedAt, IgnoredRoutingLines = source.IgnoredRoutingLines,
+        Url = source.Url, DisplayName = source.DisplayName, ExpiresAt=source.ExpiresAt, UpdatedAt = source.UpdatedAt, IgnoredRoutingLines = source.IgnoredRoutingLines,
         DeletedProfileIds = new(source.DeletedProfileIds), Profiles = (profiles ?? source.Profiles).ToList()
     };
 
-    private static string SourceName(Subscription source) => !string.IsNullOrWhiteSpace(source.DisplayName) ? source.DisplayName
-        : Uri.TryCreate(source.Url, UriKind.Absolute, out var url) && url.Scheme == "https" ? url.Host : "Файл Xray";
+    private static string SourceName(Subscription source) => SubscriptionPresentation.Name(source);
 
     private void RefreshImportedSources()
     {
@@ -188,6 +187,8 @@ public partial class MainWindow
     {
         if (mode is not ("original" or "name" or "country" or "ping" or "protocol")) mode = "original";
         var view = (ListCollectionView)CollectionViewSource.GetDefaultView(servers);
+        if(view.GroupDescriptions.Count==0) view.GroupDescriptions.Add(new PropertyGroupDescription(nameof(ServerItem.SubscriptionUrl)));
+        InitializeSubscriptionGroups();
         var selected = ServerSelect.SelectedItem;
         var wasSuppressed = suppressSelectionSwitch;
         suppressSelectionSwitch = true;
@@ -220,7 +221,6 @@ public partial class MainWindow
         }
     }
 
-    private void SortServers_Click(object sender, RoutedEventArgs e) { SortServersMenu.PlacementTarget = SortServersButton; SortServersMenu.IsOpen = true; }
     private void SortMode_Click(object sender, RoutedEventArgs e) { if (sender is MenuItem { Tag: string mode }) ApplyServerSort(mode); }
     private void FinishPendingClose() { if (closeRequested) _ = Dispatcher.BeginInvoke(new Action(Close)); }
     private void ShowOperationError(Exception error)

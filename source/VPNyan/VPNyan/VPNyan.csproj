@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <Version>1.0.0-beta.10</Version>
+    <Version>1.0.0</Version>
     <Product>VPN4ik</Product>
     <ApplicationIcon>Assets\VPN4ik.ico</ApplicationIcon>
     <Nullable>enable</Nullable>
@@ -27,6 +27,8 @@
     <EmbeddedResource Include="Localization.json" LogicalName="VPNyan.Localization.json" />
     <EmbeddedResource Include="Resources\wireguard.exe" />
     <Resource Include="Assets\VPN4ik.ico" />
+    <Resource Include="Assets\Wordmarks\*\*.png;Assets\AboutMoccasins.png" />
+    <EmbeddedResource Include="OrnamentPalettes.json" LogicalName="VPNyan.OrnamentPalettes.json" />
   </ItemGroup>
 
   <ItemGroup>

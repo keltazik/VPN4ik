@@ -19,6 +19,7 @@ public sealed class SubscriptionProfile
 
 public sealed class Subscription
 {
+    public DateTimeOffset? ExpiresAt { get; set; }
     public string DisplayName { get; set; } = "";
     public List<string> DeletedProfileIds { get; set; } = new();
     public int IgnoredRoutingLines { get; set; }
@@ -249,6 +250,7 @@ internal sealed class SubscriptionClient : IDisposable
             }
             var parsed = SubscriptionParser.ParseDocument(Encoding.UTF8.GetString(buffer.ToArray()));
             return new Subscription { Url = source.AbsoluteUri, UpdatedAt = DateTime.UtcNow,
+                DisplayName=SubscriptionPresentation.Title(response.Headers),ExpiresAt=SubscriptionPresentation.Expiry(response.Headers),
                 Profiles = parsed.Profiles, IgnoredRoutingLines = parsed.IgnoredRoutingLines };
         }
         throw new InvalidDataException("Не удалось загрузить подписку.");

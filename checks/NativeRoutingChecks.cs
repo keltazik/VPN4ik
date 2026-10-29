@@ -85,7 +85,8 @@ internal static class NativeRoutingChecks
                 await Task.WhenAll(output, errors);
             }
         }
-        return assertions + await NativeDnsChecks.RunAsync() + await CheckHttpProxyAsync(direct.Port) + await HiddifyChecks.NativeAsync();
+        return assertions + await NativeDnsChecks.RunAsync() + await CheckHttpProxyAsync(direct.Port) + await HiddifyChecks.NativeAsync()
+            + await NativeProfileCompatibilityChecks.RunAsync();
     }
 
     private static async Task<int> CheckHttpProxyAsync(int targetPort)

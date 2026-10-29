@@ -1,0 +1,148 @@
+[
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\gold\\01-classic.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\gold\\01-classic.png",
+    "SHA256": "8B419DBE495E06204FA3BA985328EC03C932E36D8360A5F239341F9CA375F658"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\gold\\02-editorial.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\gold\\02-editorial.png",
+    "SHA256": "E4768A41DD6E6072EDD637E241C14E1E95DE19C94F4B7FB52BA406AA2BEDCF32"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\gold\\03-palatial.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\gold\\03-palatial.png",
+    "SHA256": "5139C0588FF95EAEF69735C9EF7601EC95F2D12153F7A8B2282EA981491236BE"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\gold\\04-modern.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\gold\\04-modern.png",
+    "SHA256": "F8BA32164F451AEF5EE5B4FCBEB93FBEFB1378926DF4486DF9F678A357FF3C1B"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\gold\\05-signature.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\gold\\05-signature.png",
+    "SHA256": "663BEDB5D868C4D7652C1C242275403F2DCE3C225CBAC3BA7B17E352C07AB44C"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\gold\\06-four.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\gold\\06-four.png",
+    "SHA256": "B7C72AA859A65D0143A7322935D5617EAEE944B0180D33D573172A807C0A904F"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\wine\\01-classic.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\wine\\01-classic.png",
+    "SHA256": "C3114BA4B11732DA4463972F35A94A44B612058150E6C74D1E9582BC1A3D865B"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\wine\\02-editorial.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\wine\\02-editorial.png",
+    "SHA256": "8C8235E1D56C28EE56062F560424E67174D5B688FB380ED16B55074FD896C39A"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\wine\\03-palatial.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\wine\\03-palatial.png",
+    "SHA256": "03F73D91FA4A06395B7AD052757852220A41DE84387D22FD0308C77F591893C2"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\wine\\04-modern.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\wine\\04-modern.png",
+    "SHA256": "01725C13D020692FF6544600EB8338B33CB626BC309BE5A643AA1DAD9BF85CF9"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\wine\\05-signature.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\wine\\05-signature.png",
+    "SHA256": "A34902D05B658306F43F4CCDA3302D8C8AE656A73132FC46F4241AA2698ED0CA"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\wine\\06-four.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\wine\\06-four.png",
+    "SHA256": "CB6204516F78FE27EF13682B3D1458E4FFA3A78A6F21600C18C1EFB14B21886C"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\night\\01-classic.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\night\\01-classic.png",
+    "SHA256": "ECE835E93F58B1A38D08A3884E1AD2AA7EA1EECB471860BAE809055F7AE37426"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\night\\02-editorial.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\night\\02-editorial.png",
+    "SHA256": "8B4598D54B25B36F3DA259A084406A5983988EE765D4D29E671487D8A769C334"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\night\\03-palatial.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\night\\03-palatial.png",
+    "SHA256": "A720EFB828E5FCF0419A2622A5087C73235519FEB397DFB31CD5FB6F928A90CC"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\night\\04-modern.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\night\\04-modern.png",
+    "SHA256": "3340DB7F95D90E214DDBD47B52C652700BB53787126356086B2CE952F9D59FC5"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\night\\05-signature.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\night\\05-signature.png",
+    "SHA256": "E355FCAA89714EA7B1A66ABE6BA7A81731C01F80F3274B9736142CA72FAE5E63"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\night\\06-four.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\night\\06-four.png",
+    "SHA256": "00D7B982989E48359B4912D937DF1DE902EA28EB5899D02A0B731DBCB088FB69"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\plum\\01-classic.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\plum\\01-classic.png",
+    "SHA256": "91673CB0B1F8C7BB764D080CECA8BF51C7262747B3F1E56F93A652DD163460A6"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\plum\\02-editorial.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\plum\\02-editorial.png",
+    "SHA256": "3AAABAE73ABAE12B3AA768B12210C1A9C874303292B9FC22A21621BB17975985"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\plum\\03-palatial.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\plum\\03-palatial.png",
+    "SHA256": "F34DBC905C06004451954BA7BD9BAD85DE51F4DA06F2FCCA86B350716BD6B18D"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\plum\\04-modern.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\plum\\04-modern.png",
+    "SHA256": "65B071B64BBDED1A1D3E23F14B8CE788874B353C570AFA99CF85CB1C32609DA7"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\plum\\05-signature.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\plum\\05-signature.png",
+    "SHA256": "C1D401595CDE8E630A32FB53158359FA8203D3DE7166CCB0CEC99E31E160B11A"
+  },
+  {
+    "Source": "artifacts\\design\\wordmark-themes-2026-10-29\\plum\\06-four.png",
+    "Target": "source\\VPNyan\\VPNyan\\Assets\\Wordmarks\\plum\\06-four.png",
+    "SHA256": "E27D6E2EFD761E45A39D0B769DC81F98919FE9218DC3E903510C15A387C049D0"
+  },
+  {
+    "Source": "artifacts/design/moccasins-2026-10-29/red-moccasins-stacked.png",
+    "Target": "source/VPNyan/VPNyan/Assets/AboutMoccasins.png",
+    "SHA256": "C5C15D744C8A4E72511691B65465BD0C849E2E519D5B527ABFC4C23BE6391D10"
+  },
+  {
+    "Source": "artifacts/design/ornament-themes-2026-10-29/Ornament-wine.xaml",
+    "Target": "OrnamentPalettes.json/wine",
+    "SHA256": "256C56ADB94ECF93A42E8DCD044FFC61A2F291FE284EADFE285C081277FEEA40",
+    "Fills": 6954,
+    "Colors": 6238
+  },
+  {
+    "Source": "artifacts/design/ornament-themes-2026-10-29/Ornament-night.xaml",
+    "Target": "OrnamentPalettes.json/night",
+    "SHA256": "31291FCDC1CA22F80F76596D3A2CF306F332812D4139938A16F63B6AAC84C97D",
+    "Fills": 6954,
+    "Colors": 6238
+  },
+  {
+    "Source": "artifacts/design/ornament-themes-2026-10-29/Ornament-plum.xaml",
+    "Target": "OrnamentPalettes.json/plum",
+    "SHA256": "DF725A6C878E6F272E31B25E6CF73580BBCE9FC515DC8B6E4FDF3F89777F3999",
+    "Fills": 6954,
+    "Colors": 6238
+  }
+]

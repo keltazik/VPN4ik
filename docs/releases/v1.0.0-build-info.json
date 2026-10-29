@@ -1,0 +1,19 @@
+{
+  "Version": "1.0.0",
+  "ProductVersion": "1.0.0+4198c52dd95c4ab8f392ef40e763ad9fd68bf8fd",
+  "SourceCommit": "4198c52dd95c4ab8f392ef40e763ad9fd68bf8fd",
+  "WorkingTreeDirty": true,
+  "SourceManifestSHA256": "d948fe9b974f87cf68971c6757b3d4c0dcd470449b698108271899679e12c634",
+  "ExecutableSHA256": "1a236920ae6880c42c2f9d993437783a34620fccc074e697edfea0afaa72a9be",
+  "Date": "2026-10-29",
+  "LocalChecks": 857,
+  "SettingsChecks": 201,
+  "PortableVerified": true,
+  "BundledDotNet": "8.0.31",
+  "NativePointerVerification": "Not run; requires user request",
+  "LiveVpnVerification": "Not run for this build; requires user request",
+  "Installed": false,
+  "Published": false,
+  "AssetProvenance": "Assets/DesignSources.json in source; approved design resources",
+  "Scope": "Stable version and all current source changes, including settings, themes, native menus, visual assets, performance and network fixes"
+}

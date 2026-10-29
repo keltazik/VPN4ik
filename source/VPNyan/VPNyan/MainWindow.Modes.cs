@@ -14,14 +14,12 @@ public partial class MainWindow
         XrayTunModeItem.IsChecked = settings.ConnectionMode != "proxy";
         LocalDnsMenuItem.IsChecked = settings.UseLocalDns;
         LocalDnsMenuItem.IsEnabled = settings.ConnectionMode == "tun";
+        UpdateConnectedServerCard();
     }
-    private void ConnectionMode_Click(object sender, RoutedEventArgs e)
+    private void ConnectionMode_Opened(object sender, RoutedEventArgs e)
     {
         UpdateConnectionModeUi();
         ProxyModeItem.IsEnabled = XrayTunModeItem.IsEnabled = !isConnecting && activeServer == null && !isSwitching && !isManagingData;
-        ConnectionModeMenu.PlacementTarget = ConnectionModeButton;
-        ConnectionModeMenu.Placement = PlacementMode.Top;
-        ConnectionModeMenu.IsOpen = true;
     }
     internal bool SetConnectionMode(string mode)
     {

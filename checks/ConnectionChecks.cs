@@ -43,6 +43,13 @@ internal static class ConnectionChecks
         }
         using(var probe=new ConnectionProbe(new Handler((_,_)=>Task.FromResult(Reply(HttpStatusCode.OK,"captive portal"))),connectivity,hedgeDelay:TimeSpan.Zero))
         {var rejected=false;try{await probe.CheckAsync(CancellationToken.None);}catch(HttpRequestException){rejected=true;}check(rejected,"The connectivity fallback requires the expected 204 status, not any successful HTML page");}
+        var independent=new[]{new Uri("https://cp.cloudflare.com/generate_204")};
+        foreach(var scenario in new[]{(HttpStatusCode.NoContent,"",true),(HttpStatusCode.NoContent,"unexpected body",false),(HttpStatusCode.OK,"captive login",false),(HttpStatusCode.Redirect,"",false)})
+        {
+            using var probe=new ConnectionProbe(new Handler((_,_)=>Task.FromResult(Reply(scenario.Item1,scenario.Item2))),independent,hedgeDelay:TimeSpan.Zero);
+            var accepted=false;try{accepted=await probe.CheckAsync(CancellationToken.None)=="";}catch(HttpRequestException){}
+            check(accepted==scenario.Item3,"Independent HTTPS fallback requires an empty 204 response, rejecting HTML, redirects and unexpected content without inventing an IP");
+        }
         using(var probe=new ConnectionProbe(new Handler(async(_,token)=>{await Task.Delay(Timeout.Infinite,token);return Reply(HttpStatusCode.OK,"");}),urls,TimeSpan.FromMilliseconds(25),TimeSpan.Zero))
         {var failed=false;try{await probe.CheckAsync(CancellationToken.None);}catch(HttpRequestException){failed=true;}check(failed,"All unreachable endpoints fail within the bounded attempt timeout");}
         using(var probe=new ConnectionProbe(new Handler(async(_,token)=>{await Task.Delay(Timeout.Infinite,token);return Reply(HttpStatusCode.OK,"");}),urls,hedgeDelay:TimeSpan.Zero))

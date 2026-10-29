@@ -294,7 +294,7 @@ public partial class MainWindow
         e.Cancel = true;
         base.OnClosing(e);
         if (!exitRequested && settings.CloseToTray && systemTray?.IsAvailable == true) { Hide(); return; }
-        if (isConnecting || isSwitching || isManagingData || isResetting || zapretBusy) { closeRequested = true; connectionCancellation?.Cancel(); zapretOperation?.Cancel(); if (installingUpdate) updateCancellation?.Cancel(); return; }
+        if (isConnecting || isSwitching || isManagingData || isResetting || isImporting || zapretBusy) { closeRequested = true; connectionCancellation?.Cancel(); zapretOperation?.Cancel(); if (installingUpdate) updateCancellation?.Cancel(); return; }
         closeRequested = false;
         if (pendingZapretLists.Count > 0) await SaveZapretListsAsync(false);
         var hadConnection = activeServer != null;
@@ -302,7 +302,7 @@ public partial class MainWindow
         if (activeServer != null) return;
         if (!hadConnection) await RestorePausedZapretAsync();
         lifetime.Cancel();
-        pingTimer?.Stop(); pingWarningTimer?.Stop(); trafficTimer?.Stop(); connectionTimer?.Stop(); updateTimer?.Stop(); zapretTimer?.Stop(); zapretSaveTimer?.Stop(); StopConnectingAnimation();
+        pingTimer?.Stop(); subscriptionUpdateTimer?.Stop(); pingWarningTimer?.Stop(); trafficTimer?.Stop(); connectionTimer?.Stop(); updateTimer?.Stop(); zapretTimer?.Stop(); zapretSaveTimer?.Stop(); StopConnectingAnimation();
         settings.Save(); systemTray?.Dispose();
         allowClose = true;
         _ = Dispatcher.BeginInvoke(new Action(Close));
@@ -310,6 +310,8 @@ public partial class MainWindow
 
     internal void ShowSection(string section)
     {
+        SectionBackButton.Visibility=Visibility.Visible;
+        RememberNavigation(section, section == "settings" ? settingsCategory : "overview");
         ServersNavButton.IsChecked = section == "home";
         ImportMenuButton.IsChecked = section == "import";
         SettingsMenuButton.IsChecked = section == "settings";
@@ -333,13 +335,21 @@ public partial class MainWindow
             LoadExtraSettings();
             Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, "");
             loadingSettings = false;
+            ShowSettingsCategory(settingsCategory);
         }
         if (section == "import") RefreshImportedSources();
         if (section == "zapret") { LoadZapretCompatibility(); _ = RefreshZapretAsync(); }
+        UpdateOrnamentGlow();
     }
     private void Home_Click(object sender, RoutedEventArgs e) => ShowSection("home");
+    private void Back_Click(object sender, RoutedEventArgs e) => NavigateBack();
     private void ImportMenu_Click(object sender, RoutedEventArgs e) => ShowSection("import");
-    private void Settings_Click(object sender, RoutedEventArgs e) => ShowSection("settings");
+    private void Settings_Click(object sender, RoutedEventArgs e)
+    {
+        settingsCategory="overview";
+        settingsHistory.Clear();
+        ShowSection("settings");
+    }
     private void History_Click(object sender, RoutedEventArgs e) => ShowSection("history");
     private void Logs_Click(object sender, RoutedEventArgs e) => ShowSection("logs");
     private void ClearLogs_Click(object sender, RoutedEventArgs e) => activity.ClearLogs();
@@ -372,13 +382,18 @@ public partial class MainWindow
         {
             RoutingSettings.Validate(draftSettings, requireRules: false);
             draftSettings.LastServer = settings.LastServer;
-            draftSettings.ConnectionMode = settings.ConnectionMode; draftSettings.UseLocalDns = settings.UseLocalDns;
+            draftSettings.ConnectionMode = settings.ConnectionMode;
             draftSettings.NavigationExpanded = MenuToggleButton.IsChecked == true;
             draftSettings.ZapretFolder = settings.ZapretFolder; draftSettings.ZapretStrategy = settings.ZapretStrategy;
             draftSettings.DisableZapretOnConnect = settings.DisableZapretOnConnect; draftSettings.RestoreZapretAfterVpn = settings.RestoreZapretAfterVpn;
             if (useBackground && startupChanged) SetAutoStart(draftSettings.StartWithWindows);
             draftSettings.SaveOrThrow();
             settings = draftSettings.Copy();
+            // AppSettings is a snapshot, not INotifyPropertyChanged. Refresh sibling controls bound to the same option.
+            loadingSettings=true;
+            try { draftSettings=settings.Copy(); SettingsPage.DataContext=draftSettings; }
+            finally { loadingSettings=false; }
+            ApplyLanguage(); UpdateConnectionModeUi(); RefreshExtendedSettings();
             if (activeServer == null) Localization.Set(SpeedText, System.Windows.Controls.TextBlock.TextProperty, "0 " + settings.TrafficUnit);
             if (pingTimer != null) pingTimer.Interval = TimeSpan.FromSeconds(settings.PingIntervalSeconds);
             if (disableAutoPing) latencyCancellation?.Cancel();
@@ -389,11 +404,19 @@ public partial class MainWindow
                 settings.SplitApplications.Count + settings.SplitDomains.Count + settings.SplitNetworks.Count == 0)
                 Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, "Сохранено. Для подключения добавь хотя бы одно правило маршрутизации.");
         }
-        catch (InvalidDataException ex) { Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, ex.Message); }
+        catch (InvalidDataException ex) { RestoreSettingsSnapshot(); Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, ex.Message); }
         catch
         {
             if (useBackground && startupChanged) { try { SetAutoStart(settings.StartWithWindows); } catch { } }
+            RestoreSettingsSnapshot();
             Localization.Set(SettingsStatusText, System.Windows.Controls.TextBlock.TextProperty, "Не удалось сохранить настройки или автозапуск Windows.");
         }
+    }
+
+    private void RestoreSettingsSnapshot()
+    {
+        loadingSettings=true;
+        try { draftSettings=settings.Copy(); SettingsPage.DataContext=draftSettings; RefreshExtendedSettings(); }
+        finally { loadingSettings=false; }
     }
 }

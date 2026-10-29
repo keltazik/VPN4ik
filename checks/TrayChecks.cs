@@ -27,6 +27,7 @@ internal static class TrayChecks
                 if(available)
                 {
                     window.ShowSection("settings");
+                    window.ShowSettingsCategory("general");
                     var minimize=(CheckBox)window.FindName("MinimizeToTrayBox");minimize.IsChecked=false;minimize.RaiseEvent(new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
                     var stored=AppSettings.LoadFromPath(Path.Combine(directory,"settings.json"));
                     check(!stored.MinimizeToTray&&stored.CloseToTray&&stored.Copy().CloseToTray,"Minimize and close-to-tray options are independent and save immediately");

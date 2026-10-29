@@ -14,6 +14,7 @@ internal sealed class EngineRequest
     public bool EnableSystemProxy { get; set; }
     public bool UseHiddifyCore { get; set; }
     public bool EnableUdpProbe { get; set; }
+    public bool TunIpv6Available { get; set; } = true;
     public int HttpProxyPort { get; set; }
     public string ProbeUser { get; set; } = Guid.NewGuid().ToString("N");
     public string ProbePassword { get; set; } = Guid.NewGuid().ToString("N");
@@ -77,13 +78,13 @@ internal static class XrayConfiguration
             {
                 ["tag"] = "vpn4ik-system-proxy", ["listen"] = "127.0.0.1", ["port"] = request.HttpProxyPort,
                 ["protocol"] = "http", ["settings"] = new JsonObject(),
-                ["sniffing"] = new JsonObject { ["enabled"] = true, ["destOverride"] = new JsonArray("http", "tls"), ["routeOnly"] = true }
+                ["sniffing"] = new JsonObject { ["enabled"] = request.Routing.SniffDomains, ["destOverride"] = new JsonArray("http", "tls"), ["routeOnly"] = true }
             });
         if (request.EnableTun)
             inbounds.Add(new JsonObject
             {
                 ["tag"] = "vpn4ik-tun", ["protocol"] = "tun",
-                ["sniffing"] = new JsonObject { ["enabled"] = request.Routing.SplitTunnelEnabled && request.Routing.SplitDomains.Count > 0,
+                ["sniffing"] = new JsonObject { ["enabled"] = request.Routing.SniffDomains && request.Routing.SplitTunnelEnabled && request.Routing.SplitDomains.Count > 0,
                     ["destOverride"] = new JsonArray("http", "tls", "quic"), ["routeOnly"] = true },
                 ["settings"] = new JsonObject
                 {
@@ -212,12 +213,28 @@ internal static class XrayConfiguration
         }
         var result = new JsonObject { ["protocol"] = protocol, ["settings"] = protocol == "hysteria" ? cleanEndpoint : new JsonObject { [listKey] = new JsonArray(cleanEndpoint) } };
         var stream = source["streamSettings"] as JsonObject ?? new JsonObject();
-        var network = stream["network"]?.GetValue<string>()?.ToLowerInvariant() ?? "tcp";
+        // Current Xray accepts method as the newer name and gives it precedence over network.
+        var network = (stream["method"] ?? stream["network"])?.GetValue<string>()?.ToLowerInvariant() ?? "tcp";
+        if (network == "websocket") network = "ws";
         if (network is not ("tcp" or "raw" or "grpc" or "ws" or "httpupgrade" or "xhttp" or "splithttp" or "hysteria"))
             throw new InvalidDataException("Этот транспорт подключения пока не поддерживается.");
         var security = stream["security"]?.GetValue<string>()?.ToLowerInvariant() ?? "none";
         if (security is not ("none" or "tls" or "reality")) throw new InvalidDataException("Неизвестный режим шифрования профиля.");
         var cleanStream = new JsonObject { ["network"] = network, ["security"] = security };
+        if (network is "tcp" or "raw")
+        {
+            var rawKey = stream["rawSettings"] != null ? "rawSettings" : "tcpSettings";
+            if (stream[rawKey] is JsonObject raw && raw["header"] != null)
+            {
+                var header = raw["header"] as JsonObject ?? throw new InvalidDataException("Некорректная маскировка TCP.");
+                var type = header["type"]?.GetValue<string>() ?? "none";
+                if (type is not ("none" or "http")) throw new InvalidDataException("Этот тип маскировки TCP не поддерживается.");
+                var cleanHeader = new JsonObject { ["type"] = type };
+                if (type == "http" && header["request"] is JsonObject request)
+                    cleanHeader["request"] = Copy(request, "version", "method", "path", "headers");
+                cleanStream[rawKey] = new JsonObject { ["header"] = cleanHeader };
+            }
+        }
         if (security == "tls")
         {
             var tls = stream["tlsSettings"] as JsonObject;
@@ -285,14 +302,22 @@ internal static class XrayConfiguration
             var vmess = JsonNode.Parse(Decode(link[8..]))!.AsObject();
             var rawPort = vmess["port"]?.ToString();
             if (!int.TryParse(rawPort, out var vmessPort)) throw new InvalidDataException("Некорректный порт VMess.");
+            if (!int.TryParse(vmess["aid"]?.ToString() ?? "0", out var alterId) || alterId < 0)
+                throw new InvalidDataException("Некорректный alterId VMess.");
+            RejectInsecure(vmess["allowInsecure"]?.ToString() ?? "");
+            RejectInsecure(vmess["insecure"]?.ToString() ?? "");
             var raw = new JsonObject { ["protocol"] = "vmess", ["settings"] = new JsonObject { ["vnext"] = new JsonArray(new JsonObject
                 { ["address"] = vmess["add"]?.DeepClone(), ["port"] = vmessPort, ["users"] = new JsonArray(new JsonObject
-                    { ["id"] = vmess["id"]?.DeepClone(), ["security"] = vmess["scy"]?.DeepClone() ?? JsonValue.Create("auto") }) }) } };
-            var net = vmess["net"]?.ToString() ?? "tcp";
+                    { ["id"] = vmess["id"]?.DeepClone(), ["alterId"] = alterId, ["security"] = vmess["scy"]?.DeepClone() ?? JsonValue.Create("auto") }) }) } };
+            var net = (vmess["net"]?.ToString() ?? "tcp").ToLowerInvariant();
             raw["streamSettings"] = new JsonObject { ["network"] = net, ["security"] = vmess["tls"]?.ToString() == "tls" ? "tls" : "none",
-                ["tlsSettings"] = new JsonObject { ["serverName"] = vmess["sni"]?.DeepClone(), ["fingerprint"] = "chrome" },
+                ["tlsSettings"] = new JsonObject { ["serverName"] = ShareServerName(vmess["sni"]?.ToString(), vmess["host"]?.ToString(), vmess["add"]?.ToString() ?? ""),
+                    ["fingerprint"] = vmess["fp"]?.DeepClone() ?? JsonValue.Create("chrome"), ["alpn"] = Alpn(vmess["alpn"]?.ToString()) },
                 ["wsSettings"] = new JsonObject { ["path"] = vmess["path"]?.DeepClone(), ["host"] = vmess["host"]?.DeepClone() },
-                ["grpcSettings"] = new JsonObject { ["serviceName"] = vmess["path"]?.DeepClone() } };
+                ["grpcSettings"] = new JsonObject { ["serviceName"] = vmess["path"]?.DeepClone(),
+                    ["authority"] = vmess["host"]?.DeepClone(), ["multiMode"] = vmess["type"]?.ToString() == "multi" } };
+            if (net is "tcp" or "raw") raw["streamSettings"]!["tcpSettings"] = new JsonObject {
+                ["header"] = TcpHeader(vmess["type"]?.ToString() ?? "none", vmess["host"]?.ToString() ?? "", vmess["path"]?.ToString() ?? "/") };
             return raw;
         }
         if (link.StartsWith("ss://", StringComparison.OrdinalIgnoreCase))
@@ -308,6 +333,8 @@ internal static class XrayConfiguration
             .GroupBy(p => Uri.UnescapeDataString(p[0])).ToDictionary(g => g.Key, g => Uri.UnescapeDataString(g.Last().Length == 2 ? g.Last()[1] : ""));
         string Q(string key, string fallback = "") => query.TryGetValue(key, out var value) ? value : fallback;
         var credentials = Uri.UnescapeDataString(uri.UserInfo);
+        RejectInsecure(Q("insecure"));
+        RejectInsecure(Q("allowInsecure"));
         if (protocol == "hysteria")
         {
             if (Q("insecure") is "1" or "true" || Q("allowInsecure") is "1" or "true")
@@ -343,15 +370,46 @@ internal static class XrayConfiguration
             settings["servers"] = new JsonArray(endpoint);
         }
         var security = Q("security", protocol == "trojan" ? "tls" : "none");
-        var network = Q("type", "tcp");
+        var network = Q("type", "tcp").ToLowerInvariant();
+        if (network is "xhttp" or "splithttp" && Q("extra") != "")
+            throw new InvalidDataException("Расширенные параметры XHTTP пока не поддерживаются.");
         return new JsonObject { ["protocol"] = protocol, ["settings"] = settings,
             ["streamSettings"] = new JsonObject { ["network"] = network, ["security"] = security,
-                ["tlsSettings"] = new JsonObject { ["serverName"] = Q("sni", uri.Host), ["fingerprint"] = Q("fp", "chrome"), ["alpn"] = new JsonArray(Q("alpn", "h2,http/1.1").Split(',').Select(v => (JsonNode)JsonValue.Create(v)!).ToArray()) },
+                ["tlsSettings"] = new JsonObject { ["serverName"] = ShareServerName(Q("sni"), Q("host", Q("authority")), uri.Host.Trim('[', ']')), ["fingerprint"] = Q("fp", "chrome"), ["alpn"] = Alpn(Q("alpn", "h2,http/1.1")) },
                 ["realitySettings"] = new JsonObject { ["serverName"] = Q("sni", uri.Host), ["fingerprint"] = Q("fp", "chrome"), ["publicKey"] = Q("pbk"), ["shortId"] = Q("sid"), ["spiderX"] = Q("spx", "/") },
                 ["grpcSettings"] = new JsonObject { ["serviceName"] = Q("serviceName"), ["authority"] = Q("authority"), ["multiMode"] = Q("mode") == "multi" },
+                ["tcpSettings"] = network is "tcp" or "raw" ? new JsonObject { ["header"] = TcpHeader(Q("headerType", "none"), Q("host"), Q("path", "/")) } : null,
                 ["wsSettings"] = new JsonObject { ["path"] = Q("path", "/"), ["host"] = Q("host") },
                 ["httpupgradeSettings"] = new JsonObject { ["path"] = Q("path", "/"), ["host"] = Q("host") },
                 ["xhttpSettings"] = new JsonObject { ["path"] = Q("path", "/"), ["host"] = Q("host"), ["mode"] = Q("mode", "auto") } } };
+    }
+
+    private static JsonArray? Alpn(string? value) => string.IsNullOrWhiteSpace(value) ? null :
+        new JsonArray(value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(v => (JsonNode)JsonValue.Create(v)!).ToArray());
+
+    private static string ShareServerName(string? sni, string? host, string address)
+    {
+        if (!string.IsNullOrWhiteSpace(sni)) return sni;
+        var front = host?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+        return front != null && Uri.CheckHostName(front) != UriHostNameType.Unknown ? front : address;
+    }
+
+    private static void RejectInsecure(string value)
+    {
+        if (value == "1" || value.Equals("true", StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("Профиль отключает проверку сертификата TLS. Нужна безопасная конфигурация сервера.");
+    }
+
+    private static JsonObject TcpHeader(string type, string host, string path)
+    {
+        if (string.IsNullOrWhiteSpace(type) || type == "none") return new JsonObject { ["type"] = "none" };
+        if (type != "http") throw new InvalidDataException("Этот тип маскировки TCP не поддерживается.");
+        var request = new JsonObject { ["path"] = new JsonArray(string.IsNullOrEmpty(path) ? "/" : path) };
+        if (!string.IsNullOrWhiteSpace(host)) request["headers"] = new JsonObject {
+            ["Host"] = new JsonArray(host.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(v => (JsonNode)JsonValue.Create(v)!).ToArray()) };
+        return new JsonObject { ["type"] = "http", ["request"] = request };
     }
 
     private static string Decode(string value)

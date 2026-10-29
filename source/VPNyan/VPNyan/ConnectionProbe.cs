@@ -14,7 +14,7 @@ internal sealed class ConnectionProbe : IDisposable
     internal static readonly Uri[] DefaultEndpoints =
     {
         new("https://api.ipify.org"), new("https://checkip.amazonaws.com"),
-        new("https://ipv4.icanhazip.com"), new("https://www.gstatic.com/generate_204")
+        new("https://ipv4.icanhazip.com"), new("https://www.gstatic.com/generate_204"), new("https://cp.cloudflare.com/generate_204")
     };
     internal ConnectionProbe(HttpMessageHandler handler, IReadOnlyList<Uri>? endpoints = null, TimeSpan? attemptTimeout = null, TimeSpan? hedgeDelay = null)
     {
@@ -50,8 +50,8 @@ internal sealed class ConnectionProbe : IDisposable
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token); timeout.CancelAfter(attemptTimeout);
             using var response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
             response.EnsureSuccessStatusCode();
-            // A 204 from our fixed HTTPS connectivity endpoint proves access without inventing an external IP.
-            if (uri.Host == "www.gstatic.com" && uri.AbsolutePath == "/generate_204")
+            // Independent fixed HTTPS 204 endpoints remain usable when a provider blocks IP services or Google.
+            if (uri.Host is "www.gstatic.com" or "cp.cloudflare.com" && uri.AbsolutePath == "/generate_204" && uri.Query == "")
                 return response.StatusCode == HttpStatusCode.NoContent && response.Content.Headers.ContentLength is null or 0 ? "" : null;
             if (response.Content.Headers.ContentLength > 128) return null;
             await using var input = await response.Content.ReadAsStreamAsync(timeout.Token);

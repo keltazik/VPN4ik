@@ -53,7 +53,7 @@ public partial class App : System.Windows.Application
             Shutdown(await EngineHost.RunAsync(pipe, parentId));
             return;
         }
-        if (e.Args.Length == 0)
+        if (e.Args.Length == 0 || e.Args is ["--connect"])
         {
             try { SystemProxyLease.RecoverAfterCrash(); }
             catch { /* Active helper owns the proxy, or recovery will be retried on the next proxy connection. */ }
@@ -115,7 +115,7 @@ public partial class App : System.Windows.Application
             Shutdown();
             return;
         }
-        MainWindow = new MainWindow();
+        MainWindow = new MainWindow(true, connectOnLaunch: e.Args is ["--connect"]);
         MainWindow.Show();
     }
 
